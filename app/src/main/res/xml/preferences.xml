@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        android:icon="@drawable/ic_currency"
+        android:title="@string/CURRENCY">
+        <ListPreference
+            android:defaultValue="@string/SETTINGS_CURRENCY_VALUE_DEFAULT"
+            android:entries="@array/SETTINGS_CURRENCY_ENTRIES"
+            android:entryValues="@array/SETTINGS_CURRENCY_VALUES"
+            android:key="prefCurrency"
+            android:title="@string/SETTINGS_CURRENCY"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:icon="@drawable/ic_trending_up"
+        android:title="@string/MARKET">
+        <ListPreference
+            android:defaultValue="@string/SETTINGS_FILTER_OPTION_VALUE_DEFAULT"
+            android:entries="@array/SETTINGS_FILTER_OPTION_ENTRIES"
+            android:entryValues="@array/SETTINGS_FILTER_OPTION_VALUES"
+            android:key="prefDefaultFilterOption"
+            android:title="@string/SETTINGS_FILTER_OPTION"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            android:defaultValue="@string/SETTINGS_FILTER_ORDER_VALUE_DEFAULT"
+            android:entries="@array/SETTINGS_FILTER_ORDER_ENTRIES"
+            android:entryValues="@array/SETTINGS_FILTER_ORDER_VALUES"
+            android:key="prefDefaultFilterOrder"
+            android:title="@string/SETTINGS_FILTER_ORDER"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            android:defaultValue="@string/SETTINGS_ITEMS_PAGE_VALUE_DEFAULT"
+            android:entries="@array/SETTINGS_ITEMS_PAGE_ENTRIES_VALUES"
+            android:entryValues="@array/SETTINGS_ITEMS_PAGE_ENTRIES_VALUES"
+            android:key="prefDefaultItemsPage"
+            android:title="@string/SETTINGS_ITEMS_PAGE"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:icon="@drawable/ic_dark_mode"
+        android:title="@string/COLOR_SCHEME">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="prefScheme"
+            android:summary="@string/SETTINGS_DARK_MODE_SUMMARY"
+            android:title="@string/SETTINGS_DARK_MODE" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:icon="@drawable/ic_info"
+        android:title="@string/ABOUT">
+        <Preference
+            android:key="prefAbout"
+            android:title="@string/SETTINGS_ABOUT" />
+        <Preference
+            android:key="prefCredits"
+            android:title="@string/SETTINGS_CREDITS" />
+    </PreferenceCategory>
+</PreferenceScreen>

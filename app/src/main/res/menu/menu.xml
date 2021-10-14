@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/mnSearch"
+        android:icon="@drawable/ic_search"
+        android:title="@string/SEARCH"
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
+    <item
+        android:id="@+id/mnFilter"
+        android:icon="@drawable/ic_filter"
+        android:title="@string/FILTER"
+        app:showAsAction="ifRoom|collapseActionView">
+        <menu>
+            <group
+                android:id="@+id/mnGroupFilterType"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/mnFilterOptionTitle"
+                    android:checkable="false"
+                    android:enabled="false"
+                    android:title="@string/FILTER_TYPE" />
+                <item
+                    android:id="@+id/mnFilterOptionName"
+                    android:title="@string/FILTER_NAME" />
+                <item
+                    android:id="@+id/mnFilterOptionSymbol"
+                    android:title="@string/FILTER_SYMBOL" />
+                <item
+                    android:id="@+id/mnFilterOptionPrice"
+                    android:title="@string/FILTER_PRICE" />
+                <item
+                    android:id="@+id/mnFilterOptionPercentage"
+                    android:title="@string/FILTER_PERCENTAGE" />
+            </group>
+            <group
+                android:id="@+id/mnGroupFilterOrder"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/mnFilterOrderTitle"
+                    android:checkable="false"
+                    android:enabled="false"
+                    android:title="@string/FILTER_ORDER" />
+                <item
+                    android:id="@+id/mnFilterOrderAscending"
+                    android:title="@string/FILTER_ASCENDING" />
+                <item
+                    android:id="@+id/mnFilterOrderDescending"
+                    android:title="@string/FILTER_DESCENDING" />
+            </group>
+        </menu>
+    </item>
+</menu>

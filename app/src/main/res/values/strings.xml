@@ -1,0 +1,172 @@
+<resources>
+    <!--region APP NAME-->
+    <string name="app_name">CryptOficatioN</string>
+    <!--endregion-->
+
+    <!--region HOLDERS-->
+    <string name="HOLDER_CRYPTO_ID">ABC1234</string>
+    <string name="HOLDER_CRYPTO_NAME">ABCD</string>
+    <string name="HOLDER_CRYPTO_SYMBOL">ABC</string>
+    <string name="HOLDER_CRYPTO_CURRENT_PRICE">9999</string>
+    <string name="HOLDER_CRYPTO_MARKET_CAP_RANK">999</string>
+    <string name="HOLDER_CRYPTO_HIGH_24H">9999</string>
+    <string name="HOLDER_CRYPTO_LOW_24H">9999</string>
+    <string name="HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H">99%</string>
+    <!--endregion-->
+
+    <!--region STRINGS NORMAL-->
+    <string name="NAME">Name</string>
+    <string name="SYMBOL">Symbol</string>
+    <string name="CURRENT_PRICE">Current price</string>
+    <string name="PRICE">Price</string>
+    <string name="MARKET_CAP_RANK">Market Cap Rank</string>
+    <string name="HIGH_24H">High 24h</string>
+    <string name="LOW_24H">Low 24h</string>
+    <string name="PRICE_CHANGE_PERCENTAGE_24H">Price change 24h</string>
+    <string name="CHANGE">Change</string>
+    <string name="CLOSE">Close</string>
+    <string name="TITLE">Title</string>
+    <string name="CONTENT">Content</string>
+    <string name="ADD_FAVORITE">Add as favorite</string>
+    <string name="POWERED_BY">Powered by CoinGecko API</string>
+    <string name="TOOLBAR">Toolbar</string>
+    <string name="ZERO">0</string>
+    <string name="CURRENCY_EURO">€</string>
+    <string name="CURRENCY_DOLLAR">$</string>
+    <string name="CURRENCY">Currency</string>
+    <string name="COLOR_SCHEME">Color Scheme</string>
+    <string name="ABOUT">About</string>
+    <string name="MARKET">Market</string>
+    <string name="EXIT">Exit</string>
+    <string name="CONFIRMATION_EXIT">Are you sure you want to exit?</string>
+    <string name="NO">No</string>
+    <string name="YES">Yes</string>
+    <string name="ABOUT_INFO">Hi, my Name is Eric Barrero, and I\'m a student from Barcelona, Spain.\n
+        This is my first "big" personal project, were I learnt how to implement some things I did not studied in school.
+        It\'s not that big and complex, but for a rookie like me is a good starting point!\n\n
+        If you want to see me on the social media tap on the icons below. Feel free to follow me!</string>
+    <string name="LINKEDIN">LinkedIn</string>
+    <string name="INSTAGRAM">Instagram</string>
+    <string name="TWITTER">Twitter</string>
+    <string name="CONTENT_CRYPTO_IMAGE">Icon of the Crypto coin</string>
+    <string name="CONTENT_CRYPTO_STATUS">Icon indicating positive or negative price on the last 24 hours</string>
+    <!--endregion-->
+
+    <!--region STRINGS DOTS-->
+    <string name="NAME_DOTS">Name:</string>
+    <string name="SYMBOL_DOTS">Symbol:</string>
+    <string name="CURRENT_PRICE_DOTS">Current price:</string>
+    <string name="MARKET_CAP_RANK_DOTS">Market Cap Rank:</string>
+    <string name="HIGH_24H_DOTS">High 24h:</string>
+    <string name="LOW_24H_DOTS">Low 24h:</string>
+    <string name="PRICE_CHANGE_PERCENTAGE_24H_DOTS">Price change 24h:</string>
+    <string name="TITLE_DOTS">Title:</string>
+    <!--endregion-->
+
+    <!--region ACTIVITIES-->
+    <string name="title_activity_fragment_main">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <!--endregion-->
+
+    <!--region NAV-->
+    <string name="SEARCH">Search</string>
+    <string name="FILTER">Filter</string>
+    <string name="MARKETS">Markets</string>
+    <string name="CONVERSION">Conversion</string>
+    <string name="FAVORITES">Favorites</string>
+    <string name="SETTINGS">Settings</string>
+    <!--endregion-->
+
+    <!--region FILTERS-->
+    <string name="FILTER_TYPE">Filter Type</string>
+    <string name="FILTER_NAME">Name</string>
+    <string name="FILTER_SYMBOL">Symbol</string>
+    <string name="FILTER_PRICE">Price</string>
+    <string name="FILTER_PERCENTAGE">Percentage</string>
+    <string name="FILTER_ORDER">Filter Order</string>
+    <string name="FILTER_ASCENDING">Ascending</string>
+    <string name="FILTER_DESCENDING">Descending</string>
+    <!--endregion-->
+
+    <!--region SETTINGS-->
+    <string name="PREFERENCES">userPrefs</string>
+
+    <string name="SETTINGS_CURRENCY">Currency</string>
+    <string name="SETTINGS_CURRENCY_SUMMARY">Change the displayed currency at the prices:</string>
+    <string-array name="SETTINGS_CURRENCY_ENTRIES">
+        <item>EUR</item>
+        <item>USD</item>
+    </string-array>
+    <string-array name="SETTINGS_CURRENCY_VALUES">
+        <item>eur</item>
+        <item>usd</item>
+    </string-array>
+    <string name="SETTINGS_CURRENCY_VALUE_DEFAULT">usd</string>
+
+    <string name="SETTINGS_FILTER_OPTION">Filter option</string>
+    <string-array name="SETTINGS_FILTER_OPTION_ENTRIES">
+        <item>Name</item>
+        <item>Symbol</item>
+        <item>Price</item>
+        <item>Percentage</item>
+    </string-array>
+    <string-array name="SETTINGS_FILTER_OPTION_VALUES">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string name="SETTINGS_FILTER_OPTION_VALUE_DEFAULT">0</string>
+
+    <string name="SETTINGS_FILTER_ORDER">Filter order</string>
+    <string-array name="SETTINGS_FILTER_ORDER_ENTRIES">
+        <item>Ascending</item>
+        <item>Descending</item>
+    </string-array>
+    <string-array name="SETTINGS_FILTER_ORDER_VALUES">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string name="SETTINGS_FILTER_ORDER_VALUE_DEFAULT">0</string>
+
+    <string name="SETTINGS_ITEMS_PAGE">Items to show</string>
+    <string-array name="SETTINGS_ITEMS_PAGE_ENTRIES_VALUES">
+        <item>50</item>
+        <item>75</item>
+        <item>100</item>
+        <item>125</item>
+        <item>150</item>
+        <item>175</item>
+        <item>200</item>
+        <item>225</item>
+        <item>250</item>
+    </string-array>
+    <string name="SETTINGS_ITEMS_PAGE_VALUE_DEFAULT">100</string>
+
+    <string name="SETTINGS_DARK_MODE">Dark Mode</string>
+    <string name="SETTINGS_DARK_MODE_SUMMARY">Enable dark mode</string>
+
+    <string name="SETTINGS_ABOUT">About Me</string>
+    <string name="SETTINGS_CREDITS">Credits</string>
+    <!--endregion-->
+
+    <!--region CREDITS-->
+    <string name="CREDITS_ICONS">LinkedIn, Instagram and Twitter icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a></string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <!--endregion-->
+</resources>
