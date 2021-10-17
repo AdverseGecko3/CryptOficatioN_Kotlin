@@ -12,7 +12,7 @@ class CryptoRepository {
     suspend fun getAllCrypto(): List<CryptoModel> {
         val response = api.getCrypto()
         Log.d("CryptoService", "Response: $response")
-        CryptoProvider.cryptos = response
+        if (!response.isNullOrEmpty()) CryptoProvider.cryptos = response
         return response
     }
 }

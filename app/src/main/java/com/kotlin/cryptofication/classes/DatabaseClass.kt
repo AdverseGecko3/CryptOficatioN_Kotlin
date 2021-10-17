@@ -23,8 +23,8 @@ class DatabaseClass(context: Context?, name: String?, factory: CursorFactory?, v
     }
 
     fun insertToFavorites(symbol: String, date: String): Int {
-        val writable: SQLiteDatabase = this.writableDatabase
-        val readable: SQLiteDatabase = this.readableDatabase
+        val writable = this.writableDatabase
+        val readable = this.readableDatabase
         // Insert both entered fields into the database
         val query = "INSERT INTO Favorites VALUES ('$symbol' , '$date')"
         var unique = true
@@ -55,7 +55,7 @@ class DatabaseClass(context: Context?, name: String?, factory: CursorFactory?, v
     }
 
     fun deleteFromFavorites(symbol: String): Int {
-        val writable: SQLiteDatabase = this.writableDatabase
+        val writable = this.writableDatabase
         val `val` = arrayOf(symbol)
         val sol = writable.delete("Favorites", "symbol = ?", `val`) //Delete from table
         writable.close()

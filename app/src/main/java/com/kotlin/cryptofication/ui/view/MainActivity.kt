@@ -1,9 +1,8 @@
 package com.kotlin.cryptofication.ui.view
 
-import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
-import android.view.MenuItem
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -20,10 +19,9 @@ import com.kotlin.cryptofication.classes.DatabaseClass
 class MainActivity : AppCompatActivity() {
 
     private var fragmentShow = 0
-    private val fragmentMarket: FragmentMarket = FragmentMarket()
-    private val fragmentFavorites: FragmentFavorites = FragmentFavorites()
-    private val fragmentSettings: FragmentSettings = FragmentSettings()
-
+    private val fragmentMarket = FragmentMarket()
+    private val fragmentFavorites = FragmentFavorites()
+    private val fragmentSettings = FragmentSettings()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -34,16 +32,22 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.navBottom)
         bottomNavigation.setOnItemSelectedListener(navListener)
         if (intent.getStringExtra("lastActivity") == "splash") {
+            Log.d("MainActivity", "Coming from Splash, going to Market")
             bottomNavigation.selectedItemId = Constants.MARKETS
             supportFragmentManager.beginTransaction()
-                .replace(fragmentShow, fragmentMarket)
-                .disallowAddToBackStack()
+                .replace(fragmentShow, FragmentMarket())
+                .addToBackStack("market")
                 .commit()
         } else if (intent.getStringExtra("lastActivity") == "settings") {
+            Log.d("MainActivity", "Coming from Settings, returning to Settings")
             bottomNavigation.selectedItemId = Constants.SETTINGS
             supportFragmentManager.beginTransaction()
-                .replace(fragmentShow, fragmentSettings)
-                .disallowAddToBackStack()
+                .replace(fragmentShow, FragmentMarket())
+                .addToBackStack("market")
+                .commit()
+            supportFragmentManager.beginTransaction()
+                .replace(fragmentShow, FragmentSettings())
+                .addToBackStack("settings")
                 .commit()
         }
         DataClass.newItem = bottomNavigation.selectedItemId
@@ -53,21 +57,21 @@ class MainActivity : AppCompatActivity() {
         fragmentShow = R.id.fragmentShow
     }
 
-    private val navListener = NavigationBarView.OnItemSelectedListener { menuItem: MenuItem ->
+    private val navListener = NavigationBarView.OnItemSelectedListener { menuItem ->
         var selectedFragment: Fragment? = null
         when (menuItem.itemId) {
             Constants.MARKETS -> {
-                selectedFragment = fragmentMarket
+                selectedFragment = FragmentMarket()
                 DataClass.oldItem = DataClass.newItem
                 DataClass.newItem = Constants.MARKETS
             }
             Constants.FAVORITES -> {
-                selectedFragment = fragmentFavorites
+                selectedFragment = FragmentFavorites()
                 DataClass.oldItem = DataClass.newItem
                 DataClass.newItem = Constants.FAVORITES
             }
             Constants.SETTINGS -> {
-                selectedFragment = fragmentSettings
+                selectedFragment = FragmentSettings()
                 DataClass.oldItem = DataClass.newItem
                 DataClass.newItem = Constants.SETTINGS
             }
@@ -83,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             Constants.MARKETS -> when (DataClass.newItem) {
                 Constants.MARKETS -> supportFragmentManager.beginTransaction()
                     .replace(fragmentShow, selectedFragment!!)
-                    .disallowAddToBackStack()
+                    .addToBackStack("market")
                     .commit()
                 Constants.FAVORITES, Constants.SETTINGS -> supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
@@ -97,7 +101,7 @@ class MainActivity : AppCompatActivity() {
                 Constants.MARKETS -> supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right)
                     .replace(fragmentShow, selectedFragment!!)
-                    .disallowAddToBackStack()
+                    .addToBackStack("market")
                     .commit()
                 Constants.FAVORITES -> supportFragmentManager.beginTransaction()
                     .replace(fragmentShow, selectedFragment!!)
@@ -145,10 +149,10 @@ class MainActivity : AppCompatActivity() {
             .setMessage(getString(R.string.CONFIRMATION_EXIT))
             .setNegativeButton(
                 getString(R.string.NO)
-            ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
+            ) { dialog, _ -> dialog.cancel() }
             .setPositiveButton(
                 getString(R.string.YES)
-            ) { _: DialogInterface?, _: Int -> super.onBackPressed() }
+            ) { _, _ -> super.onBackPressed() }
             .create()
         val dialog = builder.show()
 

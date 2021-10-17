@@ -23,11 +23,11 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.classes.Constants
-import com.kotlin.cryptofication.classes.CryptOficatioNApp
-import com.kotlin.cryptofication.classes.Preferences
+import com.kotlin.cryptofication.classes.CryptOficatioNApp.Companion.prefs
 import java.lang.Exception
 
 class FragmentSettings : PreferenceFragmentCompat() {
+
     private var lpCurrency: ListPreference? = null
     private var lpFilterOption: ListPreference? = null
     private var lpFilterOrder: ListPreference? = null
@@ -36,7 +36,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
     private var pAbout: Preference? = null
     private var pCredits: Preference? = null
     private var preferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
-    private val preferences = Preferences(CryptOficatioNApp.appContext())
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
         references()
@@ -50,21 +50,21 @@ class FragmentSettings : PreferenceFragmentCompat() {
 
         loadPreferences()
         preferenceChangeListener =
-            SharedPreferences.OnSharedPreferenceChangeListener { _: SharedPreferences?, key: String? ->
+            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                 when (key) {
                     Constants.PREF_CURRENCY -> {
                         Log.d(
                             "prefSelected",
                             lpCurrency!!.title.toString() + " - " + lpCurrency!!.value
                         )
-                        preferences.setCurrency(lpCurrency!!.value)
+                        prefs.setCurrency(lpCurrency!!.value)
                     }
                     Constants.PREF_SCHEME -> {
                         Log.d(
                             "prefSelected",
                             spScheme!!.title.toString() + " - " + spScheme!!.isChecked
                         )
-                        preferences.setScheme(spScheme!!.isChecked)
+                        prefs.setScheme(spScheme!!.isChecked)
                         if (spScheme!!.isChecked) {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                         } else {
@@ -77,21 +77,21 @@ class FragmentSettings : PreferenceFragmentCompat() {
                             "prefSelected",
                             lpFilterOption!!.title.toString() + " - " + lpFilterOption!!.value
                         )
-                        preferences.setFilterOption(lpFilterOption!!.value)
+                        prefs.setFilterOption(lpFilterOption!!.value)
                     }
                     Constants.PREF_FILTER_ORDER -> {
                         Log.d(
                             "prefSelected",
                             lpFilterOrder!!.title.toString() + " - " + lpFilterOrder!!.value
                         )
-                        preferences.setFilterOrder(lpFilterOrder!!.value)
+                        prefs.setFilterOrder(lpFilterOrder!!.value)
                     }
                     Constants.PREF_ITEMS_PAGE -> {
                         Log.d(
                             "prefSelected",
                             lpItemsPage!!.title.toString() + " - " + lpItemsPage!!.value
                         )
-                        preferences.setItemsPerPage(lpItemsPage!!.value)
+                        prefs.setItemsPerPage(lpItemsPage!!.value)
                     }
                     else -> {
                     }
@@ -101,13 +101,12 @@ class FragmentSettings : PreferenceFragmentCompat() {
             Preference.OnPreferenceClickListener {
                 // Create dialog to confirm the dismiss
                 val builder = AlertDialog.Builder(requireActivity(), R.style.CustomAlertDialog)
-                val inflater: LayoutInflater = requireActivity().layoutInflater
-                val dialogView: View =
-                    inflater.inflate(R.layout.dialog_about, null)
+                val inflater = requireActivity().layoutInflater
+                val dialogView = inflater.inflate(R.layout.dialog_about, null)
                 builder.setView(dialogView)
                 builder.setNeutralButton(
                     getString(R.string.CLOSE)
-                ) { dialogInterface: DialogInterface, _: Int -> dialogInterface.dismiss() }
+                ) { dialogInterface, _ -> dialogInterface.dismiss() }
                     .create()
                 val dialog = builder.show()
 
@@ -120,8 +119,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
                         null
                     )
                 )
-                val layoutParams: LinearLayout.LayoutParams =
-                    btnDismiss.layoutParams as LinearLayout.LayoutParams
+                val layoutParams = btnDismiss.layoutParams as LinearLayout.LayoutParams
                 layoutParams.weight = 10f
                 btnDismiss.layoutParams = layoutParams
                 val ivLinkedIn = dialog.findViewById<ImageView>(R.id.ivDialogAboutLinkedIn)
@@ -190,13 +188,13 @@ class FragmentSettings : PreferenceFragmentCompat() {
                     requireActivity(),
                     R.style.CustomAlertDialog
                 )
-                val inflater: LayoutInflater = requireActivity().layoutInflater
-                @SuppressLint("InflateParams") val dialogView: View =
+                val inflater = requireActivity().layoutInflater
+                @SuppressLint("InflateParams") val dialogView =
                     inflater.inflate(R.layout.dialog_credits, null)
                 builder.setView(dialogView)
                 builder.setNeutralButton(
                     getString(R.string.CLOSE)
-                ) { dialogInterface: DialogInterface, _: Int -> dialogInterface.dismiss() }
+                ) { dialogInterface, _ -> dialogInterface.dismiss() }
                     .create()
                 val dialog = builder.show()
 
@@ -209,7 +207,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
                         null
                     )
                 )
-                val layoutParams: LinearLayout.LayoutParams =
+                val layoutParams =
                     btnDismiss.layoutParams as LinearLayout.LayoutParams
                 layoutParams.weight = 10f
                 btnDismiss.layoutParams = layoutParams
@@ -231,7 +229,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
     }
 
     private fun loadPreferences() {
-        val listPreferences: List<Any> = preferences.getAllPreferences()
+        val listPreferences = prefs.getAllPreferences()
         lpCurrency!!.value = listPreferences[0].toString()
         spScheme!!.isChecked = listPreferences[1].toString().toBoolean()
         lpFilterOption!!.value = listPreferences[2].toString()

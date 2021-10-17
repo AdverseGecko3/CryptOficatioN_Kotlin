@@ -11,9 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.classes.CryptOficatioNApp
+import com.kotlin.cryptofication.classes.CryptOficatioNApp.Companion.prefs
 import com.kotlin.cryptofication.classes.DataClass
-import com.kotlin.cryptofication.classes.Preferences
 import com.kotlin.cryptofication.data.model.CryptoModel
 import java.io.Serializable
 import com.kotlin.cryptofication.ui.view.DialogCryptoDetail
@@ -26,22 +25,21 @@ class CryptoListAdapter(
 ) :
     RecyclerView.Adapter<CryptoListViewHolder>(), Filterable,
     Serializable, ItemTouchHelperAdapter {
-    private var cryptoListFull = ArrayList(cryptoList)
     private var userCurrency: String? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CryptoListViewHolder {
-        val view: View = LayoutInflater.from(parent.context)
+        val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.adapter_crypto_list, parent, false)
         return CryptoListViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: CryptoListViewHolder, position: Int) {
-        userCurrency = when (Preferences(CryptOficatioNApp.appContext()).getCurrency()) {
+        userCurrency = when (prefs.getCurrency()) {
             "eur" -> context.getString(R.string.CURRENCY_EURO)
             "usd" -> context.getString(R.string.CURRENCY_DOLLAR)
             else -> context.getString(R.string.CURRENCY_DOLLAR)
         }
-        val selectedCrypto: CryptoModel = cryptoList[position]
+        val selectedCrypto = cryptoList[position]
         holder.bind(selectedCrypto)
         holder.binding.parentLayout.setOnClickListener {
             val manager = (context as AppCompatActivity).supportFragmentManager
@@ -50,15 +48,14 @@ class CryptoListAdapter(
         }
     }
 
-    override fun getItemCount(): Int = cryptoList.size
+    override fun getItemCount() = cryptoList.size
 
-    override fun getFilter(): Filter {
-        return filter
-    }
+    override fun getFilter() = filter
 
-    private val filter: Filter = object : Filter() {
+    private val filter = object : Filter() {
         override fun performFiltering(charSequence: CharSequence): FilterResults {
-            val filteredList: MutableList<CryptoModel> = ArrayList<CryptoModel>()
+            val filteredList = ArrayList<CryptoModel>()
+            val cryptoListFull = ArrayList(cryptoList)
             if (charSequence.isEmpty()) {
                 filteredList.addAll(cryptoListFull)
             } else {
@@ -85,12 +82,12 @@ class CryptoListAdapter(
 
     override fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder) {
         // Get the position and the crypto symbol of the item
-        val position: Int = viewHolder.bindingAdapterPosition
-        val cryptoSymbol: String = cryptoList[position].symbol
+        val position = viewHolder.bindingAdapterPosition
+        val cryptoSymbol = cryptoList[position].symbol
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the  current date)
-        val resultInsert: Int = DataClass.db.insertToFavorites(
+        val resultInsert = DataClass.db.insertToFavorites(
             cryptoSymbol,
             SimpleDateFormat(
                 "yyy-MM-dd HH:mm:ss",

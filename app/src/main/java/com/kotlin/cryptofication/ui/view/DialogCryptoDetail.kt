@@ -2,18 +2,16 @@ package com.kotlin.cryptofication.ui.view
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.CryptoModel
 import com.kotlin.cryptofication.databinding.CryptoDetailDialogBinding
 import java.text.DecimalFormat
-import java.text.NumberFormat
-import java.util.*
 
 class DialogCryptoDetail(
     private val selectedCrypto: CryptoModel,
@@ -65,7 +63,28 @@ class DialogCryptoDetail(
             currentPrice = currentPrice.substring(0, currentPrice.length - 1)
         }
         binding.tvDialogCryptoDetailCurrentPriceText.text = "$currentPrice $userCurrency"
-        binding.btnDialogCryptoDetailClose.setOnClickListener { dismiss() }
-        return builder.create()
+        builder.setNegativeButton(
+            requireContext().getString(R.string.CLOSE)
+        ) { dialogInterface, _ -> dialogInterface.dismiss() }
+            .create()
+        val dialog = builder.show()
+
+        // Change the negative button color and weight
+        val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+        negativeButton.setTextColor(
+            ResourcesCompat.getColor(
+                resources,
+                R.color.purple_app_accent,
+                null
+            )
+        )
+        val layoutParams = negativeButton.layoutParams as LinearLayout.LayoutParams
+        layoutParams.weight = 10f
+        negativeButton.layoutParams = layoutParams
+        negativeButton.textSize = 17F
+
+        return dialog
     }
+
+
 }

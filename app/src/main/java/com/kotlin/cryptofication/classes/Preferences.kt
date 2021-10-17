@@ -7,7 +7,7 @@ import java.util.ArrayList
 
 class Preferences(context: Context) {
 
-    private val userPrefs: SharedPreferences = context.getSharedPreferences(
+    private val userPrefs = context.getSharedPreferences(
         context.getString(R.string.PREFERENCES), Context.MODE_PRIVATE
     )!!
 
@@ -43,32 +43,37 @@ class Preferences(context: Context) {
     }
 
     fun setCurrency(currency: String?) {
-        val userPrefsEditor: SharedPreferences.Editor = userPrefs.edit()
-        userPrefsEditor.putString(Constants.PREF_CURRENCY, currency)
-        userPrefsEditor.apply()
+        userPrefs
+            .edit()
+            .putString(Constants.PREF_CURRENCY, currency)
+            .apply()
     }
 
     fun setScheme(scheme: Boolean) {
-        val userPrefsEditor: SharedPreferences.Editor = userPrefs.edit()
-        userPrefsEditor.putBoolean(Constants.PREF_SCHEME, scheme)
-        userPrefsEditor.apply()
+        userPrefs
+            .edit()
+            .putBoolean(Constants.PREF_SCHEME, scheme)
+            .apply()
     }
 
     fun setFilterOption(filterOption: String?) {
-        val userPrefsEditor: SharedPreferences.Editor = userPrefs.edit()
-        userPrefsEditor.putString(Constants.PREF_FILTER_OPTION, filterOption)
-        userPrefsEditor.apply()
+        userPrefs
+            .edit()
+            .putString(Constants.PREF_FILTER_OPTION, filterOption)
+            .apply()
     }
 
     fun setFilterOrder(filterOrder: String?) {
-        val userPrefsEditor: SharedPreferences.Editor = userPrefs.edit()
-        userPrefsEditor.putString(Constants.PREF_FILTER_ORDER, filterOrder)
-        userPrefsEditor.apply()
+        userPrefs
+            .edit()
+            .putString(Constants.PREF_FILTER_ORDER, filterOrder)
+            .apply()
     }
 
     fun setItemsPerPage(itemsPage: String?) {
-        val userPrefsEditor: SharedPreferences.Editor = userPrefs.edit()
-        userPrefsEditor.putString(Constants.PREF_ITEMS_PAGE, itemsPage)
-        userPrefsEditor.apply()
+        userPrefs
+            .edit()
+            .putString(Constants.PREF_ITEMS_PAGE, itemsPage)
+            .apply()
     }
 }

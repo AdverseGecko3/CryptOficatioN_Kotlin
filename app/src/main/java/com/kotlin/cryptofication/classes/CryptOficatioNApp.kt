@@ -5,21 +5,15 @@ import android.content.Context
 
 class CryptOficatioNApp : Application() {
 
-    init {
-        appContext = this
-    }
-
     companion object {
-        var appContext: CryptOficatioNApp? = null
-
-        fun appContext(): Context {
-            return appContext!!.applicationContext
-        }
+        lateinit var appContext: Context
+        lateinit var prefs: Preferences
     }
 
     override fun onCreate() {
         super.onCreate()
-        appContext()
+        appContext = applicationContext
+        prefs = Preferences(applicationContext)
     }
 
 

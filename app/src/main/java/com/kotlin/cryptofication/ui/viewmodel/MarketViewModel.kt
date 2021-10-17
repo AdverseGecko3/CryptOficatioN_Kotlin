@@ -14,9 +14,9 @@ class MarketViewModel: ViewModel() {
     val isLoading = MutableLiveData<Boolean>()
     val error = MutableLiveData<String>()
 
-    var orderOption: Int = 0
-    var orderFilter: Int = 0
-    var lastSelectedFilterItem: Int = 0
+    var orderOption = 0
+    var orderFilter = 0
+    var lastSelectedFilterItem = 0
 
     var getCryptoOnlineUseCase = GetCryptoOnlineUseCase()
     var getCryptoOfflineUseCase = GetCryptoOfflineUseCase()
@@ -34,7 +34,7 @@ class MarketViewModel: ViewModel() {
             )
 
             var result = getCryptoOnlineUseCase()
-            Log.d("MarketViewModel", "Result: $result")
+            Log.d("onCreateViewModel", "Result: $result")
             if (!result.isNullOrEmpty()) {
                 result = changeSortRecyclerView(result)
                 cryptoLiveData.postValue(result)
@@ -58,7 +58,7 @@ class MarketViewModel: ViewModel() {
         )
 
         var result = getCryptoOfflineUseCase()
-        Log.d("MarketViewModel", "Result: $result")
+        Log.d("onFilterChangeViewModel", "Result: $result")
         if (!result.isNullOrEmpty()) {
             result = changeSortRecyclerView(result)
             cryptoLiveData.postValue(result)

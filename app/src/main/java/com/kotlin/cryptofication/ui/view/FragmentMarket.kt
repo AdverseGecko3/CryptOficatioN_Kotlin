@@ -1,7 +1,6 @@
 package com.kotlin.cryptofication.ui.view
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.*
 import android.util.Log
 import android.view.*
@@ -13,7 +12,6 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -21,13 +19,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListAdapter
 import com.kotlin.cryptofication.classes.DataClass
-import com.kotlin.cryptofication.classes.Preferences
 import com.kotlin.cryptofication.databinding.FragmentMarketBinding
 import com.kotlin.cryptofication.data.model.CryptoModel
 import com.kotlin.cryptofication.ui.viewmodel.MarketViewModel
 import kotlin.collections.ArrayList
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.kotlin.cryptofication.classes.CryptOficatioNApp
+import com.kotlin.cryptofication.classes.CryptOficatioNApp.Companion.prefs
 import java.text.DecimalFormat
 import java.text.NumberFormat
 
@@ -52,9 +50,8 @@ class FragmentMarket : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMarketBinding.inflate(inflater, container, false)
-        val fView: View = binding.root
-        setHasOptionsMenu(true)
 
+        setHasOptionsMenu(true)
         // Insert custom toolbar
         (requireActivity() as AppCompatActivity).supportActionBar?.displayOptions =
             ActionBar.DISPLAY_SHOW_CUSTOM
@@ -90,26 +87,30 @@ class FragmentMarket : Fragment() {
             marketViewModel.onCreate()
         }
 
-
-
         binding.srlMarketReload.setColorSchemeResources(R.color.purple_app_accent)
 
-        marketViewModel.isLoading.observe(requireActivity(), {
-            binding.srlMarketReload.isRefreshing = it
+        marketViewModel.isLoading.observe(requireActivity(), { isLoading ->
+            Log.d("FragmentMarket", "isLoading changed to $isLoading")
+            binding.srlMarketReload.isRefreshing = isLoading
         })
 
-        marketViewModel.cryptoLiveData.observe(requireActivity(), {
-            initRecyclerView(it)
-            initViewFlipper(it)
+        marketViewModel.cryptoLiveData.observe(requireActivity(), { cryptoList ->
+            Log.d("FragmentMarket", "Received cryptoList")
+            initRecyclerView(cryptoList)
+            initViewFlipper(cryptoList)
         })
 
-        marketViewModel.error.observe(requireActivity(), {
-            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        marketViewModel.error.observe(requireActivity(), { errorMessage ->
+            Log.d("FragmentMarket", "Error message")
+            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
         })
 
         // Fetching data from server
-        binding.srlMarketReload.post { marketViewModel.onCreate() }
-        return fView
+        binding.srlMarketReload.post {
+            Log.d("FragmentMarket", "Post SwipeRefresh")
+            marketViewModel.onCreate()
+        }
+        return binding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -124,9 +125,8 @@ class FragmentMarket : Fragment() {
         // If it is the first run load the starting filters from the SharedPreferences
         if (DataClass.firstRun) {
             Log.d("onCreateOptionsMenu", "First run")
-            val preferences = Preferences(requireContext())
-            val userFilterOption = preferences.getFilterOption()
-            val userFilterOrder = preferences.getFilterOrder()
+            val userFilterOption = prefs.getFilterOption()
+            val userFilterOrder = prefs.getFilterOrder()
             when (userFilterOption.toInt()) {
                 0 -> {
                     itemName?.isChecked = true
@@ -352,27 +352,28 @@ class FragmentMarket : Fragment() {
         binding.rwMarketCryptoList.adapter = rwCryptoAdapter
         binding.rwMarketCryptoList.setHasFixedSize(true)
 
-        val callback: ItemTouchHelper.SimpleCallback =
-            SimpleItemTouchHelperCallback(rwCryptoAdapter)
+        val callback =
+            SimpleItemTouchHelperCallback(rwCryptoAdapter, binding.srlMarketReload)
         mItemTouchHelper = ItemTouchHelper(callback)
         mItemTouchHelper.attachToRecyclerView(binding.rwMarketCryptoList)
     }
 
     private fun initViewFlipper(cryptoList: List<CryptoModel>) {
         // Prepare ViewFlipper
-        val animationIn: Animation = AnimationUtils.loadAnimation(requireContext(), R.anim.enter_from_right)
-        val animationOut: Animation = AnimationUtils.loadAnimation(requireContext(), R.anim.exit_to_left)
+        val animationIn = AnimationUtils.loadAnimation(requireContext(), R.anim.enter_from_right)
+        val animationOut = AnimationUtils.loadAnimation(requireContext(), R.anim.exit_to_left)
         binding.vfFragmentMarket.inAnimation = animationIn
         binding.vfFragmentMarket.outAnimation = animationOut
 
-        val cryptoListSorted = cryptoList.sortedByDescending { crypto -> crypto.price_change_percentage_24h }
-        val firstCrypto: CryptoModel = cryptoListSorted[0]
-        val secondCrypto: CryptoModel = cryptoListSorted[1]
-        val thirdCrypto: CryptoModel = cryptoListSorted[2]
-        val userCurrency = when (Preferences(CryptOficatioNApp.appContext()).getCurrency()) {
-            "eur" -> CryptOficatioNApp.appContext().getString(R.string.CURRENCY_EURO)
-            "usd" -> CryptOficatioNApp.appContext().getString(R.string.CURRENCY_DOLLAR)
-            else -> CryptOficatioNApp.appContext().getString(R.string.CURRENCY_DOLLAR)
+        val cryptoListSorted =
+            cryptoList.sortedByDescending { crypto -> crypto.price_change_percentage_24h }
+        val firstCrypto = cryptoListSorted[0]
+        val secondCrypto = cryptoListSorted[1]
+        val thirdCrypto = cryptoListSorted[2]
+        val userCurrency = when (prefs.getCurrency()) {
+            "eur" -> CryptOficatioNApp.appContext.getString(R.string.CURRENCY_EURO)
+            "usd" -> CryptOficatioNApp.appContext.getString(R.string.CURRENCY_DOLLAR)
+            else -> CryptOficatioNApp.appContext.getString(R.string.CURRENCY_DOLLAR)
         }
         val nf = NumberFormat.getInstance()
         val currencySeparator = DecimalFormat().decimalFormatSymbols.decimalSeparator
@@ -393,17 +394,25 @@ class FragmentMarket : Fragment() {
         if (nf.parse(priceChange)!!.toDouble() > 0) {
             binding.ivVFOneCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_up)
             binding.ivVFOneCryptoPriceChange.setColorFilter(
-                ResourcesCompat
-                    .getColor(CryptOficatioNApp.appContext().resources, R.color.green_high, null))
-            binding.tvVFOneCryptoCurrentPrice.setTextColor(ContextCompat.getColor(requireContext(), R.color.green_high))
-            binding.tvVFOneCryptoPriceChange.setTextColor(ContextCompat.getColor(requireContext(), R.color.green_high))
+                ContextCompat.getColor(requireContext(), R.color.green_high)
+            )
+            binding.tvVFOneCryptoCurrentPrice.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.green_high)
+            )
+            binding.tvVFOneCryptoPriceChange.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.green_high)
+            )
         } else {
             binding.ivVFOneCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_down)
             binding.ivVFOneCryptoPriceChange.setColorFilter(
-                ResourcesCompat
-                    .getColor(CryptOficatioNApp.appContext().resources, R.color.red_low, null))
-            binding.tvVFOneCryptoCurrentPrice.setTextColor(ContextCompat.getColor(requireContext(), R.color.red_low))
-            binding.tvVFOneCryptoPriceChange.setTextColor(ContextCompat.getColor(requireContext(), R.color.red_low))
+                ContextCompat.getColor(requireContext(), R.color.red_low)
+            )
+            binding.tvVFOneCryptoCurrentPrice.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.red_low)
+            )
+            binding.tvVFOneCryptoPriceChange.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.red_low)
+            )
         }
 
         binding.tvVFTwoCryptoSymbol.text = secondCrypto.symbol.uppercase()
@@ -422,17 +431,25 @@ class FragmentMarket : Fragment() {
         if (nf.parse(priceChange)!!.toDouble() > 0) {
             binding.ivVFTwoCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_up)
             binding.ivVFTwoCryptoPriceChange.setColorFilter(
-                ResourcesCompat
-                    .getColor(CryptOficatioNApp.appContext().resources, R.color.green_high, null))
-            binding.tvVFTwoCryptoCurrentPrice.setTextColor(ContextCompat.getColor(requireContext(), R.color.green_high))
-            binding.tvVFTwoCryptoPriceChange.setTextColor(ContextCompat.getColor(requireContext(), R.color.green_high))
+                ContextCompat.getColor(CryptOficatioNApp.appContext, R.color.green_high)
+            )
+            binding.tvVFTwoCryptoCurrentPrice.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.green_high)
+            )
+            binding.tvVFTwoCryptoPriceChange.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.green_high)
+            )
         } else {
             binding.ivVFTwoCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_down)
             binding.ivVFTwoCryptoPriceChange.setColorFilter(
-                ResourcesCompat
-                    .getColor(CryptOficatioNApp.appContext().resources, R.color.red_low, null))
-            binding.tvVFTwoCryptoCurrentPrice.setTextColor(ContextCompat.getColor(requireContext(), R.color.red_low))
-            binding.tvVFTwoCryptoPriceChange.setTextColor(ContextCompat.getColor(requireContext(), R.color.red_low))
+                ContextCompat.getColor(requireContext(), R.color.red_low)
+            )
+            binding.tvVFTwoCryptoCurrentPrice.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.red_low)
+            )
+            binding.tvVFTwoCryptoPriceChange.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.red_low)
+            )
         }
 
         binding.tvVFThreeCryptoSymbol.text = thirdCrypto.symbol.uppercase()
@@ -451,17 +468,25 @@ class FragmentMarket : Fragment() {
         if (nf.parse(priceChange)!!.toDouble() > 0) {
             binding.ivVFThreeCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_up)
             binding.ivVFThreeCryptoPriceChange.setColorFilter(
-                ResourcesCompat
-                    .getColor(CryptOficatioNApp.appContext().resources, R.color.green_high, null))
-            binding.tvVFThreeCryptoCurrentPrice.setTextColor(ContextCompat.getColor(requireContext(), R.color.green_high))
-            binding.tvVFThreeCryptoPriceChange.setTextColor(ContextCompat.getColor(requireContext(), R.color.green_high))
+                ContextCompat.getColor(requireContext(), R.color.green_high)
+            )
+            binding.tvVFThreeCryptoCurrentPrice.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.green_high)
+            )
+            binding.tvVFThreeCryptoPriceChange.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.green_high)
+            )
         } else {
             binding.ivVFThreeCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_down)
             binding.ivVFThreeCryptoPriceChange.setColorFilter(
-                ResourcesCompat
-                    .getColor(CryptOficatioNApp.appContext().resources, R.color.red_low, null))
-            binding.tvVFThreeCryptoCurrentPrice.setTextColor(ContextCompat.getColor(requireContext(), R.color.red_low))
-            binding.tvVFThreeCryptoPriceChange.setTextColor(ContextCompat.getColor(requireContext(), R.color.red_low))
+                ContextCompat.getColor(requireContext(), R.color.red_low)
+            )
+            binding.tvVFThreeCryptoCurrentPrice.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.red_low)
+            )
+            binding.tvVFThreeCryptoPriceChange.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.red_low)
+            )
         }
     }
 
@@ -472,9 +497,5 @@ class FragmentMarket : Fragment() {
         itemPercentage = menu.findItem(R.id.mnFilterOptionPercentage)
         itemAscending = menu.findItem(R.id.mnFilterOrderAscending)
         itemDescending = menu.findItem(R.id.mnFilterOrderDescending)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
     }
 }

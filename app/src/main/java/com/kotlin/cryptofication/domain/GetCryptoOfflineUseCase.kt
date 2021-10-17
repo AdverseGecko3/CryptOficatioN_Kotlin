@@ -4,9 +4,5 @@ import com.kotlin.cryptofication.data.model.CryptoModel
 import com.kotlin.cryptofication.data.model.CryptoProvider
 
 class GetCryptoOfflineUseCase {
-    operator fun invoke(): List<CryptoModel>{
-        return CryptoProvider.cryptos
-
-    }
-
+    operator fun invoke(): List<CryptoModel> = CryptoProvider.cryptos
 }

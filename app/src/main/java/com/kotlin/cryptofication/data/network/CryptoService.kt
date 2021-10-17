@@ -2,11 +2,11 @@ package com.kotlin.cryptofication.data.network
 
 import android.util.Log
 import com.kotlin.cryptofication.core.RetrofitHelper
-import com.kotlin.cryptofication.classes.CryptOficatioNApp
-import com.kotlin.cryptofication.classes.Preferences
+import com.kotlin.cryptofication.classes.CryptOficatioNApp.Companion.prefs
 import com.kotlin.cryptofication.data.model.CryptoModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.net.UnknownHostException
 
 class CryptoService {
 
@@ -14,15 +14,20 @@ class CryptoService {
 
     suspend fun getCrypto(): List<CryptoModel> {
         return withContext(Dispatchers.IO) {
-            val preferences = Preferences(CryptOficatioNApp.appContext())
-            val userCurrency: String = preferences.getCurrency()
-            val userItemsPage: String = preferences.getItemsPerPage()
-            Log.d("CryptoService", "userCurrency: $userCurrency")
-            val response = retrofit.create(CryptoAPIClient::class.java).getCryptoList(
-                userCurrency, "market_cap_desc", userItemsPage, "1", "false"
-            )
-            Log.d("CryptoService", "Response: $response")
-            response.body() ?: emptyList()
+            try {
+                val userCurrency = prefs.getCurrency()
+                val userItemsPage = prefs.getItemsPerPage()
+                Log.d("CryptoService", "userCurrency: $userCurrency")
+                val response = retrofit.create(CryptoAPIClient::class.java).getCryptoList(
+                    userCurrency, "market_cap_desc", userItemsPage, "1", "false"
+                )
+                Log.d("CryptoService", "Response: $response")
+                response.body() ?: emptyList()
+            } catch (e: UnknownHostException) {
+                e.printStackTrace()
+                Log.d("CryptoService", e.message!!)
+                emptyList()
+            }
         }
     }
 }
