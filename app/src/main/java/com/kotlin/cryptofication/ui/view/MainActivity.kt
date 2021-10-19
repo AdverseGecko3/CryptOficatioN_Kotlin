@@ -12,16 +12,13 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationBarView
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.classes.Constants
-import com.kotlin.cryptofication.classes.DataClass
-import com.kotlin.cryptofication.classes.DatabaseClass
+import com.kotlin.cryptofication.utilities.Constants
+import com.kotlin.cryptofication.utilities.DataClass
+import com.kotlin.cryptofication.data.DatabaseClass
 
 class MainActivity : AppCompatActivity() {
 
     private var fragmentShow = 0
-    private val fragmentMarket = FragmentMarket()
-    private val fragmentFavorites = FragmentFavorites()
-    private val fragmentSettings = FragmentSettings()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -35,19 +32,16 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "Coming from Splash, going to Market")
             bottomNavigation.selectedItemId = Constants.MARKETS
             supportFragmentManager.beginTransaction()
-                .replace(fragmentShow, FragmentMarket())
-                .addToBackStack("market")
+                .add(fragmentShow, FragmentMarket(), "markets")
                 .commit()
         } else if (intent.getStringExtra("lastActivity") == "settings") {
             Log.d("MainActivity", "Coming from Settings, returning to Settings")
             bottomNavigation.selectedItemId = Constants.SETTINGS
             supportFragmentManager.beginTransaction()
-                .replace(fragmentShow, FragmentMarket())
-                .addToBackStack("market")
+                .add(fragmentShow, FragmentMarket(), "markets")
                 .commit()
             supportFragmentManager.beginTransaction()
-                .replace(fragmentShow, FragmentSettings())
-                .addToBackStack("settings")
+                .replace(fragmentShow, FragmentSettings(), "settings")
                 .commit()
         }
         DataClass.newItem = bottomNavigation.selectedItemId
@@ -83,58 +77,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fragmentTransaction(selectedFragment: Fragment?) {
+        Log.d("MainActivity", "Before: ${supportFragmentManager.backStackEntryCount}")
         when (DataClass.oldItem) {
             Constants.MARKETS -> when (DataClass.newItem) {
-                Constants.MARKETS -> supportFragmentManager.beginTransaction()
-                    .replace(fragmentShow, selectedFragment!!)
-                    .addToBackStack("market")
-                    .commit()
-                Constants.FAVORITES, Constants.SETTINGS -> supportFragmentManager.beginTransaction()
+                Constants.FAVORITES -> supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
-                    .replace(fragmentShow, selectedFragment!!)
-                    .disallowAddToBackStack()
+                    .replace(fragmentShow, selectedFragment!!, "favorites")
                     .commit()
-                else -> {
-                }
+                Constants.SETTINGS -> supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
+                    .replace(fragmentShow, selectedFragment!!, "settings")
+                    .commit()
             }
             Constants.FAVORITES -> when (DataClass.newItem) {
                 Constants.MARKETS -> supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right)
-                    .replace(fragmentShow, selectedFragment!!)
-                    .addToBackStack("market")
-                    .commit()
-                Constants.FAVORITES -> supportFragmentManager.beginTransaction()
-                    .replace(fragmentShow, selectedFragment!!)
-                    .disallowAddToBackStack()
+                    .replace(fragmentShow, selectedFragment!!, "markets")
                     .commit()
                 Constants.SETTINGS -> supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
-                    .replace(fragmentShow, selectedFragment!!)
-                    .disallowAddToBackStack()
+                    .replace(fragmentShow, selectedFragment!!, "settings")
                     .commit()
                 else -> {
                 }
             }
             Constants.SETTINGS -> when (DataClass.newItem) {
-                Constants.MARKETS, Constants.FAVORITES -> supportFragmentManager.beginTransaction()
+                Constants.MARKETS -> supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right)
-                    .replace(fragmentShow, selectedFragment!!)
-                    .disallowAddToBackStack()
+                    .replace(fragmentShow, selectedFragment!!, "markets")
                     .commit()
-                Constants.SETTINGS -> supportFragmentManager.beginTransaction()
-                    .replace(fragmentShow, selectedFragment!!)
-                    .disallowAddToBackStack()
+                Constants.FAVORITES -> supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right)
+                    .replace(fragmentShow, selectedFragment!!, "favorites")
                     .commit()
-                else -> {
-                }
-            }
-            else -> {
             }
         }
+        Log.d("MainActivity", "After: ${supportFragmentManager.backStackEntryCount}")
     }
 
     override fun onBackPressed() {
         // Create dialog to confirm the dismiss
+        Log.d("MainActivity", "${supportFragmentManager.backStackEntryCount}")
         val builder = AlertDialog.Builder(this, R.style.CustomAlertDialog)
         val titleExit = TextView(this)
         titleExit.text = getString(R.string.EXIT)

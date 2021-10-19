@@ -2,14 +2,11 @@ package com.kotlin.cryptofication.ui.view
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.ActionBar
@@ -22,8 +19,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.classes.Constants
-import com.kotlin.cryptofication.classes.CryptOficatioNApp.Companion.prefs
+import com.kotlin.cryptofication.utilities.Constants
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.prefs
 import java.lang.Exception
 
 class FragmentSettings : PreferenceFragmentCompat() {

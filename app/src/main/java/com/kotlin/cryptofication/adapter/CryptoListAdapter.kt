@@ -4,28 +4,28 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.classes.CryptOficatioNApp.Companion.prefs
-import com.kotlin.cryptofication.classes.DataClass
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.prefs
+import com.kotlin.cryptofication.utilities.DataClass
 import com.kotlin.cryptofication.data.model.CryptoModel
-import java.io.Serializable
 import com.kotlin.cryptofication.ui.view.DialogCryptoDetail
+import com.kotlin.cryptofication.utilities.showToast
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
-class CryptoListAdapter(
-    private val context: Context,
-    private val cryptoList: ArrayList<CryptoModel>
-) :
-    RecyclerView.Adapter<CryptoListViewHolder>(), Filterable,
-    Serializable, ItemTouchHelperAdapter {
-    private var userCurrency: String? = null
+class CryptoListAdapter(private val context: Context) :
+    RecyclerView.Adapter<CryptoListViewHolder>(),
+    Filterable,
+    ItemTouchHelperAdapter {
+
+    private var cryptoList: ArrayList<CryptoModel> = ArrayList()
+    private var cryptoListFull: ArrayList<CryptoModel> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CryptoListViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -34,7 +34,7 @@ class CryptoListAdapter(
     }
 
     override fun onBindViewHolder(holder: CryptoListViewHolder, position: Int) {
-        userCurrency = when (prefs.getCurrency()) {
+        val userCurrency = when (prefs.getCurrency()) {
             "eur" -> context.getString(R.string.CURRENCY_EURO)
             "usd" -> context.getString(R.string.CURRENCY_DOLLAR)
             else -> context.getString(R.string.CURRENCY_DOLLAR)
@@ -43,7 +43,7 @@ class CryptoListAdapter(
         holder.bind(selectedCrypto)
         holder.binding.parentLayout.setOnClickListener {
             val manager = (context as AppCompatActivity).supportFragmentManager
-            val alertDialog = DialogCryptoDetail(selectedCrypto, userCurrency!!)
+            val alertDialog = DialogCryptoDetail(selectedCrypto, userCurrency)
             alertDialog.show(manager, "fragment_alert")
         }
     }
@@ -55,17 +55,22 @@ class CryptoListAdapter(
     private val filter = object : Filter() {
         override fun performFiltering(charSequence: CharSequence): FilterResults {
             val filteredList = ArrayList<CryptoModel>()
-            val cryptoListFull = ArrayList(cryptoList)
-            if (charSequence.isEmpty()) {
+            val query = charSequence.toString()
+
+            if (query.isEmpty()) {
+                Log.d("performFilter", "Filter empty")
                 filteredList.addAll(cryptoListFull)
             } else {
-                val filterPattern = charSequence.toString().lowercase().trim { it <= ' ' }
+                Log.d("performFilter", "Filter not empty")
+                val filterPattern = query.lowercase().trim { it <= ' ' }
+                Log.d("performFilter", filterPattern)
                 for (crypto in cryptoListFull) {
                     if (crypto.name.lowercase().contains(filterPattern)) {
                         filteredList.add(crypto)
                     }
                 }
             }
+            Log.d("performFilter", "List full:${cryptoList.size} List filter:${cryptoListFull.size}")
             val results = FilterResults()
             results.values = filteredList
             return results
@@ -80,6 +85,13 @@ class CryptoListAdapter(
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun setCryptos(cryptoList: List<CryptoModel>) {
+        this.cryptoList = ArrayList(cryptoList)
+        this.cryptoListFull = ArrayList(cryptoList)
+        notifyDataSetChanged()
+    }
+
     override fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder) {
         // Get the position and the crypto symbol of the item
         val position = viewHolder.bindingAdapterPosition
@@ -92,8 +104,7 @@ class CryptoListAdapter(
             SimpleDateFormat(
                 "yyy-MM-dd HH:mm:ss",
                 Locale.getDefault()
-            )
-                .format(System.currentTimeMillis())
+            ).format(System.currentTimeMillis())
         )
         when (resultInsert) {
             -1 -> {
@@ -129,18 +140,10 @@ class CryptoListAdapter(
                         when (DataClass.db.deleteFromFavorites(cryptoSymbol)) {
                             0 ->
                                 // The item couldn't be deleted
-                                Toast.makeText(
-                                    context,
-                                    "$cryptoSymbol couldn't be removed",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                context.showToast("$cryptoSymbol couldn't be removed", 0)
                             1 ->
                                 // The item has been deleted successfully
-                                Toast.makeText(
-                                    context,
-                                    "$cryptoSymbol removed from Favorites successfully",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                context.showToast("$cryptoSymbol removed from Favorites successfully")
                         }
                     }.show()
             }

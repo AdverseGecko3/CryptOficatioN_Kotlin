@@ -23,53 +23,53 @@ class MarketViewModel: ViewModel() {
 
     fun onCreate() {
         viewModelScope.launch {
+            // Start refreshing
             isLoading.postValue(true)
 
-            // Check if variables were saved when returning to FragmentMarket
-            Log.d(
-                "onCreateViewModel",
-                "lastSelectedFilteredItem: $lastSelectedFilterItem " +
-                        "- orderOption: $orderOption " +
-                        "- orderFilter: $orderFilter"
-            )
-
+            // Get Cryptos from the API (online)
             var result = getCryptoOnlineUseCase()
             Log.d("onCreateViewModel", "Result: $result")
             if (!result.isNullOrEmpty()) {
-                result = changeSortRecyclerView(result)
+                // Sort cryptoList with the desired filters and post the list
+                result = sortCryptoList(result)
                 cryptoLiveData.postValue(result)
+
+                // Stop refreshing
                 isLoading.postValue(false)
             } else {
+                // Send error to show a toast
                 error.postValue("Error while getting cryptos Online!")
+
+                // Stop refreshing
                 isLoading.postValue(false)
             }
         }
     }
 
     fun onFilterChanged() {
+        // Start refreshing
         isLoading.postValue(true)
 
-        // Check if variables were saved when returning to FragmentMarket
-        Log.d(
-            "onFilterChangeViewModel",
-            "lastSelectedFilteredItem: $lastSelectedFilterItem " +
-                    "- orderOption: $orderOption " +
-                    "- orderFilter: $orderFilter"
-        )
-
+        // Get Cryptos from the provider (online)
         var result = getCryptoOfflineUseCase()
         Log.d("onFilterChangeViewModel", "Result: $result")
         if (!result.isNullOrEmpty()) {
-            result = changeSortRecyclerView(result)
+            // Sort cryptoList with the desired filters and post the list
+            result = sortCryptoList(result)
             cryptoLiveData.postValue(result)
+
+            // Stop refreshing
             isLoading.postValue(false)
         } else {
+            // Send error to show a toast
             error.postValue("Error while getting cryptos Offline!")
+
+            // Stop refreshing
             isLoading.postValue(false)
         }
     }
 
-    private fun changeSortRecyclerView(cryptoList: List<CryptoModel>): List<CryptoModel> {
+    private fun sortCryptoList(cryptoList: List<CryptoModel>): List<CryptoModel> {
         // Reorder cryptoList
         Log.d("changeSortRecyclerView", "cryptoList[0]: " + cryptoList[0].name)
         Log.d("changeSortRecyclerView", "Type: $orderOption - Order: $orderFilter")
@@ -79,8 +79,10 @@ class MarketViewModel: ViewModel() {
                 // Ordered by name
                 Log.d("changeSortRecyclerView", "Sort by name")
                 return if (orderFilter == 0) {
+                    // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.name }
                 } else {
+                    // Order descending
                     cryptoList.sortedByDescending { crypto -> crypto.name }
                 }
             }
@@ -88,8 +90,10 @@ class MarketViewModel: ViewModel() {
                 // Ordered by symbol
                 Log.d("changeSortRecyclerView", "Sort by symbol")
                 return if (orderFilter == 0) {
+                    // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.symbol }
                 } else {
+                    // Order descending
                     cryptoList.sortedByDescending { crypto -> crypto.symbol }
                 }
             }
@@ -97,8 +101,10 @@ class MarketViewModel: ViewModel() {
                 // Ordered by price
                 Log.d("changeSortRecyclerView", "Sort by price")
                 return if (orderFilter == 0) {
+                    // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.current_price }
                 } else {
+                    // Order descending
                     cryptoList.sortedByDescending { crypto -> crypto.current_price }
                 }
             }
@@ -106,8 +112,10 @@ class MarketViewModel: ViewModel() {
                 // Ordered by change percentage
                 Log.d("changeSortRecyclerView", "Sort by percentage")
                 return if (orderFilter == 0) {
+                    // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.price_change_percentage_24h }
                 } else {
+                    // Order descending
                     cryptoList.sortedByDescending { crypto -> crypto.price_change_percentage_24h }
                 }
             }

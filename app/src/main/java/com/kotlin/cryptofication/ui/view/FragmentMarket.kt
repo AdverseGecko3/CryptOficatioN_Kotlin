@@ -4,31 +4,23 @@ import android.annotation.SuppressLint
 import android.os.*
 import android.util.Log
 import android.view.*
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
-import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListAdapter
-import com.kotlin.cryptofication.classes.DataClass
 import com.kotlin.cryptofication.databinding.FragmentMarketBinding
 import com.kotlin.cryptofication.data.model.CryptoModel
 import com.kotlin.cryptofication.ui.viewmodel.MarketViewModel
-import kotlin.collections.ArrayList
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
-import com.kotlin.cryptofication.classes.CryptOficatioNApp
-import com.kotlin.cryptofication.classes.CryptOficatioNApp.Companion.prefs
-import java.text.DecimalFormat
-import java.text.NumberFormat
-
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.prefs
+import com.kotlin.cryptofication.utilities.*
 
 class FragmentMarket : Fragment() {
 
@@ -51,7 +43,9 @@ class FragmentMarket : Fragment() {
     ): View {
         _binding = FragmentMarketBinding.inflate(inflater, container, false)
 
+        // Enable options menu in fragment
         setHasOptionsMenu(true)
+
         // Insert custom toolbar
         (requireActivity() as AppCompatActivity).supportActionBar?.displayOptions =
             ActionBar.DISPLAY_SHOW_CUSTOM
@@ -59,9 +53,12 @@ class FragmentMarket : Fragment() {
         (requireActivity() as AppCompatActivity).supportActionBar?.setCustomView(R.layout.toolbar_home)
         (requireActivity() as AppCompatActivity).supportActionBar?.elevation = 10f
 
-        // SwipeRefreshLayout listener and customization
+        //Initialize RecyclerView
+        initRecyclerView()
+
+        // SwipeRefreshLayout refresh listener
         binding.srlMarketReload.setOnRefreshListener {
-            // When refreshing, load crypto data again
+            // See checked filters
             when {
                 itemName!!.isChecked -> {
                     marketViewModel.orderOption = 0
@@ -84,32 +81,44 @@ class FragmentMarket : Fragment() {
                     marketViewModel.orderFilter = 1
                 }
             }
+
+            // Load crypto data from API
             marketViewModel.onCreate()
         }
 
+        // Swipe refresh customization
         binding.srlMarketReload.setColorSchemeResources(R.color.purple_app_accent)
 
         marketViewModel.isLoading.observe(requireActivity(), { isLoading ->
             Log.d("FragmentMarket", "isLoading changed to $isLoading")
+
+            // Set refreshing depending isLoading boolean in ViewModel
             binding.srlMarketReload.isRefreshing = isLoading
         })
 
         marketViewModel.cryptoLiveData.observe(requireActivity(), { cryptoList ->
             Log.d("FragmentMarket", "Received cryptoList")
-            initRecyclerView(cryptoList)
+
+            // Set the cryptoList from API to the adapter
+            setListToAdapter(cryptoList)
+
+            // Start ViewFlipper
             initViewFlipper(cryptoList)
         })
 
         marketViewModel.error.observe(requireActivity(), { errorMessage ->
             Log.d("FragmentMarket", "Error message")
-            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+
+            // Show toast when result is empty/null on ViewModel
+            requireContext().showToast(errorMessage)
         })
 
-        // Fetching data from server
+        // Load crypto data from API now
         binding.srlMarketReload.post {
             Log.d("FragmentMarket", "Post SwipeRefresh")
             marketViewModel.onCreate()
         }
+
         return binding.root
     }
 
@@ -121,10 +130,12 @@ class FragmentMarket : Fragment() {
         // Find itemSearch and viewSearch in the toolbar
         val itemSearch = menu.findItem(R.id.mnSearch)
         val viewSearch = itemSearch.actionView as SearchView
+        Log.d("onCreateOptionsMenu", "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}")
 
-        // If it is the first run load the starting filters from the SharedPreferences
+        // Check if it is the first run
         if (DataClass.firstRun) {
             Log.d("onCreateOptionsMenu", "First run")
+            // Load the starting filters from the SharedPreferences and check the options
             val userFilterOption = prefs.getFilterOption()
             val userFilterOrder = prefs.getFilterOrder()
             when (userFilterOption.toInt()) {
@@ -132,28 +143,24 @@ class FragmentMarket : Fragment() {
                     itemName?.isChecked = true
                     marketViewModel.orderOption = 0
 
-                    // Get the ID of the item selected previously ( of the new one
                     marketViewModel.lastSelectedFilterItem = itemName!!.itemId
                 }
                 1 -> {
                     itemSymbol?.isChecked = true
                     marketViewModel.orderOption = 1
 
-                    // Get the ID of the item selected previously ( of the new one
                     marketViewModel.lastSelectedFilterItem = itemSymbol!!.itemId
                 }
                 2 -> {
                     itemPrice?.isChecked = true
                     marketViewModel.orderOption = 2
 
-                    // Get the ID of the item selected previously ( of the new one
                     marketViewModel.lastSelectedFilterItem = itemPrice!!.itemId
                 }
                 3 -> {
                     itemPercentage?.isChecked = true
                     marketViewModel.orderOption = 3
 
-                    // Get the ID of the item selected previously ( of the new one
                     marketViewModel.lastSelectedFilterItem = itemPercentage!!.itemId
                 }
             }
@@ -171,6 +178,7 @@ class FragmentMarket : Fragment() {
             // Set first run to false
             DataClass.firstRun = false
         } else {
+            // See orderOption and orderFilter in ViewModel, and check the corresponding options
             when (marketViewModel.orderOption) {
                 0 -> itemName?.isChecked = true
                 1 -> itemSymbol?.isChecked = true
@@ -186,8 +194,8 @@ class FragmentMarket : Fragment() {
             }
             // Get the ID of the item selected previously ( of the new one
             marketViewModel.lastSelectedFilterItem = itemName!!.itemId
-
         }
+        Log.d("onCreateOptionsMenu", "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}")
 
         // SearchView and itemSearch listeners
         viewSearch.imeOptions = EditorInfo.IME_ACTION_DONE
@@ -199,6 +207,7 @@ class FragmentMarket : Fragment() {
 
             override fun onQueryTextChange(query: String): Boolean {
                 // Apply the query as the user makes some change on the filter (writes something)
+                Log.d("QueryTextChanged", query)
                 rwCryptoAdapter.filter.filter(query)
                 return false
             }
@@ -342,24 +351,24 @@ class FragmentMarket : Fragment() {
         return true
     }
 
-    private fun initRecyclerView(cryptoList: List<CryptoModel>) {
-        // Initialize RecyclerView manager and adapter
-        rwCryptoAdapter = CryptoListAdapter(
-            requireActivity(),
-            ArrayList(cryptoList)
-        )
+    private fun initRecyclerView() {
+        // Initialize RecyclerView layout manager and adapter
+        rwCryptoAdapter = CryptoListAdapter(requireActivity())
         binding.rwMarketCryptoList.layoutManager = LinearLayoutManager(context)
         binding.rwMarketCryptoList.adapter = rwCryptoAdapter
         binding.rwMarketCryptoList.setHasFixedSize(true)
 
-        val callback =
-            SimpleItemTouchHelperCallback(rwCryptoAdapter, binding.srlMarketReload)
+        // Attach ItemTouchHelper (swipe items to favorite)
+        val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, binding.srlMarketReload)
         mItemTouchHelper = ItemTouchHelper(callback)
         mItemTouchHelper.attachToRecyclerView(binding.rwMarketCryptoList)
     }
 
+    private fun setListToAdapter(cryptoList: List<CryptoModel>) {
+        rwCryptoAdapter.setCryptos(cryptoList)
+    }
+
     private fun initViewFlipper(cryptoList: List<CryptoModel>) {
-        // Prepare ViewFlipper
         val animationIn = AnimationUtils.loadAnimation(requireContext(), R.anim.enter_from_right)
         val animationOut = AnimationUtils.loadAnimation(requireContext(), R.anim.exit_to_left)
         binding.vfFragmentMarket.inAnimation = animationIn
@@ -375,118 +384,50 @@ class FragmentMarket : Fragment() {
             "usd" -> CryptOficatioNApp.appContext.getString(R.string.CURRENCY_DOLLAR)
             else -> CryptOficatioNApp.appContext.getString(R.string.CURRENCY_DOLLAR)
         }
-        val nf = NumberFormat.getInstance()
-        val currencySeparator = DecimalFormat().decimalFormatSymbols.decimalSeparator
 
         binding.tvVFOneCryptoSymbol.text = firstCrypto.symbol.uppercase()
-        var currentPrice = String.format("%.10f", firstCrypto.current_price)
-            .replace("0+$".toRegex(), "")
-        if (currentPrice.endsWith(currencySeparator)) {
-            currentPrice = currentPrice.substring(0, currentPrice.length - 1)
-        }
-        binding.tvVFOneCryptoCurrentPrice.text = "$currentPrice$userCurrency"
-        var priceChange = String.format("%.2f", firstCrypto.price_change_percentage_24h)
-            .replace("0+$".toRegex(), "")
-        if (priceChange.endsWith(currencySeparator)) {
-            priceChange = priceChange.substring(0, priceChange.length - 1)
-        }
-        binding.tvVFOneCryptoPriceChange.text = "$priceChange%"
-        if (nf.parse(priceChange)!!.toDouble() > 0) {
-            binding.ivVFOneCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_up)
-            binding.ivVFOneCryptoPriceChange.setColorFilter(
-                ContextCompat.getColor(requireContext(), R.color.green_high)
-            )
-            binding.tvVFOneCryptoCurrentPrice.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.green_high)
-            )
-            binding.tvVFOneCryptoPriceChange.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.green_high)
-            )
+        var currentPrice = firstCrypto.current_price.customFormattedPrice(userCurrency)
+        binding.tvVFOneCryptoCurrentPrice.text = currentPrice
+        var priceChange = firstCrypto.price_change_percentage_24h.customFormattedPercentage()
+        binding.tvVFOneCryptoPriceChange.text = priceChange
+        if (firstCrypto.price_change_percentage_24h >= 0) {
+            binding.ivVFOneCryptoPriceChange.positivePrice()
+            binding.tvVFOneCryptoCurrentPrice.positivePrice()
+            binding.tvVFOneCryptoPriceChange.positivePrice()
         } else {
-            binding.ivVFOneCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_down)
-            binding.ivVFOneCryptoPriceChange.setColorFilter(
-                ContextCompat.getColor(requireContext(), R.color.red_low)
-            )
-            binding.tvVFOneCryptoCurrentPrice.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.red_low)
-            )
-            binding.tvVFOneCryptoPriceChange.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.red_low)
-            )
+            binding.ivVFOneCryptoPriceChange.negativePrice()
+            binding.tvVFOneCryptoCurrentPrice.negativePrice()
+            binding.tvVFOneCryptoPriceChange.negativePrice()
         }
 
         binding.tvVFTwoCryptoSymbol.text = secondCrypto.symbol.uppercase()
-        currentPrice = String.format("%.10f", secondCrypto.current_price)
-            .replace("0+$".toRegex(), "")
-        if (currentPrice.endsWith(currencySeparator)) {
-            currentPrice = currentPrice.substring(0, currentPrice.length - 1)
-        }
-        binding.tvVFTwoCryptoCurrentPrice.text = "$currentPrice$userCurrency"
-        priceChange = String.format("%.2f", secondCrypto.price_change_percentage_24h)
-            .replace("0+$".toRegex(), "")
-        if (priceChange.endsWith(currencySeparator)) {
-            priceChange = priceChange.substring(0, priceChange.length - 1)
-        }
-        binding.tvVFTwoCryptoPriceChange.text = "$priceChange%"
-        if (nf.parse(priceChange)!!.toDouble() > 0) {
-            binding.ivVFTwoCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_up)
-            binding.ivVFTwoCryptoPriceChange.setColorFilter(
-                ContextCompat.getColor(CryptOficatioNApp.appContext, R.color.green_high)
-            )
-            binding.tvVFTwoCryptoCurrentPrice.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.green_high)
-            )
-            binding.tvVFTwoCryptoPriceChange.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.green_high)
-            )
+        currentPrice = secondCrypto.current_price.customFormattedPrice(userCurrency)
+        binding.tvVFTwoCryptoCurrentPrice.text = currentPrice
+        priceChange = secondCrypto.price_change_percentage_24h.customFormattedPercentage()
+        binding.tvVFTwoCryptoPriceChange.text = priceChange
+        if (secondCrypto.price_change_percentage_24h >= 0) {
+            binding.ivVFTwoCryptoPriceChange.positivePrice()
+            binding.tvVFTwoCryptoCurrentPrice.positivePrice()
+            binding.tvVFTwoCryptoPriceChange.positivePrice()
         } else {
-            binding.ivVFTwoCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_down)
-            binding.ivVFTwoCryptoPriceChange.setColorFilter(
-                ContextCompat.getColor(requireContext(), R.color.red_low)
-            )
-            binding.tvVFTwoCryptoCurrentPrice.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.red_low)
-            )
-            binding.tvVFTwoCryptoPriceChange.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.red_low)
-            )
+            binding.ivVFTwoCryptoPriceChange.negativePrice()
+            binding.tvVFTwoCryptoCurrentPrice.negativePrice()
+            binding.tvVFTwoCryptoPriceChange.negativePrice()
         }
 
         binding.tvVFThreeCryptoSymbol.text = thirdCrypto.symbol.uppercase()
-        currentPrice = String.format("%.10f", thirdCrypto.current_price)
-            .replace("0+$".toRegex(), "")
-        if (currentPrice.endsWith(currencySeparator)) {
-            currentPrice = currentPrice.substring(0, currentPrice.length - 1)
-        }
-        binding.tvVFThreeCryptoCurrentPrice.text = "$currentPrice$userCurrency"
-        priceChange = String.format("%.2f", thirdCrypto.price_change_percentage_24h)
-            .replace("0+$".toRegex(), "")
-        if (priceChange.endsWith(currencySeparator)) {
-            priceChange = priceChange.substring(0, priceChange.length - 1)
-        }
-        binding.tvVFThreeCryptoPriceChange.text = "$priceChange%"
-        if (nf.parse(priceChange)!!.toDouble() > 0) {
-            binding.ivVFThreeCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_up)
-            binding.ivVFThreeCryptoPriceChange.setColorFilter(
-                ContextCompat.getColor(requireContext(), R.color.green_high)
-            )
-            binding.tvVFThreeCryptoCurrentPrice.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.green_high)
-            )
-            binding.tvVFThreeCryptoPriceChange.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.green_high)
-            )
+        currentPrice = thirdCrypto.current_price.customFormattedPrice(userCurrency)
+        binding.tvVFThreeCryptoCurrentPrice.text = currentPrice
+        priceChange = thirdCrypto.price_change_percentage_24h.customFormattedPercentage()
+        binding.tvVFThreeCryptoPriceChange.text = priceChange
+        if (thirdCrypto.price_change_percentage_24h >= 0) {
+            binding.ivVFThreeCryptoPriceChange.positivePrice()
+            binding.tvVFThreeCryptoCurrentPrice.positivePrice()
+            binding.tvVFThreeCryptoPriceChange.positivePrice()
         } else {
-            binding.ivVFThreeCryptoPriceChange.setImageResource(R.drawable.ic_arrow_drop_down)
-            binding.ivVFThreeCryptoPriceChange.setColorFilter(
-                ContextCompat.getColor(requireContext(), R.color.red_low)
-            )
-            binding.tvVFThreeCryptoCurrentPrice.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.red_low)
-            )
-            binding.tvVFThreeCryptoPriceChange.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.red_low)
-            )
+            binding.ivVFThreeCryptoPriceChange.negativePrice()
+            binding.tvVFThreeCryptoCurrentPrice.negativePrice()
+            binding.tvVFThreeCryptoPriceChange.negativePrice()
         }
     }
 

@@ -2,7 +2,7 @@ package com.kotlin.cryptofication.data.network
 
 import android.util.Log
 import com.kotlin.cryptofication.core.RetrofitHelper
-import com.kotlin.cryptofication.classes.CryptOficatioNApp.Companion.prefs
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.prefs
 import com.kotlin.cryptofication.data.model.CryptoModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

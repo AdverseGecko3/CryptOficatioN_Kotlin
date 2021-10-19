@@ -1,8 +1,8 @@
-package com.kotlin.cryptofication.classes
+package com.kotlin.cryptofication.data
 
 import android.content.Context
-import android.content.SharedPreferences
 import com.kotlin.cryptofication.R
+import com.kotlin.cryptofication.utilities.Constants
 import java.util.ArrayList
 
 class Preferences(context: Context) {

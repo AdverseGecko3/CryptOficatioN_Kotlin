@@ -4,13 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.kotlin.cryptofication.classes.CryptOficatioNApp
-import com.kotlin.cryptofication.classes.Preferences
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.prefs
 
 class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (Preferences(CryptOficatioNApp.appContext).getScheme()) {
+        if (prefs.getScheme()) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)

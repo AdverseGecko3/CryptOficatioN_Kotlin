@@ -3,14 +3,12 @@ package com.kotlin.cryptofication.adapter
 import android.graphics.Canvas
 import android.os.Build
 import android.util.Log
-import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.classes.CryptOficatioNApp
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp
 
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlin.math.roundToInt

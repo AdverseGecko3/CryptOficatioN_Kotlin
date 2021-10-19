@@ -1,4 +1,4 @@
-package com.kotlin.cryptofication.classes
+package com.kotlin.cryptofication.data
 
 import android.content.Context
 import android.database.SQLException
@@ -10,15 +10,15 @@ import java.lang.Exception
 
 class DatabaseClass(context: Context?, name: String?, factory: CursorFactory?, version: Int) :
     SQLiteOpenHelper(context, name, factory, version) {
-    private val SQLiteCreateTableFavorites =
+    private val createSQLiteTableFavorites =
         "CREATE TABLE Favorites (SYMBOL TEXT PRIMARY KEY, DATE_ADDED TEXT)"
-    private val SQLiteDropTableFavorites = "DROP TABLE IF EXISTS 'Favorites'"
+    private val dropSQLiteTableFavorites = "DROP TABLE IF EXISTS 'Favorites'"
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(SQLiteCreateTableFavorites)
+        db.execSQL(createSQLiteTableFavorites)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL(SQLiteDropTableFavorites)
+        db.execSQL(dropSQLiteTableFavorites)
         onCreate(db)
     }
 
