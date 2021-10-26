@@ -7,7 +7,7 @@ import android.widget.LinearLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.data.model.CryptoModel
+import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.databinding.CryptoDetailDialogBinding
 import com.kotlin.cryptofication.utilities.customFormattedPercentage
 import com.kotlin.cryptofication.utilities.customFormattedPrice
@@ -15,7 +15,7 @@ import com.kotlin.cryptofication.utilities.negativePrice
 import com.kotlin.cryptofication.utilities.positivePrice
 
 class DialogCryptoDetail(
-    private val selectedCrypto: CryptoModel,
+    private val selectedCrypto: Crypto,
     private val userCurrency: String
 ) : DialogFragment() {
     private var _binding: CryptoDetailDialogBinding? = null
@@ -61,7 +61,8 @@ class DialogCryptoDetail(
                 null
             )
         )
-        negativeButton.textSize = 17F
+        negativeButton.textSize = 15F
+        negativeButton.setPadding(2, 2, 2, 2)
         val layoutParams = negativeButton.layoutParams as LinearLayout.LayoutParams
         layoutParams.weight = 10f
         negativeButton.layoutParams = layoutParams

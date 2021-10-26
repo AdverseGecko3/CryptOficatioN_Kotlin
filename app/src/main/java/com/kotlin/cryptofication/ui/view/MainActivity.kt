@@ -14,7 +14,6 @@ import com.google.android.material.navigation.NavigationBarView
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.utilities.DataClass
-import com.kotlin.cryptofication.data.DatabaseClass
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,7 +24,6 @@ class MainActivity : AppCompatActivity() {
         references()
 
         // Initialize database
-        DataClass.db = DatabaseClass(this, "CryptOficatioN Database", null, 1)
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.navBottom)
         bottomNavigation.setOnItemSelectedListener(navListener)
         if (intent.getStringExtra("lastActivity") == "splash") {
@@ -59,10 +57,10 @@ class MainActivity : AppCompatActivity() {
                 DataClass.oldItem = DataClass.newItem
                 DataClass.newItem = Constants.MARKETS
             }
-            Constants.FAVORITES -> {
-                selectedFragment = FragmentFavorites()
+            Constants.ALERTS -> {
+                selectedFragment = FragmentAlerts()
                 DataClass.oldItem = DataClass.newItem
-                DataClass.newItem = Constants.FAVORITES
+                DataClass.newItem = Constants.ALERTS
             }
             Constants.SETTINGS -> {
                 selectedFragment = FragmentSettings()
@@ -77,19 +75,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fragmentTransaction(selectedFragment: Fragment?) {
-        Log.d("MainActivity", "Before: ${supportFragmentManager.backStackEntryCount}")
         when (DataClass.oldItem) {
             Constants.MARKETS -> when (DataClass.newItem) {
-                Constants.FAVORITES -> supportFragmentManager.beginTransaction()
+                Constants.ALERTS -> supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
-                    .replace(fragmentShow, selectedFragment!!, "favorites")
+                    .replace(fragmentShow, selectedFragment!!, "alerts")
                     .commit()
                 Constants.SETTINGS -> supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
                     .replace(fragmentShow, selectedFragment!!, "settings")
                     .commit()
             }
-            Constants.FAVORITES -> when (DataClass.newItem) {
+            Constants.ALERTS -> when (DataClass.newItem) {
                 Constants.MARKETS -> supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right)
                     .replace(fragmentShow, selectedFragment!!, "markets")
@@ -106,13 +103,13 @@ class MainActivity : AppCompatActivity() {
                     .setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right)
                     .replace(fragmentShow, selectedFragment!!, "markets")
                     .commit()
-                Constants.FAVORITES -> supportFragmentManager.beginTransaction()
+                Constants.ALERTS -> supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right)
-                    .replace(fragmentShow, selectedFragment!!, "favorites")
+                    .replace(fragmentShow, selectedFragment!!, "alerts")
                     .commit()
             }
         }
-        Log.d("MainActivity", "After: ${supportFragmentManager.backStackEntryCount}")
+        Log.d("MainActivity", "BackStack: ${supportFragmentManager.backStackEntryCount}")
     }
 
     override fun onBackPressed() {

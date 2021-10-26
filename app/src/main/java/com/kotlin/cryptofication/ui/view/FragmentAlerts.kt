@@ -1,38 +1,30 @@
 package com.kotlin.cryptofication.ui.view
 
 import android.annotation.SuppressLint
-import android.os.*
+import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter
-import com.kotlin.cryptofication.databinding.FragmentMarketBinding
+import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter
 import com.kotlin.cryptofication.data.model.Crypto
-import com.kotlin.cryptofication.ui.viewmodel.MarketViewModel
-import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
-import com.kotlin.cryptofication.utilities.*
-import java.text.SimpleDateFormat
-import java.util.*
-import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
+import com.kotlin.cryptofication.databinding.FragmentAlertsBinding
+import com.kotlin.cryptofication.ui.viewmodel.AlertsViewModel
+import com.kotlin.cryptofication.utilities.DataClass
+import com.kotlin.cryptofication.utilities.showToast
 
+class FragmentAlerts: Fragment() {
 
-class FragmentMarket : Fragment(), SelectedChangeListener {
-
-    private var _binding: FragmentMarketBinding? = null
+    private var _binding: FragmentAlertsBinding? = null
     private val binding get() = _binding!!
-    private val marketViewModel: MarketViewModel by viewModels()
-    private lateinit var rwCryptoAdapter: CryptoListMarketAdapter
-    private lateinit var mItemTouchHelper: ItemTouchHelper
+    private val alertsViewModel: AlertsViewModel by viewModels()
+    private lateinit var rwCryptoAdapter: CryptoListAlertsAdapter
     private var itemName: MenuItem? = null
     private var itemSymbol: MenuItem? = null
     private var itemPrice: MenuItem? = null
@@ -45,7 +37,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentMarketBinding.inflate(inflater, container, false)
+        _binding = FragmentAlertsBinding.inflate(inflater, container, false)
 
         // Enable options menu in fragment
         setHasOptionsMenu(true)
@@ -61,65 +53,53 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         initRecyclerView()
 
         // SwipeRefreshLayout refresh listener
-        binding.srlMarketReload.setOnRefreshListener {
+        binding.srlAlertsReload.setOnRefreshListener {
             // See checked filters
             when {
                 itemName!!.isChecked -> {
-                    marketViewModel.orderOption = 0
+                    alertsViewModel.orderOption = 0
                 }
                 itemSymbol!!.isChecked -> {
-                    marketViewModel.orderOption = 1
+                    alertsViewModel.orderOption = 1
                 }
                 itemPrice!!.isChecked -> {
-                    marketViewModel.orderOption = 2
+                    alertsViewModel.orderOption = 2
                 }
                 itemPercentage!!.isChecked -> {
-                    marketViewModel.orderOption = 3
+                    alertsViewModel.orderOption = 3
                 }
             }
             when {
                 itemAscending!!.isChecked -> {
-                    marketViewModel.orderFilter = 0
+                    alertsViewModel.orderFilter = 0
                 }
                 itemDescending!!.isChecked -> {
-                    marketViewModel.orderFilter = 1
+                    alertsViewModel.orderFilter = 1
                 }
             }
 
             // Load crypto data from API
-            marketViewModel.onCreate()
+            alertsViewModel.onCreate()
         }
 
         // Swipe refresh customization
-        binding.srlMarketReload.setColorSchemeResources(R.color.purple_app_accent)
+        binding.srlAlertsReload.setColorSchemeResources(R.color.purple_app_accent)
 
-        marketViewModel.isLoading.observe(requireActivity(), { isLoading ->
+        alertsViewModel.isLoading.observe(requireActivity(), { isLoading ->
             Log.d("FragmentMarket", "isLoading changed to $isLoading")
 
             // Set refreshing depending isLoading boolean in ViewModel
-            binding.srlMarketReload.isRefreshing = isLoading
+            binding.srlAlertsReload.isRefreshing = isLoading
         })
 
-        marketViewModel.cryptoLiveData.observe(requireActivity(), { cryptoList ->
+        alertsViewModel.cryptoLiveData.observe(requireActivity(), { cryptoList ->
             Log.d("FragmentMarket", "Received cryptoList")
 
             // Set the cryptoList from API to the adapter
             setListToAdapter(cryptoList)
-
-            // Start ViewFlipper
-            initViewFlipper(cryptoList)
         })
 
-        Log.d(
-            "itemSwipe", "TS:${
-                SimpleDateFormat(
-                    "yyy-MM-dd HH:mm:ss",
-                    Locale.getDefault()
-                ).format(System.currentTimeMillis())
-            }"
-        )
-
-        marketViewModel.error.observe(requireActivity(), { errorMessage ->
+        alertsViewModel.error.observe(requireActivity(), { errorMessage ->
             Log.d("FragmentMarket", "Error message")
 
             // Show toast when result is empty/null on ViewModel
@@ -127,9 +107,9 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         })
 
         // Load crypto data from API now
-        binding.srlMarketReload.post {
+        binding.srlAlertsReload.post {
             Log.d("FragmentMarket", "Post SwipeRefresh")
-            marketViewModel.onCreate()
+            alertsViewModel.onCreate()
         }
 
         return binding.root
@@ -145,49 +125,49 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         val viewSearch = itemSearch.actionView as SearchView
         Log.d(
             "onCreateOptionsMenu",
-            "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}"
+            "orderOption:${alertsViewModel.orderOption} - orderFilter:${alertsViewModel.orderFilter}"
         )
 
         // Check if it is the first run
         if (DataClass.firstRun) {
             Log.d("onCreateOptionsMenu", "First run")
             // Load the starting filters from the SharedPreferences and check the options
-            val userFilterOption = mPrefs.getFilterOption()
-            val userFilterOrder = mPrefs.getFilterOrder()
+            val userFilterOption = CryptOficatioNApp.mPrefs.getFilterOption()
+            val userFilterOrder = CryptOficatioNApp.mPrefs.getFilterOrder()
             when (userFilterOption.toInt()) {
                 0 -> {
                     itemName?.isChecked = true
-                    marketViewModel.orderOption = 0
+                    alertsViewModel.orderOption = 0
 
-                    marketViewModel.lastSelectedFilterItem = itemName!!.itemId
+                    alertsViewModel.lastSelectedFilterItem = itemName!!.itemId
                 }
                 1 -> {
                     itemSymbol?.isChecked = true
-                    marketViewModel.orderOption = 1
+                    alertsViewModel.orderOption = 1
 
-                    marketViewModel.lastSelectedFilterItem = itemSymbol!!.itemId
+                    alertsViewModel.lastSelectedFilterItem = itemSymbol!!.itemId
                 }
                 2 -> {
                     itemPrice?.isChecked = true
-                    marketViewModel.orderOption = 2
+                    alertsViewModel.orderOption = 2
 
-                    marketViewModel.lastSelectedFilterItem = itemPrice!!.itemId
+                    alertsViewModel.lastSelectedFilterItem = itemPrice!!.itemId
                 }
                 3 -> {
                     itemPercentage?.isChecked = true
-                    marketViewModel.orderOption = 3
+                    alertsViewModel.orderOption = 3
 
-                    marketViewModel.lastSelectedFilterItem = itemPercentage!!.itemId
+                    alertsViewModel.lastSelectedFilterItem = itemPercentage!!.itemId
                 }
             }
             when (userFilterOrder.toInt()) {
                 0 -> {
                     itemAscending?.isChecked = true
-                    marketViewModel.orderFilter = 0
+                    alertsViewModel.orderFilter = 0
                 }
                 1 -> {
                     itemDescending?.isChecked = true
-                    marketViewModel.orderFilter = 1
+                    alertsViewModel.orderFilter = 1
                 }
             }
 
@@ -195,25 +175,25 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
             DataClass.firstRun = false
         } else {
             // See orderOption and orderFilter in ViewModel, and check the corresponding options
-            when (marketViewModel.orderOption) {
+            when (alertsViewModel.orderOption) {
                 0 -> itemName?.isChecked = true
                 1 -> itemSymbol?.isChecked = true
                 2 -> itemPrice?.isChecked = true
                 3 -> itemPercentage?.isChecked = true
 
             }
-            when (marketViewModel.orderFilter) {
+            when (alertsViewModel.orderFilter) {
                 0 -> itemAscending?.isChecked = true
                 1 -> itemDescending?.isChecked = true
                 else -> {
                 }
             }
             // Get the ID of the item selected previously ( of the new one
-            marketViewModel.lastSelectedFilterItem = itemName!!.itemId
+            alertsViewModel.lastSelectedFilterItem = itemName!!.itemId
         }
         Log.d(
             "onCreateOptionsMenu",
-            "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}"
+            "orderOption:${alertsViewModel.orderOption} - orderFilter:${alertsViewModel.orderFilter}"
         )
 
         // SearchView and itemSearch listeners
@@ -257,77 +237,77 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         val itemId = item.itemId
         when (itemId) {
             R.id.mnFilterOptionName -> {
-                if (marketViewModel.lastSelectedFilterItem == R.id.mnFilterOptionName) {
+                if (alertsViewModel.lastSelectedFilterItem == R.id.mnFilterOptionName) {
                     if (itemAscending!!.isChecked) {
                         itemDescending?.isChecked = true
-                        marketViewModel.orderFilter = 1
+                        alertsViewModel.orderFilter = 1
                     } else {
                         itemAscending?.isChecked = true
-                        marketViewModel.orderFilter = 0
+                        alertsViewModel.orderFilter = 0
                     }
                 } else {
                     item.isChecked = true
                     itemAscending?.isChecked = true
-                    marketViewModel.orderFilter = 0
+                    alertsViewModel.orderFilter = 0
                 }
-                marketViewModel.lastSelectedFilterItem = itemId
-                marketViewModel.orderOption = 0
+                alertsViewModel.lastSelectedFilterItem = itemId
+                alertsViewModel.orderOption = 0
             }
             R.id.mnFilterOptionSymbol -> {
-                if (marketViewModel.lastSelectedFilterItem == R.id.mnFilterOptionSymbol) {
+                if (alertsViewModel.lastSelectedFilterItem == R.id.mnFilterOptionSymbol) {
                     if (itemAscending!!.isChecked) {
                         itemDescending?.isChecked = true
-                        marketViewModel.orderFilter = 1
+                        alertsViewModel.orderFilter = 1
                     } else {
                         itemAscending?.isChecked = true
-                        marketViewModel.orderFilter = 0
+                        alertsViewModel.orderFilter = 0
                     }
                 } else {
                     item.isChecked = true
                     itemAscending?.isChecked = true
-                    marketViewModel.orderFilter = 0
+                    alertsViewModel.orderFilter = 0
                 }
-                marketViewModel.lastSelectedFilterItem = itemId
-                marketViewModel.orderOption = 1
+                alertsViewModel.lastSelectedFilterItem = itemId
+                alertsViewModel.orderOption = 1
             }
             R.id.mnFilterOptionPrice -> {
-                if (marketViewModel.lastSelectedFilterItem == R.id.mnFilterOptionPrice) {
+                if (alertsViewModel.lastSelectedFilterItem == R.id.mnFilterOptionPrice) {
                     if (itemAscending!!.isChecked) {
                         itemDescending?.isChecked = true
-                        marketViewModel.orderFilter = 1
+                        alertsViewModel.orderFilter = 1
                     } else {
                         itemAscending?.isChecked = true
-                        marketViewModel.orderFilter = 0
+                        alertsViewModel.orderFilter = 0
                     }
                 } else {
                     item.isChecked = true
                     itemAscending?.isChecked = true
-                    marketViewModel.orderFilter = 0
+                    alertsViewModel.orderFilter = 0
                 }
-                marketViewModel.lastSelectedFilterItem = itemId
-                marketViewModel.orderOption = 2
+                alertsViewModel.lastSelectedFilterItem = itemId
+                alertsViewModel.orderOption = 2
             }
             R.id.mnFilterOptionPercentage -> {
-                if (marketViewModel.lastSelectedFilterItem == R.id.mnFilterOptionPercentage) {
+                if (alertsViewModel.lastSelectedFilterItem == R.id.mnFilterOptionPercentage) {
                     if (itemAscending!!.isChecked) {
                         itemDescending?.isChecked = true
-                        marketViewModel.orderFilter = 1
+                        alertsViewModel.orderFilter = 1
                     } else {
                         itemAscending?.isChecked = true
-                        marketViewModel.orderFilter = 0
+                        alertsViewModel.orderFilter = 0
                     }
                 } else {
                     item.isChecked = true
                     itemAscending?.isChecked = true
-                    marketViewModel.orderFilter = 0
+                    alertsViewModel.orderFilter = 0
                 }
-                marketViewModel.lastSelectedFilterItem = itemId
-                marketViewModel.orderOption = 3
+                alertsViewModel.lastSelectedFilterItem = itemId
+                alertsViewModel.orderOption = 3
             }
             R.id.mnFilterOrderAscending -> {
                 itemAscending?.isChecked = true
-                marketViewModel.orderFilter = 0
-                marketViewModel.orderOption = when {
+                alertsViewModel.orderFilter = 0
+                alertsViewModel.orderOption = when {
                     itemName!!.isChecked -> {
                         0
                     }
@@ -344,8 +324,8 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
             }
             R.id.mnFilterOrderDescending -> {
                 itemDescending?.isChecked = true
-                marketViewModel.orderFilter = 1
-                marketViewModel.orderOption = when {
+                alertsViewModel.orderFilter = 1
+                alertsViewModel.orderOption = when {
                     itemName!!.isChecked -> {
                         0
                     }
@@ -365,104 +345,26 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
             itemId == R.id.mnFilterOptionPrice || itemId == R.id.mnFilterOptionPercentage ||
             itemId == R.id.mnFilterOrderAscending || itemId == R.id.mnFilterOrderDescending
         ) {
-            marketViewModel.onFilterChanged()
+            alertsViewModel.onFilterChanged()
         }
         return true
     }
 
     private fun initRecyclerView() {
         // Initialize RecyclerView layout manager and adapter
-        rwCryptoAdapter = CryptoListMarketAdapter(requireActivity())
-        binding.rwMarketCryptoList.layoutManager = LinearLayoutManager(context)
-        binding.rwMarketCryptoList.adapter = rwCryptoAdapter
-        binding.rwMarketCryptoList.setHasFixedSize(true)
+        rwCryptoAdapter = CryptoListAlertsAdapter(requireActivity())
+        binding.rwAlertsCryptoList.layoutManager = LinearLayoutManager(context)
+        binding.rwAlertsCryptoList.adapter = rwCryptoAdapter
+        binding.rwAlertsCryptoList.setHasFixedSize(true)
 
-        // Attach ItemTouchHelper (swipe items to favorite)
-        val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this)
+        /*// Attach ItemTouchHelper (swipe items to favorite)
+        val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter)
         mItemTouchHelper = ItemTouchHelper(callback)
-        mItemTouchHelper.attachToRecyclerView(binding.rwMarketCryptoList)
-    }
-
-    override fun onSelectedChange(swipingState: Boolean) {
-        binding.srlMarketReload.isEnabled = !swipingState
+        mItemTouchHelper.attachToRecyclerView(binding.rwAlertsCryptoList)*/
     }
 
     private fun setListToAdapter(cryptoList: List<Crypto>) {
         rwCryptoAdapter.setCryptos(cryptoList)
-    }
-
-    private fun initViewFlipper(cryptoList: List<Crypto>) {
-        val animationIn = AnimationUtils.loadAnimation(requireContext(), R.anim.enter_from_right)
-        val animationOut = AnimationUtils.loadAnimation(requireContext(), R.anim.exit_to_left)
-        binding.vfFragmentMarket.inAnimation = animationIn
-        binding.vfFragmentMarket.outAnimation = animationOut
-
-        val cryptoListSorted =
-            cryptoList.sortedByDescending { crypto -> crypto.price_change_percentage_24h }
-        val firstCrypto = cryptoListSorted[0]
-        val secondCrypto = cryptoListSorted[1]
-        val thirdCrypto = cryptoListSorted[2]
-        val userCurrency = mPrefs.getCurrencySymbol()
-
-        binding.tvVFOneCryptoSymbol.text = firstCrypto.symbol.uppercase()
-        var currentPrice = firstCrypto.current_price.customFormattedPrice(userCurrency)
-        binding.tvVFOneCryptoCurrentPrice.text = currentPrice
-        var priceChange = firstCrypto.price_change_percentage_24h.customFormattedPercentage()
-        binding.tvVFOneCryptoPriceChange.text = priceChange
-        if (firstCrypto.price_change_percentage_24h >= 0) {
-            binding.ivVFOneCryptoPriceChange.positivePrice()
-            binding.tvVFOneCryptoCurrentPrice.positivePrice()
-            binding.tvVFOneCryptoPriceChange.positivePrice()
-        } else {
-            binding.ivVFOneCryptoPriceChange.negativePrice()
-            binding.tvVFOneCryptoCurrentPrice.negativePrice()
-            binding.tvVFOneCryptoPriceChange.negativePrice()
-        }
-        binding.clViewFlipperOneFragmentMarket.setOnClickListener {
-            val manager = (context as AppCompatActivity).supportFragmentManager
-            val alertDialog = DialogCryptoDetail(firstCrypto, userCurrency)
-            alertDialog.show(manager, "fragment_alert")
-        }
-
-        binding.tvVFTwoCryptoSymbol.text = secondCrypto.symbol.uppercase()
-        currentPrice = secondCrypto.current_price.customFormattedPrice(userCurrency)
-        binding.tvVFTwoCryptoCurrentPrice.text = currentPrice
-        priceChange = secondCrypto.price_change_percentage_24h.customFormattedPercentage()
-        binding.tvVFTwoCryptoPriceChange.text = priceChange
-        if (secondCrypto.price_change_percentage_24h >= 0) {
-            binding.ivVFTwoCryptoPriceChange.positivePrice()
-            binding.tvVFTwoCryptoCurrentPrice.positivePrice()
-            binding.tvVFTwoCryptoPriceChange.positivePrice()
-        } else {
-            binding.ivVFTwoCryptoPriceChange.negativePrice()
-            binding.tvVFTwoCryptoCurrentPrice.negativePrice()
-            binding.tvVFTwoCryptoPriceChange.negativePrice()
-        }
-        binding.clViewFlipperTwoFragmentMarket.setOnClickListener {
-            val manager = (context as AppCompatActivity).supportFragmentManager
-            val alertDialog = DialogCryptoDetail(secondCrypto, userCurrency)
-            alertDialog.show(manager, "fragment_alert")
-        }
-
-        binding.tvVFThreeCryptoSymbol.text = thirdCrypto.symbol.uppercase()
-        currentPrice = thirdCrypto.current_price.customFormattedPrice(userCurrency)
-        binding.tvVFThreeCryptoCurrentPrice.text = currentPrice
-        priceChange = thirdCrypto.price_change_percentage_24h.customFormattedPercentage()
-        binding.tvVFThreeCryptoPriceChange.text = priceChange
-        if (thirdCrypto.price_change_percentage_24h >= 0) {
-            binding.ivVFThreeCryptoPriceChange.positivePrice()
-            binding.tvVFThreeCryptoCurrentPrice.positivePrice()
-            binding.tvVFThreeCryptoPriceChange.positivePrice()
-        } else {
-            binding.ivVFThreeCryptoPriceChange.negativePrice()
-            binding.tvVFThreeCryptoCurrentPrice.negativePrice()
-            binding.tvVFThreeCryptoPriceChange.negativePrice()
-        }
-        binding.clViewFlipperThreeFragmentMarket.setOnClickListener {
-            val manager = (context as AppCompatActivity).supportFragmentManager
-            val alertDialog = DialogCryptoDetail(thirdCrypto, userCurrency)
-            alertDialog.show(manager, "fragment_alert")
-        }
     }
 
     private fun referencesOptionsMenu(menu: Menu) {

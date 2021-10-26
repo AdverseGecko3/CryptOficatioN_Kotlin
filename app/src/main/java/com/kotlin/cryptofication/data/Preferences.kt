@@ -2,6 +2,7 @@ package com.kotlin.cryptofication.data
 
 import android.content.Context
 import com.kotlin.cryptofication.R
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mResources
 import com.kotlin.cryptofication.utilities.Constants
 import java.util.ArrayList
 
@@ -40,6 +41,14 @@ class Preferences(context: Context) {
         preferences.add(userPrefs.getString(Constants.PREF_FILTER_ORDER, "0")!!)
         preferences.add(userPrefs.getString(Constants.PREF_ITEMS_PAGE, "100")!!)
         return preferences
+    }
+
+    fun getCurrencySymbol(): String {
+        return when (getCurrency()) {
+            "eur" -> mResources.getString(R.string.CURRENCY_EURO)
+            "usd" -> mResources.getString(R.string.CURRENCY_DOLLAR)
+            else -> mResources.getString(R.string.CURRENCY_DOLLAR)
+        }
     }
 
     fun setCurrency(currency: String?) {

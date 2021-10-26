@@ -6,7 +6,7 @@
     android:background="@color/purple_background">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/srlFavoritesReload"
+        android:id="@+id/srlAlertsReload"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:padding="2dp"
@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rwFavoritesCryptoList"
+            android:id="@+id/rwAlertsCryptoList"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

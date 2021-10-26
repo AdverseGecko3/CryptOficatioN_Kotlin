@@ -3,6 +3,8 @@ plugins {
     id 'kotlin-android'
 }
 
+apply plugin: 'kotlin-kapt'
+
 android {
     compileSdk 30
 
@@ -10,8 +12,8 @@ android {
         applicationId "com.kotlin.cryptofication"
         minSdk 21
         targetSdk 30
-        versionCode 2
-        versionName "1.1"
+        versionCode 3
+        versionName "1.1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,7 +57,10 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
     // Coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    //Room
+    implementation 'androidx.room:room-ktx:2.3.0'
+    kapt 'androidx.room:room-compiler:2.3.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

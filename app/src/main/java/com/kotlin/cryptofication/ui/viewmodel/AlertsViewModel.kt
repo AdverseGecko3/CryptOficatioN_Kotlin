@@ -5,12 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kotlin.cryptofication.data.model.Crypto
-import com.kotlin.cryptofication.domain.GetCryptoMarketOfflineUseCase
-import com.kotlin.cryptofication.domain.GetCryptoMarketOnlineUseCase
+import com.kotlin.cryptofication.domain.GetCryptoAlertsOfflineUseCase
+import com.kotlin.cryptofication.domain.GetCryptoAlertsOnlineUseCase
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 
-class MarketViewModel: ViewModel() {
+class AlertsViewModel: ViewModel() {
     val cryptoLiveData = MutableLiveData<List<Crypto>>()
     val isLoading = MutableLiveData<Boolean>()
     val error = MutableLiveData<String>()
@@ -19,8 +19,8 @@ class MarketViewModel: ViewModel() {
     var orderFilter = 0
     var lastSelectedFilterItem = 0
 
-    var getCryptoOnlineUseCase = GetCryptoMarketOnlineUseCase()
-    var getCryptoOfflineUseCase = GetCryptoMarketOfflineUseCase()
+    var getCryptoOnlineUseCase = GetCryptoAlertsOnlineUseCase()
+    var getCryptoOfflineUseCase = GetCryptoAlertsOfflineUseCase()
 
     fun onCreate() {
         viewModelScope.launch {
@@ -34,7 +34,6 @@ class MarketViewModel: ViewModel() {
             } catch (e: SocketTimeoutException) {
                 e.printStackTrace()
             }
-
             if (!result.isNullOrEmpty()) {
                 // Sort cryptoList with the desired filters and post the list
                 result = sortCryptoList(result)
@@ -59,7 +58,6 @@ class MarketViewModel: ViewModel() {
         // Get Cryptos from the provider (online)
         var result = getCryptoOfflineUseCase()
         Log.d("onFilterChangeViewModel", "Result: $result")
-
         if (!result.isNullOrEmpty()) {
             // Sort cryptoList with the desired filters and post the list
             result = sortCryptoList(result)

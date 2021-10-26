@@ -4,6 +4,7 @@
     android:theme="@style/Theme.CryptOficatioNKotlin">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -14,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CryptOficatioNKotlin"
         android:fullBackupContent="true">
-        <activity android:name="com.kotlin.cryptofication.ui.view.MainActivity" />
+        <activity android:name="com.kotlin.cryptofication.ui.view.MainActivity"/>
         <activity
             android:name="com.kotlin.cryptofication.ui.view.SplashActivity"
             android:theme="@style/SplashTheme"

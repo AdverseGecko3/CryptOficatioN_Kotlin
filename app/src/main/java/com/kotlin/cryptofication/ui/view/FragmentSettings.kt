@@ -20,7 +20,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.utilities.Constants
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.prefs
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import java.lang.Exception
 
 class FragmentSettings : PreferenceFragmentCompat() {
@@ -54,14 +54,14 @@ class FragmentSettings : PreferenceFragmentCompat() {
                             "prefSelected",
                             lpCurrency!!.title.toString() + " - " + lpCurrency!!.value
                         )
-                        prefs.setCurrency(lpCurrency!!.value)
+                        mPrefs.setCurrency(lpCurrency!!.value)
                     }
                     Constants.PREF_SCHEME -> {
                         Log.d(
                             "prefSelected",
                             spScheme!!.title.toString() + " - " + spScheme!!.isChecked
                         )
-                        prefs.setScheme(spScheme!!.isChecked)
+                        mPrefs.setScheme(spScheme!!.isChecked)
                         if (spScheme!!.isChecked) {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                         } else {
@@ -74,26 +74,25 @@ class FragmentSettings : PreferenceFragmentCompat() {
                             "prefSelected",
                             lpFilterOption!!.title.toString() + " - " + lpFilterOption!!.value
                         )
-                        prefs.setFilterOption(lpFilterOption!!.value)
+                        mPrefs.setFilterOption(lpFilterOption!!.value)
                     }
                     Constants.PREF_FILTER_ORDER -> {
                         Log.d(
                             "prefSelected",
                             lpFilterOrder!!.title.toString() + " - " + lpFilterOrder!!.value
                         )
-                        prefs.setFilterOrder(lpFilterOrder!!.value)
+                        mPrefs.setFilterOrder(lpFilterOrder!!.value)
                     }
                     Constants.PREF_ITEMS_PAGE -> {
                         Log.d(
                             "prefSelected",
                             lpItemsPage!!.title.toString() + " - " + lpItemsPage!!.value
                         )
-                        prefs.setItemsPerPage(lpItemsPage!!.value)
-                    }
-                    else -> {
+                        mPrefs.setItemsPerPage(lpItemsPage!!.value)
                     }
                 }
             }
+
         pAbout!!.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {
                 // Create dialog to confirm the dismiss
@@ -226,7 +225,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
     }
 
     private fun loadPreferences() {
-        val listPreferences = prefs.getAllPreferences()
+        val listPreferences = mPrefs.getAllPreferences()
         lpCurrency!!.value = listPreferences[0].toString()
         spScheme!!.isChecked = listPreferences[1].toString().toBoolean()
         lpFilterOption!!.value = listPreferences[2].toString()

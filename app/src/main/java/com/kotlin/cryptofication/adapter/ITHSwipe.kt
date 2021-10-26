@@ -2,6 +2,6 @@ package com.kotlin.cryptofication.adapter
 
 import androidx.recyclerview.widget.RecyclerView
 
-interface ItemTouchHelperAdapter {
+interface ITHSwipe {
     fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder)
 }

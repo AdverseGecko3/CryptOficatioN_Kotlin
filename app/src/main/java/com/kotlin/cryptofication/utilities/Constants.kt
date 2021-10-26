@@ -4,7 +4,7 @@ import com.kotlin.cryptofication.R
 
 object Constants {
     const val MARKETS = R.id.nav_markets
-    const val FAVORITES = R.id.nav_favorites
+    const val ALERTS = R.id.nav_alerts
     const val SETTINGS = R.id.nav_settings
     const val PREF_CURRENCY = "prefCurrency"
     const val PREF_SCHEME = "prefScheme"
