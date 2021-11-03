@@ -8,7 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
@@ -17,7 +18,6 @@ import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.model.CryptoAlert
 import com.kotlin.cryptofication.databinding.AdapterAlertCryptoListBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
-import com.kotlin.cryptofication.ui.view.DialogCryptoDetail
 import com.kotlin.cryptofication.utilities.*
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
@@ -38,13 +38,12 @@ class CryptoListMarketAdapter(private val context: Context) :
     }
 
     override fun onBindViewHolder(holder: CryptoListMarketViewHolder, position: Int) {
-        val userCurrency = mPrefs.getCurrencySymbol()
         val selectedCrypto = cryptoList[position]
         holder.bind(selectedCrypto)
         holder.binding.parentLayout.setOnClickListener {
-            val manager = (context as AppCompatActivity).supportFragmentManager
-            val alertDialog = DialogCryptoDetail(selectedCrypto, userCurrency)
-            alertDialog.show(manager, "fragment_alert")
+            val bundle = bundleOf("selectedCrypto" to selectedCrypto)
+            it.findNavController()
+                .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
         }
     }
 
@@ -65,7 +64,7 @@ class CryptoListMarketAdapter(private val context: Context) :
                 val filterPattern = query.lowercase().trim { it <= ' ' }
                 Log.d("performFilter", filterPattern)
                 for (crypto in cryptoListFull) {
-                    if (crypto.name.lowercase().contains(filterPattern)) {
+                    if (crypto.name!!.lowercase().contains(filterPattern)) {
                         filteredList.add(crypto)
                     }
                 }
@@ -103,7 +102,8 @@ class CryptoListMarketAdapter(private val context: Context) :
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the  current date)
-        val cryptoSwiped = CryptoAlert(cryptoSymbol)
+        val currentTime = System.currentTimeMillis()
+        val cryptoSwiped = CryptoAlert(cryptoSymbol!!, currentTime)
         MainScope().launch {
             val resultInsert: Int = try {
                 mRoom.insertAlert(cryptoSwiped).toInt()
@@ -113,55 +113,51 @@ class CryptoListMarketAdapter(private val context: Context) :
             }
             Log.d("itemSwipe", "ResultInsert: $resultInsert")
 
-            when (resultInsert) {
-                -1 -> {
-                    // The item couldn't be added to the database
-                    notifyItemChanged(position)
-                    Snackbar
-                        .make(
-                            viewHolder.itemView,
-                            "An error occurred while adding $cryptoSymbol to favorites",
-                            Snackbar.LENGTH_LONG
-                        )
-                        .show()
-                }
-                0 -> {
-                    // The item was already in the database
-                    notifyItemChanged(position)
-                    Snackbar
-                        .make(
-                            viewHolder.itemView,
-                            "$cryptoSymbol already in favorites",
-                            Snackbar.LENGTH_LONG
-                        )
-                        .show()
-                }
-                else -> {
-                    // The item has been added to the database successfully. Add the action to undo the action
-                    notifyItemChanged(position)
-                    Snackbar
-                        .make(
-                            viewHolder.itemView,
-                            "$cryptoSymbol added to favorites",
-                            Snackbar.LENGTH_LONG
-                        )
-                        .setAction("UNDO") {
-                            MainScope().launch {
-                                // When undo is clicked, delete the item from table Favorites
-                                when (mRoom.deleteAlert(cryptoSwiped)) {
-                                    0 ->
-                                        // The item couldn't be deleted
-                                        context.showToast("$cryptoSymbol couldn't be removed", 0)
-                                    1 ->
-                                        // The item has been deleted successfully
-                                        context.showToast("$cryptoSymbol removed from Alerts")
+            resultInsert.let {
+                Log.d("itemSwipe", "it: $it")
+                when {
+                    it == 0 -> {
+                        // The item was already in the database
+                        notifyItemChanged(position)
+                        Snackbar
+                            .make(
+                                viewHolder.itemView,
+                                "$cryptoSymbol already in favorites",
+                                Snackbar.LENGTH_SHORT
+                            )
+                            .show()
+                    }
+                    it > 0 -> {
+                        // The item has been added to the database successfully. Add the action to undo the action
+                        notifyItemChanged(position)
+                        Snackbar
+                            .make(
+                                viewHolder.itemView,
+                                "$cryptoSymbol added to favorites",
+                                Snackbar.LENGTH_LONG
+                            )
+                            .setAction("UNDO") {
+                                MainScope().launch {
+                                    // When undo is clicked, delete the item from table Favorites
+                                    when (mRoom.deleteAlert(cryptoSwiped)) {
+                                        0 ->
+                                            // The item couldn't be deleted
+                                            context.showToast("$cryptoSymbol couldn't be removed")
+                                        1 -> {
+                                            // The item has been deleted successfully
+                                            context.showToast("$cryptoSymbol removed from Alerts")
+                                        }
+                                    }
                                 }
-                            }
-                        }.show()
+                            }.show()
+                    }
+                    else -> {
+                        // The item was already in the database
+                        context.showToast("Error!")
+                    }
                 }
             }
         }
-
     }
 
     class CryptoListMarketViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -170,7 +166,7 @@ class CryptoListMarketAdapter(private val context: Context) :
 
         fun bind(crypto: Crypto) {
             Picasso.get().load(crypto.image).into(binding.ivAdapterCryptoIcon)
-            binding.tvAdapterCryptoSymbol.text = crypto.symbol.uppercase()
+            binding.tvAdapterCryptoSymbol.text = crypto.symbol!!.uppercase()
             binding.tvAdapterCryptoName.text = crypto.name
             val userCurrency = mPrefs.getCurrencySymbol()
             val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)

@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class CryptoAlert(
     @PrimaryKey
     var id: String,
-    @ColumnInfo (name = "pos_added")
-    var posAdded: Int = 0
+    @ColumnInfo (name = "time_added")
+    var timeAdded: Long
 )
 

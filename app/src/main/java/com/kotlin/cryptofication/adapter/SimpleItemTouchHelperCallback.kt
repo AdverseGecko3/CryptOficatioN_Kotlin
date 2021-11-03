@@ -9,20 +9,20 @@ import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp
 
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mResources
 import com.kotlin.cryptofication.utilities.doHaptic
 import kotlin.math.roundToInt
 
 class SimpleItemTouchHelperCallback(
-    adapter: ITHSwipe,
-    selectedChangeListener: SelectedChangeListener
+    private val mAdapterSwipe: ITHSwipe,
+    private val selectedChangeEvent: SelectedChangeListener,
+    private val fragment: String
 ) : ItemTouchHelper.SimpleCallback(
     0,
     ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
 ) {
-    private val mAdapterSwipe = adapter
-    private val selectedChangeEvent: SelectedChangeListener = selectedChangeListener
     private var enteredMoreSwipe = false
 
     interface SelectedChangeListener {
@@ -55,23 +55,43 @@ class SimpleItemTouchHelperCallback(
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
-        val rwSwipeBackground: ColorDrawable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ColorDrawable(
-                CryptOficatioNApp.mAppContext.getColor(R.color.yellow_favorite)
-            )
-        } else {
-            ColorDrawable(
-                mResources.getColor(R.color.yellow_favorite)
-            )
+        var rwSwipeBackground: ColorDrawable? = null
+        var rwSwipeIcon: Drawable? = null
+        when (fragment) {
+            "market" -> {
+                rwSwipeBackground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    ColorDrawable(
+                        CryptOficatioNApp.mAppContext.getColor(R.color.yellow_favorite)
+                    )
+                } else {
+                    ColorDrawable(
+                        mResources.getColor(R.color.yellow_favorite)
+                    )
+                }
+                rwSwipeIcon = ContextCompat.getDrawable(
+                    CryptOficatioNApp.mAppContext, R.drawable.ic_star
+                )!!
+            }
+            "alerts" -> {
+                rwSwipeBackground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    ColorDrawable(
+                        CryptOficatioNApp.mAppContext.getColor(R.color.red_delete)
+                    )
+                } else {
+                    ColorDrawable(
+                        mResources.getColor(R.color.red_delete)
+                    )
+                }
+                rwSwipeIcon = ContextCompat.getDrawable(
+                    CryptOficatioNApp.mAppContext, R.drawable.ic_delete
+                )!!
+            }
         }
-        val rwSwipeIcon = ContextCompat.getDrawable(
-            CryptOficatioNApp.mAppContext, R.drawable.ic_star
-        )!!
 
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             // Get the item swiped and the margin size of the icon
             val itemView = viewHolder.itemView
-            val iconMargin = (itemView.height - rwSwipeIcon.intrinsicHeight) / 2
+            val iconMargin = (itemView.height - rwSwipeIcon!!.intrinsicHeight) / 2
 
             Log.d("onChildDraw", "dX:$dX - Half width:${-(itemView.width / 2)}")
 
@@ -82,14 +102,14 @@ class SimpleItemTouchHelperCallback(
                         enteredMoreSwipe = false
                     }
                     Log.d("onChildDraw", "left less")
-                    rwSwipeBackground.alpha = ((dX.roundToInt()) * 255) / (itemView.width / 2)
+                    rwSwipeBackground!!.alpha = ((dX.roundToInt()) * 255) / (itemView.width / 2)
                 } else {
                     if (!enteredMoreSwipe) {
                         recyclerView.doHaptic()
                         enteredMoreSwipe = true
                     }
                     Log.d("onChildDraw", "left more")
-                    rwSwipeBackground.alpha = 255
+                    rwSwipeBackground!!.alpha = 255
                 }
                 rwSwipeBackground.setBounds(
                     itemView.left,
@@ -109,14 +129,14 @@ class SimpleItemTouchHelperCallback(
                         enteredMoreSwipe = false
                     }
                     Log.d("onChildDraw", "right less")
-                    rwSwipeBackground.alpha = ((dX.roundToInt()) * 255) / (-itemView.width / 2)
+                    rwSwipeBackground!!.alpha = ((dX.roundToInt()) * 255) / (-itemView.width / 2)
                 } else {
                     if (!enteredMoreSwipe) {
                         recyclerView.doHaptic()
                         enteredMoreSwipe = true
                     }
                     Log.d("onChildDraw", "right more")
-                    rwSwipeBackground.alpha = 255
+                    rwSwipeBackground!!.alpha = 255
                 }
                 rwSwipeBackground.setBounds(
                     itemView.right + dX.roundToInt(),

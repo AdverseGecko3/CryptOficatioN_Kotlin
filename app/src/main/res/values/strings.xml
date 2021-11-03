@@ -50,6 +50,7 @@
     <string name="TWITTER">Twitter</string>
     <string name="CONTENT_CRYPTO_IMAGE">Icon of the Crypto coin</string>
     <string name="CONTENT_CRYPTO_STATUS">Icon indicating positive or negative price on the last 24 hours</string>
+    <string name="RECYCLERVIEW_EMPTY">No crypto has been added as favorites!\nHead over to the Market and swipe a crypto to add it here</string>
     <!--endregion-->
 
     <!--region STRINGS DOTS-->
@@ -154,19 +155,5 @@
     <!--region CREDITS-->
     <string name="CREDITS_ICONS">LinkedIn, Instagram and Twitter icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a>
     \n\nBell icon downloaded from <a href="https://icons8.com">www.icons8.com</a></string>
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <!--endregion-->
 </resources>

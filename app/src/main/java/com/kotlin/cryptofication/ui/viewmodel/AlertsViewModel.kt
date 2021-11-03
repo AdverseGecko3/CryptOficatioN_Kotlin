@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.domain.GetCryptoAlertsOfflineUseCase
 import com.kotlin.cryptofication.domain.GetCryptoAlertsOnlineUseCase
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 
@@ -26,28 +27,29 @@ class AlertsViewModel: ViewModel() {
         viewModelScope.launch {
             // Start refreshing
             isLoading.postValue(true)
-            var result: List<Crypto> = emptyList()
-            try {
-                // Get Cryptos from the API (online)
-                result = getCryptoOnlineUseCase()
-                Log.d("onCreateViewModel", "Result: $result")
-            } catch (e: SocketTimeoutException) {
-                e.printStackTrace()
-            }
-            if (!result.isNullOrEmpty()) {
-                // Sort cryptoList with the desired filters and post the list
-                result = sortCryptoList(result)
-                cryptoLiveData.postValue(result)
-
-                // Stop refreshing
-                isLoading.postValue(false)
+            if (mRoom.getAllAlerts().isNotEmpty()) {
+                var result: List<Crypto> = emptyList()
+                try {
+                    // Get Cryptos from the API (online)
+                    result = getCryptoOnlineUseCase()
+                    Log.d("onCreateViewModel", "Result: $result")
+                } catch (e: SocketTimeoutException) {
+                    e.printStackTrace()
+                }
+                if (!result.isNullOrEmpty()) {
+                    // Sort cryptoList with the desired filters and post the list
+                    result = sortCryptoList(result)
+                    cryptoLiveData.postValue(result)
+                } else {
+                    // Send error to show a toast
+                    error.postValue("Error while getting cryptos Online!")
+                }
             } else {
-                // Send error to show a toast
-                error.postValue("Error while getting cryptos Online!")
-
-                // Stop refreshing
-                isLoading.postValue(false)
+                cryptoLiveData.postValue(emptyList())
             }
+
+            // Stop refreshing
+            isLoading.postValue(false)
         }
     }
 

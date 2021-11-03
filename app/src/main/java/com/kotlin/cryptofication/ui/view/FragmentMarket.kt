@@ -9,8 +9,10 @@ import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kotlin.cryptofication.R
@@ -24,13 +26,14 @@ import com.kotlin.cryptofication.utilities.*
 import java.text.SimpleDateFormat
 import java.util.*
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 
 
 class FragmentMarket : Fragment(), SelectedChangeListener {
 
     private var _binding: FragmentMarketBinding? = null
     private val binding get() = _binding!!
-    private val marketViewModel: MarketViewModel by viewModels()
+    private val marketViewModel: MarketViewModel by navGraphViewModels(R.id.my_nav)
     private lateinit var rwCryptoAdapter: CryptoListMarketAdapter
     private lateinit var mItemTouchHelper: ItemTouchHelper
     private var itemName: MenuItem? = null
@@ -123,7 +126,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
             Log.d("FragmentMarket", "Error message")
 
             // Show toast when result is empty/null on ViewModel
-            requireContext().showToast(errorMessage)
+            mAppContext.showToast(errorMessage)
         })
 
         // Load crypto data from API now
@@ -378,7 +381,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         binding.rwMarketCryptoList.setHasFixedSize(true)
 
         // Attach ItemTouchHelper (swipe items to favorite)
-        val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this)
+        val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "market")
         mItemTouchHelper = ItemTouchHelper(callback)
         mItemTouchHelper.attachToRecyclerView(binding.rwMarketCryptoList)
     }
@@ -392,8 +395,8 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
     }
 
     private fun initViewFlipper(cryptoList: List<Crypto>) {
-        val animationIn = AnimationUtils.loadAnimation(requireContext(), R.anim.enter_from_right)
-        val animationOut = AnimationUtils.loadAnimation(requireContext(), R.anim.exit_to_left)
+        val animationIn = AnimationUtils.loadAnimation(mAppContext, R.anim.enter_from_right)
+        val animationOut = AnimationUtils.loadAnimation(mAppContext, R.anim.exit_to_left)
         binding.vfFragmentMarket.inAnimation = animationIn
         binding.vfFragmentMarket.outAnimation = animationOut
 
@@ -404,7 +407,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         val thirdCrypto = cryptoListSorted[2]
         val userCurrency = mPrefs.getCurrencySymbol()
 
-        binding.tvVFOneCryptoSymbol.text = firstCrypto.symbol.uppercase()
+        binding.tvVFOneCryptoSymbol.text = firstCrypto.symbol!!.uppercase()
         var currentPrice = firstCrypto.current_price.customFormattedPrice(userCurrency)
         binding.tvVFOneCryptoCurrentPrice.text = currentPrice
         var priceChange = firstCrypto.price_change_percentage_24h.customFormattedPercentage()
@@ -419,12 +422,11 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
             binding.tvVFOneCryptoPriceChange.negativePrice()
         }
         binding.clViewFlipperOneFragmentMarket.setOnClickListener {
-            val manager = (context as AppCompatActivity).supportFragmentManager
-            val alertDialog = DialogCryptoDetail(firstCrypto, userCurrency)
-            alertDialog.show(manager, "fragment_alert")
+            val bundle = bundleOf("selectedCrypto" to firstCrypto)
+            findNavController().navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
         }
 
-        binding.tvVFTwoCryptoSymbol.text = secondCrypto.symbol.uppercase()
+        binding.tvVFTwoCryptoSymbol.text = secondCrypto.symbol!!.uppercase()
         currentPrice = secondCrypto.current_price.customFormattedPrice(userCurrency)
         binding.tvVFTwoCryptoCurrentPrice.text = currentPrice
         priceChange = secondCrypto.price_change_percentage_24h.customFormattedPercentage()
@@ -439,12 +441,11 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
             binding.tvVFTwoCryptoPriceChange.negativePrice()
         }
         binding.clViewFlipperTwoFragmentMarket.setOnClickListener {
-            val manager = (context as AppCompatActivity).supportFragmentManager
-            val alertDialog = DialogCryptoDetail(secondCrypto, userCurrency)
-            alertDialog.show(manager, "fragment_alert")
+            val bundle = bundleOf("selectedCrypto" to secondCrypto)
+            findNavController().navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
         }
 
-        binding.tvVFThreeCryptoSymbol.text = thirdCrypto.symbol.uppercase()
+        binding.tvVFThreeCryptoSymbol.text = thirdCrypto.symbol!!.uppercase()
         currentPrice = thirdCrypto.current_price.customFormattedPrice(userCurrency)
         binding.tvVFThreeCryptoCurrentPrice.text = currentPrice
         priceChange = thirdCrypto.price_change_percentage_24h.customFormattedPercentage()
@@ -459,9 +460,8 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
             binding.tvVFThreeCryptoPriceChange.negativePrice()
         }
         binding.clViewFlipperThreeFragmentMarket.setOnClickListener {
-            val manager = (context as AppCompatActivity).supportFragmentManager
-            val alertDialog = DialogCryptoDetail(thirdCrypto, userCurrency)
-            alertDialog.show(manager, "fragment_alert")
+            val bundle = bundleOf("selectedCrypto" to thirdCrypto)
+            findNavController().navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
         }
     }
 

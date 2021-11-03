@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/my_nav"
+    app:startDestination="@id/fragmentMarket">
+
+    <fragment
+        android:id="@+id/fragmentMarket"
+        android:name="com.kotlin.cryptofication.ui.view.FragmentMarket"
+        android:label="FragmentMarket" >
+        <action
+            android:id="@+id/action_fragmentMarket_to_dialogCryptoDetail"
+            app:destination="@id/dialogCryptoDetail"
+            app:popUpTo="@id/fragmentMarket" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentAlerts"
+        android:name="com.kotlin.cryptofication.ui.view.FragmentAlerts"
+        android:label="FragmentAlerts" >
+        <action
+            android:id="@+id/action_fragmentAlerts_to_dialogCryptoDetail"
+            app:destination="@id/dialogCryptoDetail"
+            app:popUpTo="@id/fragmentAlerts" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentSettings"
+        android:name="com.kotlin.cryptofication.ui.view.FragmentSettings"
+        android:label="FragmentSettings" />
+    <dialog
+        android:id="@+id/dialogCryptoDetail"
+        android:name="com.kotlin.cryptofication.ui.view.DialogCryptoDetail"
+        android:label="DialogCryptoDetail">
+    </dialog>
+</navigation>

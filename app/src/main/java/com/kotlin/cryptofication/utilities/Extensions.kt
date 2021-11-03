@@ -1,6 +1,7 @@
 package com.kotlin.cryptofication.utilities
 
 import android.content.Context
+import androidx.appcompat.app.AlertDialog
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -10,18 +11,25 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.kotlin.cryptofication.R
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mResources
 import java.text.DecimalFormat
 
 fun Context.showToast(message: String, length: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, length).show()
 }
 
-fun Double.customFormattedPrice(userCurrency: String): String {
+fun Double.customFormattedPrice(userCurrency: String, type: Int = 0): String {
     val currencySeparator = DecimalFormat().decimalFormatSymbols.decimalSeparator
-    var formattedPercentage = String.format("%.10f", this)
-        .replace("0+$".toRegex(), "")
+    var formattedPercentage = if (type == 0) {
+        String.format("%.10f", this)
+            .replace("0+$".toRegex(), "")
+    } else {
+        String.format("%.2f", this)
+            .replace("0+$".toRegex(), "")
+    }
     if (formattedPercentage.endsWith(currencySeparator)) {
         formattedPercentage = formattedPercentage.substring(0, formattedPercentage.length - 1)
     }
@@ -82,4 +90,27 @@ fun RecyclerView.doHaptic() {
     } else {
         Log.d("doHaptic", "!hasVibrator")
     }
+}
+
+fun AlertDialog.setCustomButtonStyle() {
+    // Change the button color and weight
+    val btnDismiss = getButton(AlertDialog.BUTTON_NEUTRAL)
+    btnDismiss.setTextColor(
+        ResourcesCompat.getColor(
+            mResources,
+            R.color.purple_app_accent,
+            null
+        )
+    )
+
+    /*//Force the default buttons to center
+    val layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+
+    layoutParams.weight = 1f
+    layoutParams.gravity = Gravity.CENTER
+
+    btnDismiss.layoutParams = layoutParams*/
 }

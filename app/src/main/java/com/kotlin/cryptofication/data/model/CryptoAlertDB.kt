@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [CryptoAlert::class],
-    version = 2
+    version = 3
 )
 abstract class CryptoAlertDB : RoomDatabase() {
 

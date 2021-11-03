@@ -32,4 +32,12 @@
         <item name="android:gravity">center_horizontal</item>
         <item name="android:fontFamily">@font/sansation</item>
     </style>
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetModalStyle</item>
+    </style>
+
+    <style name="BottomSheetModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/dialog_round</item>
+    </style>
 </resources>

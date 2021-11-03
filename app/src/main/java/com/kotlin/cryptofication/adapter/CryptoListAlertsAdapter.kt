@@ -8,16 +8,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.model.CryptoAlert
+import com.kotlin.cryptofication.data.repos.CryptoProvider
 import com.kotlin.cryptofication.databinding.AdapterMarketCryptoListBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
-import com.kotlin.cryptofication.ui.view.DialogCryptoDetail
 import com.kotlin.cryptofication.utilities.*
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
@@ -38,13 +39,12 @@ class CryptoListAlertsAdapter(private val context: Context) :
     }
 
     override fun onBindViewHolder(holder: CryptoListMarketViewHolder, position: Int) {
-        val userCurrency = mPrefs.getCurrencySymbol()
         val selectedCrypto = cryptoList[position]
         holder.bind(selectedCrypto)
         holder.binding.parentLayout.setOnClickListener {
-            val manager = (context as AppCompatActivity).supportFragmentManager
-            val alertDialog = DialogCryptoDetail(selectedCrypto, userCurrency)
-            alertDialog.show(manager, "fragment_alert")
+            val bundle = bundleOf("selectedCrypto" to selectedCrypto)
+            it.findNavController()
+                .navigate(R.id.action_fragmentAlerts_to_dialogCryptoDetail, bundle)
         }
     }
 
@@ -65,7 +65,7 @@ class CryptoListAlertsAdapter(private val context: Context) :
                 val filterPattern = query.lowercase().trim { it <= ' ' }
                 Log.d("performFilter", filterPattern)
                 for (crypto in cryptoListFull) {
-                    if (crypto.name.lowercase().contains(filterPattern)) {
+                    if (crypto.name!!.lowercase().contains(filterPattern)) {
                         filteredList.add(crypto)
                     }
                 }
@@ -96,72 +96,74 @@ class CryptoListAlertsAdapter(private val context: Context) :
     }
 
     override fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder) {
-
         // Get the position and the crypto symbol of the item
         val position = viewHolder.bindingAdapterPosition
-        val cryptoSymbol = cryptoList[position].id
+        val crypto = cryptoList[position]
+        Log.d("itemSwipe", "Crypto: $crypto")
+        val cryptoSymbol = crypto.id
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the  current date)
-        val cryptoSwiped = CryptoAlert(cryptoSymbol)
+        val cryptoSwiped = CryptoAlert(cryptoSymbol!!, 0)
         MainScope().launch {
-            val resultInsert: Int = try {
-                mRoom.insertAlert(cryptoSwiped).toInt()
-            } catch (e: SQLiteConstraintException) {
-                e.printStackTrace()
-                0
-            }
-            Log.d("itemSwipe", "ResultInsert: $resultInsert")
+            val timeAdded: Long = mRoom.getSingleAlert(cryptoSymbol)
+            cryptoSwiped.timeAdded = timeAdded
+            val resultDelete: Int = mRoom.deleteAlert(cryptoSwiped)
+            Log.d("itemSwipe", "ResultDelete: $resultDelete")
 
-            when (resultInsert) {
-                -1 -> {
-                    // The item couldn't be added to the database
-                    notifyItemChanged(position)
-                    Snackbar
-                        .make(
-                            viewHolder.itemView,
-                            "An error occurred while adding $cryptoSymbol to favorites",
-                            Snackbar.LENGTH_LONG
-                        )
-                        .show()
-                }
+            when (resultDelete) {
                 0 -> {
                     // The item was already in the database
-                    notifyItemChanged(position)
                     Snackbar
                         .make(
                             viewHolder.itemView,
-                            "$cryptoSymbol already in favorites",
+                            "$cryptoSymbol couldn't be removed",
                             Snackbar.LENGTH_LONG
                         )
                         .show()
                 }
                 else -> {
                     // The item has been added to the database successfully. Add the action to undo the action
-                    notifyItemChanged(position)
+                    cryptoList.removeAt(position)
+                    notifyItemRemoved(position)
+                    CryptoProvider.cryptosAlerts = cryptoList
                     Snackbar
                         .make(
                             viewHolder.itemView,
-                            "$cryptoSymbol added to favorites",
-                            Snackbar.LENGTH_LONG
+                            "$cryptoSymbol removed from favorites",
+                            Snackbar.LENGTH_SHORT
                         )
                         .setAction("UNDO") {
                             MainScope().launch {
                                 // When undo is clicked, delete the item from table Favorites
-                                when (mRoom.deleteAlert(cryptoSwiped)) {
-                                    0 ->
-                                        // The item couldn't be deleted
-                                        context.showToast("$cryptoSymbol couldn't be removed", 0)
-                                    1 ->
-                                        // The item has been deleted successfully
-                                        context.showToast("$cryptoSymbol removed from Alerts")
+                                val resultInsert: Int = try {
+                                    mRoom.insertAlert(cryptoSwiped).toInt()
+                                } catch (e: SQLiteConstraintException) {
+                                    e.printStackTrace()
+                                    0
+                                }
+                                Log.d("itemSwipe", "ResultInsert: $resultInsert")
+
+                                resultInsert.let {
+                                    when {
+                                        it == 0 ->
+                                            // The item couldn't be deleted
+                                            context.showToast("$cryptoSymbol already in favorites")
+                                        it > 0 -> {
+                                            // The item has been deleted successfully
+                                            context.showToast("$cryptoSymbol added to favorites")
+                                            Log.d("itemSwipe", "Crypto: $crypto")
+                                            cryptoList.add(position, crypto)
+                                            notifyItemInserted(position)
+                                            CryptoProvider.cryptosAlerts = cryptoList
+                                        }
+                                    }
                                 }
                             }
                         }.show()
                 }
             }
         }
-
     }
 
     class CryptoListMarketViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -170,7 +172,7 @@ class CryptoListAlertsAdapter(private val context: Context) :
 
         fun bind(crypto: Crypto) {
             Picasso.get().load(crypto.image).into(binding.ivAdapterCryptoIcon)
-            binding.tvAdapterCryptoSymbol.text = crypto.symbol.uppercase()
+            binding.tvAdapterCryptoSymbol.text = crypto.symbol!!.uppercase()
             binding.tvAdapterCryptoName.text = crypto.name
             val userCurrency = mPrefs.getCurrencySymbol()
             val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)

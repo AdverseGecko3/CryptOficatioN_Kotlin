@@ -15,4 +15,6 @@
     <color name="green_high">#43C819</color>
     <color name="red_low">#C81919</color>
     <color name="yellow_favorite">#F9E800</color>
+    <color name="red_delete">#A11212</color>
+    <color name="transparent">#00000000</color>
 </resources>

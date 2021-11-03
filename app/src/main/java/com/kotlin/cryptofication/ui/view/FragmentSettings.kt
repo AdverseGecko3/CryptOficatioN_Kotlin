@@ -8,12 +8,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
-import android.widget.LinearLayout
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.res.ResourcesCompat
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -21,6 +19,7 @@ import androidx.preference.SwitchPreference
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
+import com.kotlin.cryptofication.utilities.setCustomButtonStyle
 import java.lang.Exception
 
 class FragmentSettings : PreferenceFragmentCompat() {
@@ -105,19 +104,8 @@ class FragmentSettings : PreferenceFragmentCompat() {
                 ) { dialogInterface, _ -> dialogInterface.dismiss() }
                     .create()
                 val dialog = builder.show()
+                dialog.setCustomButtonStyle()
 
-                // Change the button color and weight
-                val btnDismiss = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
-                btnDismiss.setTextColor(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.purple_app_accent,
-                        null
-                    )
-                )
-                val layoutParams = btnDismiss.layoutParams as LinearLayout.LayoutParams
-                layoutParams.weight = 10f
-                btnDismiss.layoutParams = layoutParams
                 val ivLinkedIn = dialog.findViewById<ImageView>(R.id.ivDialogAboutLinkedIn)
                 val ivInstagram = dialog.findViewById<ImageView>(R.id.ivDialogAboutInstagram)
                 val ivTwitter = dialog.findViewById<ImageView>(R.id.ivDialogAboutTwitter)
@@ -193,20 +181,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
                 ) { dialogInterface, _ -> dialogInterface.dismiss() }
                     .create()
                 val dialog = builder.show()
-
-                // Change the button color and weight
-                val btnDismiss = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
-                btnDismiss.setTextColor(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.purple_app_accent,
-                        null
-                    )
-                )
-                val layoutParams =
-                    btnDismiss.layoutParams as LinearLayout.LayoutParams
-                layoutParams.weight = 10f
-                btnDismiss.layoutParams = layoutParams
+                dialog.setCustomButtonStyle()
 
                 // Show the dialog
                 dialog.show()

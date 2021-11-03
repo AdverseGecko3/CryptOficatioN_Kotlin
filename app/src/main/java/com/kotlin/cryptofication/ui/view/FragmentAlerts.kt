@@ -10,21 +10,24 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter
+import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.databinding.FragmentAlertsBinding
 import com.kotlin.cryptofication.ui.viewmodel.AlertsViewModel
 import com.kotlin.cryptofication.utilities.DataClass
 import com.kotlin.cryptofication.utilities.showToast
 
-class FragmentAlerts: Fragment() {
+class FragmentAlerts: Fragment(), SimpleItemTouchHelperCallback.SelectedChangeListener {
 
     private var _binding: FragmentAlertsBinding? = null
     private val binding get() = _binding!!
     private val alertsViewModel: AlertsViewModel by viewModels()
     private lateinit var rwCryptoAdapter: CryptoListAlertsAdapter
+    private lateinit var mItemTouchHelper: ItemTouchHelper
     private var itemName: MenuItem? = null
     private var itemSymbol: MenuItem? = null
     private var itemPrice: MenuItem? = null
@@ -357,14 +360,25 @@ class FragmentAlerts: Fragment() {
         binding.rwAlertsCryptoList.adapter = rwCryptoAdapter
         binding.rwAlertsCryptoList.setHasFixedSize(true)
 
-        /*// Attach ItemTouchHelper (swipe items to favorite)
-        val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter)
+        // Attach ItemTouchHelper (swipe items to favorite)
+        val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "alerts")
         mItemTouchHelper = ItemTouchHelper(callback)
-        mItemTouchHelper.attachToRecyclerView(binding.rwAlertsCryptoList)*/
+        mItemTouchHelper.attachToRecyclerView(binding.rwAlertsCryptoList)
+    }
+
+    override fun onSelectedChange(swipingState: Boolean) {
+        binding.srlAlertsReload.isEnabled = !swipingState
     }
 
     private fun setListToAdapter(cryptoList: List<Crypto>) {
-        rwCryptoAdapter.setCryptos(cryptoList)
+        if (cryptoList.isEmpty()) {
+            binding.rwAlertsCryptoList.visibility = View.GONE
+            binding.tvAlertsCryptoListEmpty.visibility = View.VISIBLE
+        } else {
+            binding.rwAlertsCryptoList.visibility = View.VISIBLE
+            binding.tvAlertsCryptoListEmpty.visibility = View.GONE
+            rwCryptoAdapter.setCryptos(cryptoList)
+        }
     }
 
     private fun referencesOptionsMenu(menu: Menu) {

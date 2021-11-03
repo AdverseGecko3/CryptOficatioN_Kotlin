@@ -1,74 +1,143 @@
 package com.kotlin.cryptofication.ui.view
 
-import android.app.AlertDialog
-import android.app.Dialog
+import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
-import android.widget.LinearLayout
-import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.DialogFragment
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
-import com.kotlin.cryptofication.databinding.CryptoDetailDialogBinding
+import com.kotlin.cryptofication.databinding.DialogCryptoDetailBinding
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mResources
 import com.kotlin.cryptofication.utilities.customFormattedPercentage
 import com.kotlin.cryptofication.utilities.customFormattedPrice
 import com.kotlin.cryptofication.utilities.negativePrice
 import com.kotlin.cryptofication.utilities.positivePrice
 
-class DialogCryptoDetail(
-    private val selectedCrypto: Crypto,
-    private val userCurrency: String
-) : DialogFragment() {
-    private var _binding: CryptoDetailDialogBinding? = null
+class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedListener {
+    private var _binding: DialogCryptoDetailBinding? = null
     private val binding get() = _binding!!
+    private var selectedCrypto: Crypto? = null
+    private val userCurrency = mPrefs.getCurrencySymbol()
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(activity)
-        _binding = CryptoDetailDialogBinding.inflate(layoutInflater)
-        builder.setView(binding.root)
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = DialogCryptoDetailBinding.inflate(layoutInflater, container, false)
+
+        selectedCrypto = arguments?.getParcelable("selectedCrypto")
 
         // Set the data to TextViews
-        binding.tvDialogCryptoDetailName.text = selectedCrypto.name
-        binding.tvDialogCryptoDetailSymbolText.text = selectedCrypto.symbol.uppercase()
-        binding.tvDialogCryptoDetailMarketCapRankText.text =
-            selectedCrypto.market_cap_rank.toString()
-        val priceChange = selectedCrypto.price_change_percentage_24h.customFormattedPercentage()
-        binding.tvDialogCryptoDetailPriceChangePercentage24hText.text = priceChange
-        if (selectedCrypto.price_change_percentage_24h >= 0) {
-            binding.tvDialogCryptoDetailPriceChangePercentage24hText.positivePrice()
+        binding.tvFragmentCryptoDetailName.text = selectedCrypto!!.name
+        binding.tvFragmentCryptoDetailSymbol.text = selectedCrypto!!.symbol!!.uppercase()
+        binding.tvFragmentCryptoDetailRank.text =
+            "#${selectedCrypto!!.market_cap_rank}"
+        binding.tvFragmentCryptoDetailPriceChangePercentage24h.text =
+            selectedCrypto!!.price_change_percentage_24h.customFormattedPercentage()
+        if (selectedCrypto!!.price_change_percentage_24h >= 0) {
+            binding.tvFragmentCryptoDetailPriceChangePercentage24h.positivePrice()
         } else {
-            binding.tvDialogCryptoDetailPriceChangePercentage24hText.negativePrice()
+            binding.tvFragmentCryptoDetailPriceChangePercentage24h.negativePrice()
         }
-        val high24h = selectedCrypto.high_24h.customFormattedPrice(userCurrency)
-        binding.tvDialogCryptoDetailHigh24hText.text = high24h
-        val low24h = selectedCrypto.low_24h.customFormattedPrice(userCurrency)
-        binding.tvDialogCryptoDetailLow24hText.text = low24h
-        val currentPrice = selectedCrypto.current_price.customFormattedPrice(userCurrency)
-        binding.tvDialogCryptoDetailCurrentPriceText.text = currentPrice
+        binding.tvFragmentCryptoDetailPrice.text =
+            selectedCrypto!!.current_price.customFormattedPrice(userCurrency)
 
-        // Add a negative button
-        builder.setNegativeButton(
-            requireContext().getString(R.string.CLOSE)
-        ) { dialogInterface, _ -> dialogInterface.dismiss() }
-            .create()
-        val dialog = builder.show()
+        val lineData = arrayListOf<Entry>()
+        for (i in selectedCrypto!!.sparkline_in_7d!!.price.indices) {
+            lineData.add(Entry(i.toFloat(), selectedCrypto!!.sparkline_in_7d!!.price[i].toFloat()))
+        }
 
-        // Change the negative button color, text size and weight
-        val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-        negativeButton.setTextColor(
-            ResourcesCompat.getColor(
-                resources,
-                R.color.purple_app_accent,
-                null
-            )
-        )
-        negativeButton.textSize = 15F
-        negativeButton.setPadding(2, 2, 2, 2)
-        val layoutParams = negativeButton.layoutParams as LinearLayout.LayoutParams
-        layoutParams.weight = 10f
-        negativeButton.layoutParams = layoutParams
+        val lds = LineDataSet(lineData, "LineData")
+        // Change chart line color
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            lds.color = mResources.getColor(R.color.purple_app_accent, null)
+        } else {
+            lds.color = mResources.getColor(R.color.purple_app_accent)
+        }
+        // Change chart line width
+        lds.lineWidth = 2F
+        // Remove chart circles
+        lds.setDrawCircles(false)
+        lds.setDrawFilled(true)
+        lds.fillDrawable =
+            ContextCompat.getDrawable(requireContext(), R.drawable.gradient_background_chart)
 
-        return dialog
+        val ld = LineData(arrayListOf(lds) as List<ILineDataSet>?)
+        binding.bcFragmentCryptoDetailLine.data = ld
+        // Remove legend
+        binding.bcFragmentCryptoDetailLine.legend.isEnabled = false
+        // Remove description
+        binding.bcFragmentCryptoDetailLine.description.isEnabled = false
+        // Remove axis left and right legend
+        binding.bcFragmentCryptoDetailLine.axisLeft.isEnabled = false
+        binding.bcFragmentCryptoDetailLine.axisRight.isEnabled = false
+        // Remove xAxis chart-lines
+        binding.bcFragmentCryptoDetailLine.xAxis.isEnabled = false
+        // Animate chart when loads
+        binding.bcFragmentCryptoDetailLine.animateX(375)
+        // Disable double tap to zoom
+        binding.bcFragmentCryptoDetailLine.isDoubleTapToZoomEnabled = false
+        // Disable both axis scale
+        binding.bcFragmentCryptoDetailLine.isScaleYEnabled = false
+        binding.bcFragmentCryptoDetailLine.isScaleXEnabled = false
+        // Change chart offsets
+        binding.bcFragmentCryptoDetailLine.setViewPortOffsets(25F, 0F, 25F, 50F)
+        // Max zoom
+        binding.bcFragmentCryptoDetailLine.viewPortHandler.setMaximumScaleX(3F)
+        binding.bcFragmentCryptoDetailLine.setOnChartValueSelectedListener(this)
+        binding.bcFragmentCryptoDetailLine.setOnTouchListener { _, _ ->
+            binding.bcFragmentCryptoDetailLine.onTouchListener.setLastHighlighted(null)
+            binding.bcFragmentCryptoDetailLine.highlightValue(null)
+            binding.tvFragmentCryptoDetailPrice.text =
+                selectedCrypto!!.current_price.customFormattedPrice(userCurrency)
+            false
+        }
+
+        binding.tvFragmentCryptoDetailPriceHigh7d.text =
+            binding.bcFragmentCryptoDetailLine.yChartMax.toDouble()
+                .customFormattedPrice(userCurrency, 1)
+        binding.tvFragmentCryptoDetailPriceLow7d.text =
+            binding.bcFragmentCryptoDetailLine.yChartMin.toDouble()
+                .customFormattedPrice(userCurrency, 1)
+
+        return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        dialog?.setCanceledOnTouchOutside(false)
+        val bottomSheetDialog = dialog as BottomSheetDialog
+        val bottomSheetBehavior = bottomSheetDialog.behavior
+        bottomSheetBehavior.isDraggable = false
 
+    }
+
+    override fun onValueSelected(e: Entry?, h: Highlight?) {
+        Log.d("onValue", h!!.y.toString())
+        binding.tvFragmentCryptoDetailPrice.text = h.y.toDouble().customFormattedPrice(userCurrency)
+    }
+
+    override fun onNothingSelected() {
+
+    }
+
+    override fun getTheme(): Int {
+        return R.style.AppBottomSheetDialogTheme
+    }
 }
