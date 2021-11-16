@@ -34,6 +34,7 @@
     <string name="CURRENCY_EURO">€</string>
     <string name="CURRENCY_DOLLAR">$</string>
     <string name="CURRENCY">Currency</string>
+    <string name="ALERT_TIME">Alert time</string>
     <string name="COLOR_SCHEME">Color Scheme</string>
     <string name="ABOUT">About</string>
     <string name="MARKET">Market</string>
@@ -50,6 +51,7 @@
     <string name="TWITTER">Twitter</string>
     <string name="CONTENT_CRYPTO_IMAGE">Icon of the Crypto coin</string>
     <string name="CONTENT_CRYPTO_STATUS">Icon indicating positive or negative price on the last 24 hours</string>
+    <string name="CONTENT_ALERT_SETTINGS">Settings icon</string>
     <string name="RECYCLERVIEW_EMPTY">No crypto has been added as favorites!\nHead over to the Market and swipe a crypto to add it here</string>
     <!--endregion-->
 

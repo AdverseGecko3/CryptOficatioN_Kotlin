@@ -15,13 +15,13 @@ import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.data.model.Crypto
-import com.kotlin.cryptofication.data.model.CryptoAlert
-import com.kotlin.cryptofication.databinding.AdapterAlertCryptoListBinding
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 import com.kotlin.cryptofication.utilities.*
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
 import kotlin.collections.ArrayList
+import com.kotlin.cryptofication.data.model.CryptoAlert
+import com.kotlin.cryptofication.databinding.AdapterMarketCryptoListBinding
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 
 class CryptoListMarketAdapter(private val context: Context) :
     RecyclerView.Adapter<CryptoListMarketAdapter.CryptoListMarketViewHolder>(),
@@ -40,7 +40,7 @@ class CryptoListMarketAdapter(private val context: Context) :
     override fun onBindViewHolder(holder: CryptoListMarketViewHolder, position: Int) {
         val selectedCrypto = cryptoList[position]
         holder.bind(selectedCrypto)
-        holder.binding.parentLayout.setOnClickListener {
+        holder.binding.parentLayoutMarket.setOnClickListener {
             val bundle = bundleOf("selectedCrypto" to selectedCrypto)
             it.findNavController()
                 .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
@@ -95,90 +95,87 @@ class CryptoListMarketAdapter(private val context: Context) :
     }
 
     override fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder) {
-
         // Get the position and the crypto symbol of the item
         val position = viewHolder.bindingAdapterPosition
         val cryptoSymbol = cryptoList[position].id
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
-        // Add the item to the database, at the Favorites table (cryptoSymbol and the  current date)
-        val currentTime = System.currentTimeMillis()
-        val cryptoSwiped = CryptoAlert(cryptoSymbol!!, currentTime)
         MainScope().launch {
-            val resultInsert: Int = try {
-                mRoom.insertAlert(cryptoSwiped).toInt()
-            } catch (e: SQLiteConstraintException) {
-                e.printStackTrace()
-                0
-            }
-            Log.d("itemSwipe", "ResultInsert: $resultInsert")
+            if (mRoom.getSingleAlert(cryptoSymbol!!) == null) {
+                val cryptoSwiped = CryptoAlert(cryptoSymbol)
+                val resultInsert: Int = try {
+                    mRoom.insertAlert(cryptoSwiped).toInt()
+                } catch (e: SQLiteConstraintException) {
+                    e.printStackTrace()
+                    0
+                }
+                Log.d("itemSwipe", "ResultInsert: $resultInsert")
 
-            resultInsert.let {
-                Log.d("itemSwipe", "it: $it")
-                when {
-                    it == 0 -> {
-                        // The item was already in the database
-                        notifyItemChanged(position)
-                        Snackbar
-                            .make(
-                                viewHolder.itemView,
-                                "$cryptoSymbol already in favorites",
-                                Snackbar.LENGTH_SHORT
-                            )
-                            .show()
-                    }
-                    it > 0 -> {
-                        // The item has been added to the database successfully. Add the action to undo the action
-                        notifyItemChanged(position)
-                        Snackbar
-                            .make(
-                                viewHolder.itemView,
-                                "$cryptoSymbol added to favorites",
-                                Snackbar.LENGTH_LONG
-                            )
-                            .setAction("UNDO") {
-                                MainScope().launch {
-                                    // When undo is clicked, delete the item from table Favorites
-                                    when (mRoom.deleteAlert(cryptoSwiped)) {
-                                        0 ->
-                                            // The item couldn't be deleted
-                                            context.showToast("$cryptoSymbol couldn't be removed")
-                                        1 -> {
-                                            // The item has been deleted successfully
-                                            context.showToast("$cryptoSymbol removed from Alerts")
+                resultInsert.let {
+                    Log.d("itemSwipe", "it: $it")
+                    when {
+                        it > 0 -> {
+                            // The item has been added to the database successfully. Add the action to undo the action
+                            notifyItemChanged(position)
+                            Snackbar
+                                .make(
+                                    viewHolder.itemView,
+                                    "$cryptoSymbol added to favorites",
+                                    Snackbar.LENGTH_LONG
+                                )
+                                .setAction("UNDO") {
+                                    MainScope().launch {
+                                        // When undo is clicked, delete the item from table Favorites
+                                        when (/*mRoom.deleteAlert(cryptoSwiped)*/0) {
+                                            0 ->
+                                                // The item couldn't be deleted
+                                                context.showToast("$cryptoSymbol couldn't be removed")
+                                            1 -> {
+                                                // The item has been deleted successfully
+                                                context.showToast("$cryptoSymbol removed from Alerts")
+                                            }
                                         }
                                     }
-                                }
-                            }.show()
-                    }
-                    else -> {
-                        // The item was already in the database
-                        context.showToast("Error!")
+                                }.show()
+                        }
+                        else -> {
+                            // The item was already in the database
+                            context.showToast("Error!")
+                        }
                     }
                 }
+            } else {
+                notifyItemChanged(position)
+                Snackbar
+                    .make(
+                        viewHolder.itemView,
+                        "$cryptoSymbol already in favorites",
+                        Snackbar.LENGTH_SHORT
+                    )
+                    .show()
             }
         }
     }
 
     class CryptoListMarketViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        val binding = AdapterAlertCryptoListBinding.bind(itemView)
+        val binding = AdapterMarketCryptoListBinding.bind(itemView)
 
         fun bind(crypto: Crypto) {
-            Picasso.get().load(crypto.image).into(binding.ivAdapterCryptoIcon)
-            binding.tvAdapterCryptoSymbol.text = crypto.symbol!!.uppercase()
-            binding.tvAdapterCryptoName.text = crypto.name
+            Picasso.get().load(crypto.image).into(binding.ivAdapterMarketIcon)
+            binding.tvAdapterMarketSymbol.text = crypto.symbol!!.uppercase()
+            binding.tvAdapterMarketName.text = crypto.name
             val userCurrency = mPrefs.getCurrencySymbol()
             val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
-            binding.tvAdapterCryptoPrice.text = currentPrice
+            binding.tvAdapterMarketPrice.text = currentPrice
             val priceChange = crypto.price_change_percentage_24h.customFormattedPercentage()
-            binding.tvAdapterCryptoTextPriceChange.text = priceChange
+            binding.tvAdapterMarketTextPriceChange.text = priceChange
             if (crypto.price_change_percentage_24h >= 0) {
-                binding.ivAdapterCryptoIconPriceChange.positivePrice()
-                binding.tvAdapterCryptoTextPriceChange.positivePrice()
+                binding.ivAdapterMarketIconPriceChange.positivePrice()
+                binding.tvAdapterMarketTextPriceChange.positivePrice()
             } else {
-                binding.ivAdapterCryptoIconPriceChange.negativePrice()
-                binding.tvAdapterCryptoTextPriceChange.negativePrice()
+                binding.ivAdapterMarketIconPriceChange.negativePrice()
+                binding.tvAdapterMarketTextPriceChange.negativePrice()
             }
         }
     }

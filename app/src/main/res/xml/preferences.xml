@@ -38,6 +38,15 @@
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
     <PreferenceCategory
+        android:icon="@drawable/ic_clock"
+        android:title="@string/ALERT_TIME">
+        <Preference
+            android:defaultValue="00:00"
+            android:key="prefAlertTime"
+            android:title="@string/ALERT_TIME"
+            app:summary="00:00" />
+    </PreferenceCategory>
+    <PreferenceCategory
         android:icon="@drawable/ic_dark_mode"
         android:title="@string/COLOR_SCHEME">
         <SwitchPreference

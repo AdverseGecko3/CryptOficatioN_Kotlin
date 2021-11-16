@@ -32,6 +32,10 @@ class Preferences(context: Context) {
         return userPrefs.getString(Constants.PREF_ITEMS_PAGE, "100")!!
     }
 
+    fun getAlertTime(): String {
+        return userPrefs.getString(Constants.PREF_ALERT_TIME, "15:00")!!
+    }
+
     fun getAllPreferences(): List<Any> {
         val preferences: MutableList<Any> = ArrayList()
 
@@ -40,6 +44,7 @@ class Preferences(context: Context) {
         preferences.add(userPrefs.getString(Constants.PREF_FILTER_OPTION, "0")!!)
         preferences.add(userPrefs.getString(Constants.PREF_FILTER_ORDER, "0")!!)
         preferences.add(userPrefs.getString(Constants.PREF_ITEMS_PAGE, "100")!!)
+        preferences.add(userPrefs.getString(Constants.PREF_ALERT_TIME, "00:00")!!)
         return preferences
     }
 
@@ -83,6 +88,13 @@ class Preferences(context: Context) {
         userPrefs
             .edit()
             .putString(Constants.PREF_ITEMS_PAGE, itemsPage)
+            .apply()
+    }
+
+    fun setAlertTime(alertTime: String?) {
+        userPrefs
+            .edit()
+            .putString(Constants.PREF_ALERT_TIME, alertTime)
             .apply()
     }
 }

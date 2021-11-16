@@ -67,14 +67,12 @@ fun TextView.negativePrice() {
 fun RecyclerView.doHaptic() {
     val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     if (vibrator.hasVibrator()) {
-        Log.d("doHaptic", "hasVibrator")
+        Log.d("doHaptic", "hasVibrator -> SDK: ${Build.VERSION.SDK_INT}")
         when {
             Build.VERSION.SDK_INT >= 30 -> {
-                Log.d("doHaptic", "SDK >= 30")
                 performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             }
             Build.VERSION.SDK_INT >= 26 -> {
-                Log.d("doHaptic", "SDK >= 26")
                 vibrator.vibrate(
                     VibrationEffect.createOneShot(
                         5,
@@ -83,7 +81,6 @@ fun RecyclerView.doHaptic() {
                 )
             }
             else -> {
-                Log.d("doHaptic", "SDK < 26")
                 vibrator.vibrate(5)
             }
         }

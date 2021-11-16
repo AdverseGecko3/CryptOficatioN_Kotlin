@@ -31,6 +31,9 @@ class MainActivity : AppCompatActivity() {
         } else if (intent.getStringExtra("lastActivity") == "settings") {
             Log.d("MainActivity", "Coming from Settings, returning to Settings")
             mNavController!!.navigate(R.id.fragmentSettings)
+        } else if (intent.getStringExtra("lastActivity") == "alerts") {
+            Log.d("MainActivity", "Coming from Notification, going to Alerts")
+            mNavController!!.navigate(R.id.fragmentAlerts)
         }
         intent.removeExtra("lastActivity")
     }

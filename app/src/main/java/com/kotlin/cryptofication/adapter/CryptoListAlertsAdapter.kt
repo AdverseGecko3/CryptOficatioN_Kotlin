@@ -17,7 +17,7 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.model.CryptoAlert
 import com.kotlin.cryptofication.data.repos.CryptoProvider
-import com.kotlin.cryptofication.databinding.AdapterMarketCryptoListBinding
+import com.kotlin.cryptofication.databinding.AdapterAlertCryptoListBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 import com.kotlin.cryptofication.utilities.*
 import com.squareup.picasso.Picasso
@@ -25,23 +25,23 @@ import kotlinx.coroutines.*
 import kotlin.collections.ArrayList
 
 class CryptoListAlertsAdapter(private val context: Context) :
-    RecyclerView.Adapter<CryptoListAlertsAdapter.CryptoListMarketViewHolder>(),
+    RecyclerView.Adapter<CryptoListAlertsAdapter.CryptoListAlertsViewHolder>(),
     Filterable,
     ITHSwipe {
 
     private var cryptoList: ArrayList<Crypto> = ArrayList()
     private var cryptoListFull: ArrayList<Crypto> = ArrayList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CryptoListMarketViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CryptoListAlertsViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.adapter_market_crypto_list, parent, false)
-        return CryptoListMarketViewHolder(view)
+            .inflate(R.layout.adapter_alert_crypto_list, parent, false)
+        return CryptoListAlertsViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: CryptoListMarketViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: CryptoListAlertsViewHolder, position: Int) {
         val selectedCrypto = cryptoList[position]
         holder.bind(selectedCrypto)
-        holder.binding.parentLayout.setOnClickListener {
+        holder.binding.parentLayoutAlerts.setOnClickListener {
             val bundle = bundleOf("selectedCrypto" to selectedCrypto)
             it.findNavController()
                 .navigate(R.id.action_fragmentAlerts_to_dialogCryptoDetail, bundle)
@@ -104,10 +104,9 @@ class CryptoListAlertsAdapter(private val context: Context) :
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the  current date)
-        val cryptoSwiped = CryptoAlert(cryptoSymbol!!, 0)
         MainScope().launch {
-            val timeAdded: Long = mRoom.getSingleAlert(cryptoSymbol)
-            cryptoSwiped.timeAdded = timeAdded
+            val cryptoSwiped = CryptoAlert(cryptoSymbol!!)
+
             val resultDelete: Int = mRoom.deleteAlert(cryptoSwiped)
             Log.d("itemSwipe", "ResultDelete: $resultDelete")
 
@@ -166,25 +165,25 @@ class CryptoListAlertsAdapter(private val context: Context) :
         }
     }
 
-    class CryptoListMarketViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class CryptoListAlertsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        val binding = AdapterMarketCryptoListBinding.bind(itemView)
+        val binding = AdapterAlertCryptoListBinding.bind(itemView)
 
         fun bind(crypto: Crypto) {
-            Picasso.get().load(crypto.image).into(binding.ivAdapterCryptoIcon)
-            binding.tvAdapterCryptoSymbol.text = crypto.symbol!!.uppercase()
-            binding.tvAdapterCryptoName.text = crypto.name
+            Picasso.get().load(crypto.image).into(binding.ivAdapterAlertIcon)
+            binding.tvAdapterAlertSymbol.text = crypto.symbol!!.uppercase()
+            binding.tvAdapterAlertName.text = crypto.name
             val userCurrency = mPrefs.getCurrencySymbol()
             val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
-            binding.tvAdapterCryptoPrice.text = currentPrice
+            binding.tvAdapterAlertPrice.text = currentPrice
             val priceChange = crypto.price_change_percentage_24h.customFormattedPercentage()
-            binding.tvAdapterCryptoTextPriceChange.text = priceChange
+            binding.tvAdapterAlertTextPriceChange.text = priceChange
             if (crypto.price_change_percentage_24h >= 0) {
-                binding.ivAdapterCryptoIconPriceChange.positivePrice()
-                binding.tvAdapterCryptoTextPriceChange.positivePrice()
+                binding.ivAdapterAlertIconPriceChange.positivePrice()
+                binding.tvAdapterAlertTextPriceChange.positivePrice()
             } else {
-                binding.ivAdapterCryptoIconPriceChange.negativePrice()
-                binding.tvAdapterCryptoTextPriceChange.negativePrice()
+                binding.ivAdapterAlertIconPriceChange.negativePrice()
+                binding.tvAdapterAlertTextPriceChange.negativePrice()
             }
         }
     }

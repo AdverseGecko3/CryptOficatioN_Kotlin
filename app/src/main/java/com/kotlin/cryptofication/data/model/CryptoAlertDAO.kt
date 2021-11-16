@@ -7,8 +7,8 @@ interface CryptoAlertDAO {
     @Query("SELECT * FROM alert_crypto")
     suspend fun getAll(): List<CryptoAlert>
 
-    @Query("SELECT time_added FROM alert_crypto WHERE id = :id")
-    suspend fun getSingleAlert(id: String): Long
+    @Query("SELECT * FROM alert_crypto WHERE id = :id")
+    suspend fun getSingleAlert(id: String): CryptoAlert?
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(cryptoAlert: CryptoAlert): Long

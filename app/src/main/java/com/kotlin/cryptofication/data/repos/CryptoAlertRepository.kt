@@ -11,7 +11,7 @@ class CryptoAlertRepository(application: Application) {
 
     suspend fun getAllAlerts(): List<CryptoAlert> = dao.getAll()
 
-    suspend fun getSingleAlert(id: String): Long = dao.getSingleAlert(id)
+    suspend fun getSingleAlert(id: String): CryptoAlert? = dao.getSingleAlert(id)
 
     suspend fun insertAlert(cryptoAlert: CryptoAlert) = dao.insert(cryptoAlert)
 

@@ -5,7 +5,6 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -121,7 +120,6 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dialog?.setCanceledOnTouchOutside(false)
         val bottomSheetDialog = dialog as BottomSheetDialog
         val bottomSheetBehavior = bottomSheetDialog.behavior
         bottomSheetBehavior.isDraggable = false

@@ -93,22 +93,20 @@ class SimpleItemTouchHelperCallback(
             val itemView = viewHolder.itemView
             val iconMargin = (itemView.height - rwSwipeIcon!!.intrinsicHeight) / 2
 
-            Log.d("onChildDraw", "dX:$dX - Half width:${-(itemView.width / 2)}")
-
             // If the item is swiped to the left
             if (dX > 0) {
                 if (dX < itemView.width / 2) {
                     if (enteredMoreSwipe) {
+                        Log.d("onChildDraw", "left less")
                         enteredMoreSwipe = false
                     }
-                    Log.d("onChildDraw", "left less")
                     rwSwipeBackground!!.alpha = ((dX.roundToInt()) * 255) / (itemView.width / 2)
                 } else {
                     if (!enteredMoreSwipe) {
+                        Log.d("onChildDraw", "left more")
                         recyclerView.doHaptic()
                         enteredMoreSwipe = true
                     }
-                    Log.d("onChildDraw", "left more")
                     rwSwipeBackground!!.alpha = 255
                 }
                 rwSwipeBackground.setBounds(
@@ -126,16 +124,16 @@ class SimpleItemTouchHelperCallback(
             } else {
                 if (dX > -itemView.width / 2) {
                     if (enteredMoreSwipe) {
+                        Log.d("onChildDraw", "right less")
                         enteredMoreSwipe = false
                     }
-                    Log.d("onChildDraw", "right less")
                     rwSwipeBackground!!.alpha = ((dX.roundToInt()) * 255) / (-itemView.width / 2)
                 } else {
                     if (!enteredMoreSwipe) {
+                        Log.d("onChildDraw", "right more")
                         recyclerView.doHaptic()
                         enteredMoreSwipe = true
                     }
-                    Log.d("onChildDraw", "right more")
                     rwSwipeBackground!!.alpha = 255
                 }
                 rwSwipeBackground.setBounds(

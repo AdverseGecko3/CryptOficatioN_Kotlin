@@ -1,10 +1,15 @@
 package com.kotlin.cryptofication.ui.view
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.res.Resources
+import android.os.Build
+import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.Preferences
 import com.kotlin.cryptofication.data.repos.CryptoAlertRepository
+import com.kotlin.cryptofication.utilities.Constants.CHANNEL_ID
 
 class CryptOficatioNApp : Application() {
 
@@ -29,5 +34,20 @@ class CryptOficatioNApp : Application() {
 
         // Create Room
         mRoom = CryptoAlertRepository(applicationContext as Application)
+
+        // Create notification channel
+        createNotificationChannel()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationChannel = NotificationChannel(
+                CHANNEL_ID,
+                getString(R.string.app_name),
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(notificationChannel)
+        }
     }
 }

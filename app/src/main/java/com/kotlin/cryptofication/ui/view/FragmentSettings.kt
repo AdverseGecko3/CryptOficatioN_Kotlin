@@ -1,6 +1,7 @@
 package com.kotlin.cryptofication.ui.view
 
 import android.annotation.SuppressLint
+import android.app.TimePickerDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.SharedPreferences
@@ -28,6 +29,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
     private var lpFilterOption: ListPreference? = null
     private var lpFilterOrder: ListPreference? = null
     private var lpItemsPage: ListPreference? = null
+    private var pAlertTime: Preference? = null
     private var spScheme: SwitchPreference? = null
     private var pAbout: Preference? = null
     private var pCredits: Preference? = null
@@ -39,158 +41,190 @@ class FragmentSettings : PreferenceFragmentCompat() {
 
         // Insert custom toolbar
         (requireActivity() as AppCompatActivity).supportActionBar!!.displayOptions =
-            ActionBar.DISPLAY_SHOW_CUSTOM
+                ActionBar.DISPLAY_SHOW_CUSTOM
         (requireActivity() as AppCompatActivity).supportActionBar!!.setDisplayShowCustomEnabled(true)
         (requireActivity() as AppCompatActivity).supportActionBar!!.setCustomView(R.layout.toolbar_home)
         (requireActivity() as AppCompatActivity).supportActionBar!!.elevation = 10f
 
         loadPreferences()
-        preferenceChangeListener =
-            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                when (key) {
-                    Constants.PREF_CURRENCY -> {
-                        Log.d(
+        preferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            when (key) {
+                Constants.PREF_CURRENCY -> {
+                    Log.d(
                             "prefSelected",
                             lpCurrency!!.title.toString() + " - " + lpCurrency!!.value
-                        )
-                        mPrefs.setCurrency(lpCurrency!!.value)
-                    }
-                    Constants.PREF_SCHEME -> {
-                        Log.d(
+                    )
+                    mPrefs.setCurrency(lpCurrency!!.value)
+                }
+                Constants.PREF_SCHEME -> {
+                    Log.d(
                             "prefSelected",
                             spScheme!!.title.toString() + " - " + spScheme!!.isChecked
-                        )
-                        mPrefs.setScheme(spScheme!!.isChecked)
-                        if (spScheme!!.isChecked) {
-                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                        } else {
-                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                        }
-                        requireActivity().recreate()
+                    )
+                    mPrefs.setScheme(spScheme!!.isChecked)
+                    if (spScheme!!.isChecked) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                     }
-                    Constants.PREF_FILTER_OPTION -> {
-                        Log.d(
+                    requireActivity().recreate()
+                }
+                Constants.PREF_FILTER_OPTION -> {
+                    Log.d(
                             "prefSelected",
                             lpFilterOption!!.title.toString() + " - " + lpFilterOption!!.value
-                        )
-                        mPrefs.setFilterOption(lpFilterOption!!.value)
-                    }
-                    Constants.PREF_FILTER_ORDER -> {
-                        Log.d(
+                    )
+                    mPrefs.setFilterOption(lpFilterOption!!.value)
+                }
+                Constants.PREF_FILTER_ORDER -> {
+                    Log.d(
                             "prefSelected",
                             lpFilterOrder!!.title.toString() + " - " + lpFilterOrder!!.value
-                        )
-                        mPrefs.setFilterOrder(lpFilterOrder!!.value)
-                    }
-                    Constants.PREF_ITEMS_PAGE -> {
-                        Log.d(
+                    )
+                    mPrefs.setFilterOrder(lpFilterOrder!!.value)
+                }
+                Constants.PREF_ITEMS_PAGE -> {
+                    Log.d(
                             "prefSelected",
                             lpItemsPage!!.title.toString() + " - " + lpItemsPage!!.value
-                        )
-                        mPrefs.setItemsPerPage(lpItemsPage!!.value)
-                    }
-                }
-            }
-
-        pAbout!!.onPreferenceClickListener =
-            Preference.OnPreferenceClickListener {
-                // Create dialog to confirm the dismiss
-                val builder = AlertDialog.Builder(requireActivity(), R.style.CustomAlertDialog)
-                val inflater = requireActivity().layoutInflater
-                val dialogView = inflater.inflate(R.layout.dialog_about, null)
-                builder.setView(dialogView)
-                builder.setNeutralButton(
-                    getString(R.string.CLOSE)
-                ) { dialogInterface, _ -> dialogInterface.dismiss() }
-                    .create()
-                val dialog = builder.show()
-                dialog.setCustomButtonStyle()
-
-                val ivLinkedIn = dialog.findViewById<ImageView>(R.id.ivDialogAboutLinkedIn)
-                val ivInstagram = dialog.findViewById<ImageView>(R.id.ivDialogAboutInstagram)
-                val ivTwitter = dialog.findViewById<ImageView>(R.id.ivDialogAboutTwitter)
-                ivLinkedIn?.setOnClickListener {
-                    try {
-                        startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("linkedin://in/eric-barrero")
-                            )
-                        )
-                    } catch (e: Exception) {
-                        startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://www.linkedin.com/in/eric-barrero")
-                            )
-                        )
-                    }
-                }
-                ivInstagram?.setOnClickListener {
-                    val intentInstagram = Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("http://instagram.com/_u/adversegecko3")
                     )
-                    intentInstagram.setPackage("com.instagram.android")
-                    try {
-                        startActivity(intentInstagram)
-                    } catch (e: ActivityNotFoundException) {
-                        startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("http://instagram.com/adversegecko3")
-                            )
-                        )
-                    }
+                    mPrefs.setItemsPerPage(lpItemsPage!!.value)
                 }
-                ivTwitter?.setOnClickListener {
-                    try {
-                        startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("twitter://user?screen_name=adversegecko3")
-                            )
-                        )
-                    } catch (e: Exception) {
-                        startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://twitter.com/#!/adversegecko3")
-                            )
-                        )
-                    }
-                }
-
-                // Show the dialog
-                dialog.show()
-                false
             }
+        }
+        pAlertTime!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener {
+                    val currentAlertTime = mPrefs.getAlertTime()
+                    val currentAlertTimeParts = currentAlertTime.split(":")
+
+                    val timePickerDialog = TimePickerDialog(context, { _, hourOfDay, minute ->
+                        val newHour: String = if (hourOfDay < 10) {
+                            if (hourOfDay == 0) {
+                                "00"
+                            } else {
+                                "0$hourOfDay"
+                            }
+                        } else {
+                            hourOfDay.toString()
+                        }
+                        val newMinute: String = if (minute < 10) {
+                            if (minute == 0) {
+                                "00"
+                            } else {
+                                "0$minute"
+                            }
+                        } else {
+                            minute.toString()
+                        }
+                        val newTime = "$newHour:$newMinute"
+                        Log.d("itemSwipe", "Time selected: $newTime")
+                        mPrefs.setAlertTime(newTime)
+                        pAlertTime!!.summary = newTime
+                    }, currentAlertTimeParts[0].toInt(), currentAlertTimeParts[1].toInt(), true
+                    )
+                    timePickerDialog.show()
+                    false
+                }
+        pAbout!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener {
+                    // Create dialog to confirm the dismiss
+                    val builder = AlertDialog.Builder(requireActivity(), R.style.CustomAlertDialog)
+                    val inflater = requireActivity().layoutInflater
+                    val dialogView = inflater.inflate(R.layout.dialog_about, null)
+                    builder.setView(dialogView)
+                    builder.setNeutralButton(
+                            getString(R.string.CLOSE)
+                    ) { dialogInterface, _ -> dialogInterface.dismiss() }
+                            .create()
+                    val dialog = builder.show()
+                    dialog.setCustomButtonStyle()
+
+                    val ivLinkedIn = dialog.findViewById<ImageView>(R.id.ivDialogAboutLinkedIn)
+                    val ivInstagram = dialog.findViewById<ImageView>(R.id.ivDialogAboutInstagram)
+                    val ivTwitter = dialog.findViewById<ImageView>(R.id.ivDialogAboutTwitter)
+                    ivLinkedIn?.setOnClickListener {
+                        try {
+                            startActivity(
+                                    Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse("linkedin://in/eric-barrero")
+                                    )
+                            )
+                        } catch (e: Exception) {
+                            startActivity(
+                                    Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse("https://www.linkedin.com/in/eric-barrero")
+                                    )
+                            )
+                        }
+                    }
+                    ivInstagram?.setOnClickListener {
+                        val intentInstagram = Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("http://instagram.com/_u/adversegecko3")
+                        )
+                        intentInstagram.setPackage("com.instagram.android")
+                        try {
+                            startActivity(intentInstagram)
+                        } catch (e: ActivityNotFoundException) {
+                            startActivity(
+                                    Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse("http://instagram.com/adversegecko3")
+                                    )
+                            )
+                        }
+                    }
+                    ivTwitter?.setOnClickListener {
+                        try {
+                            startActivity(
+                                    Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse("twitter://user?screen_name=adversegecko3")
+                                    )
+                            )
+                        } catch (e: Exception) {
+                            startActivity(
+                                    Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse("https://twitter.com/#!/adversegecko3")
+                                    )
+                            )
+                        }
+                    }
+
+                    // Show the dialog
+                    dialog.show()
+                    false
+                }
         pCredits!!.onPreferenceClickListener =
-            Preference.OnPreferenceClickListener {
-                // Create dialog to confirm the dismiss
-                val builder = AlertDialog.Builder(
-                    requireActivity(),
-                    R.style.CustomAlertDialog
-                )
-                val inflater = requireActivity().layoutInflater
-                @SuppressLint("InflateParams") val dialogView =
-                    inflater.inflate(R.layout.dialog_credits, null)
-                builder.setView(dialogView)
-                builder.setNeutralButton(
-                    getString(R.string.CLOSE)
-                ) { dialogInterface, _ -> dialogInterface.dismiss() }
-                    .create()
-                val dialog = builder.show()
-                dialog.setCustomButtonStyle()
+                Preference.OnPreferenceClickListener {
+                    // Create dialog to confirm the dismiss
+                    val builder = AlertDialog.Builder(
+                            requireActivity(),
+                            R.style.CustomAlertDialog
+                    )
+                    val inflater = requireActivity().layoutInflater
+                    @SuppressLint("InflateParams") val dialogView =
+                            inflater.inflate(R.layout.dialog_credits, null)
+                    builder.setView(dialogView)
+                    builder.setNeutralButton(
+                            getString(R.string.CLOSE)
+                    ) { dialogInterface, _ -> dialogInterface.dismiss() }
+                            .create()
+                    val dialog = builder.show()
+                    dialog.setCustomButtonStyle()
 
-                // Show the dialog
-                dialog.show()
-                false
-            }
+                    // Show the dialog
+                    dialog.show()
+                    false
+                }
     }
 
     private fun references() {
         lpCurrency = findPreference(Constants.PREF_CURRENCY)
+        pAlertTime = findPreference(Constants.PREF_ALERT_TIME)
         spScheme = findPreference(Constants.PREF_SCHEME)
         lpFilterOption = findPreference(Constants.PREF_FILTER_OPTION)
         lpFilterOrder = findPreference(Constants.PREF_FILTER_ORDER)
@@ -206,19 +240,20 @@ class FragmentSettings : PreferenceFragmentCompat() {
         lpFilterOption!!.value = listPreferences[2].toString()
         lpFilterOrder!!.value = listPreferences[3].toString()
         lpItemsPage!!.value = listPreferences[4].toString()
+        pAlertTime!!.summary = listPreferences[5].toString()
     }
 
     override fun onResume() {
         super.onResume()
         preferenceScreen
-            .sharedPreferences
-            .registerOnSharedPreferenceChangeListener(preferenceChangeListener)
+                .sharedPreferences
+                .registerOnSharedPreferenceChangeListener(preferenceChangeListener)
     }
 
     override fun onPause() {
         super.onPause()
         preferenceScreen
-            .sharedPreferences
-            .unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
+                .sharedPreferences
+                .unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
     }
 }

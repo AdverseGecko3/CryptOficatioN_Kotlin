@@ -14,6 +14,7 @@
         <!-- Customize your theme here. -->
         <item name="android:fontFamily">@font/sansation</item>
         <item name="android:alertDialogTheme">@style/CustomAlertDialog</item>
+        <item name="android:timePickerStyle">@style/CustomTimePicker</item>
     </style>
 
     <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -39,5 +40,13 @@
 
     <style name="BottomSheetModalStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/dialog_round</item>
+    </style>
+
+    <style name="CustomTimePicker" parent="android:Widget.Material.TimePicker">
+        <item name="android:headerBackground">@color/purple_background</item>
+        <item name="android:numbersTextColor">@color/text</item>
+        <item name="android:numbersSelectorColor">@color/purple_app_accent</item>
+        <item name="android:numbersBackgroundColor">@color/purple_background</item>
+        <item name="android:background">@color/purple_background</item>
     </style>
 </resources>
