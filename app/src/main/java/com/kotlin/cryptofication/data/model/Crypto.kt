@@ -13,6 +13,7 @@ data class Crypto(
     var market_cap_rank: Int,
     var high_24h: Double,
     var low_24h: Double,
+    var price_change_24h: Double,
     var price_change_percentage_24h: Double,
     var sparkline_in_7d: CryptoSparkline? = null
 ) : Parcelable

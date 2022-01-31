@@ -1,5 +1,6 @@
 package com.kotlin.cryptofication.ui.viewmodel
 
+import android.text.TextUtils
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,6 +9,9 @@ import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.domain.GetCryptoMarketOfflineUseCase
 import com.kotlin.cryptofication.domain.GetCryptoMarketOnlineUseCase
 import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
 import java.net.SocketTimeoutException
 
 class MarketViewModel: ViewModel() {
@@ -15,6 +19,7 @@ class MarketViewModel: ViewModel() {
     val isLoading = MutableLiveData<Boolean>()
     val error = MutableLiveData<String>()
 
+    var alreadyLaunched = false
     var orderOption = 0
     var orderFilter = 0
     var lastSelectedFilterItem = 0
@@ -59,7 +64,6 @@ class MarketViewModel: ViewModel() {
         // Get Cryptos from the provider (online)
         var result = getCryptoOfflineUseCase()
         Log.d("onFilterChangeViewModel", "Result: $result")
-
         if (!result.isNullOrEmpty()) {
             // Sort cryptoList with the desired filters and post the list
             result = sortCryptoList(result)
@@ -130,5 +134,43 @@ class MarketViewModel: ViewModel() {
                 return cryptoList
             }
         }
+    }
+
+    fun isMiUi(): Boolean {
+        return !TextUtils.isEmpty(getSystemProperty("ro.miui.ui.version.name"))
+    }
+
+    private fun getSystemProperty(propName: String): String? {
+        val line: String
+        var input: BufferedReader? = null
+        try {
+            val p = Runtime.getRuntime().exec("getprop $propName")
+            input = BufferedReader(InputStreamReader(p.inputStream), 1024)
+            line = input.readLine()
+            Log.d("marketVM-Xiaomi", line)
+            input.close()
+        } catch (ex: IOException) {
+            return null
+        } finally {
+            if (input != null) {
+                try {
+                    input.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        /*
+        // Launch autostart activity
+        val intent = Intent()
+        intent.component = ComponentName(
+            "com.miui.securitycenter",
+            "com.miui.permcenter.autostart.AutoStartManagementActivity"
+        )
+        startActivity(intent)
+        */
+
+        return line
     }
 }

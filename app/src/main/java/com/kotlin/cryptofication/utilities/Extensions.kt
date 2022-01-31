@@ -24,7 +24,7 @@ fun Context.showToast(message: String, length: Int = Toast.LENGTH_SHORT) {
 fun Double.customFormattedPrice(userCurrency: String, type: Int = 0): String {
     val currencySeparator = DecimalFormat().decimalFormatSymbols.decimalSeparator
     var formattedPercentage = if (type == 0) {
-        String.format("%.10f", this)
+        String.format("%.6f", this)
             .replace("0+$".toRegex(), "")
     } else {
         String.format("%.2f", this)
@@ -89,7 +89,7 @@ fun RecyclerView.doHaptic() {
     }
 }
 
-fun AlertDialog.setCustomButtonStyle() {
+fun AlertDialog.setCustomButtonStyle(type: Int = 0) {
     // Change the button color and weight
     val btnDismiss = getButton(AlertDialog.BUTTON_NEUTRAL)
     btnDismiss.setTextColor(
@@ -99,6 +99,17 @@ fun AlertDialog.setCustomButtonStyle() {
             null
         )
     )
+
+    if (type == 1) {
+        val btnAccept = getButton(AlertDialog.BUTTON_POSITIVE)
+        btnAccept.setTextColor(
+            ResourcesCompat.getColor(
+                mResources,
+                R.color.purple_app_accent,
+                null
+            )
+        )
+    }
 
     /*//Force the default buttons to center
     val layoutParams = LinearLayout.LayoutParams(

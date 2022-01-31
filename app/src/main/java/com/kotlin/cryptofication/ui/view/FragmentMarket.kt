@@ -8,6 +8,7 @@ import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -23,11 +24,8 @@ import com.kotlin.cryptofication.ui.viewmodel.MarketViewModel
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.*
-import java.text.SimpleDateFormat
-import java.util.*
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
-
 
 class FragmentMarket : Fragment(), SelectedChangeListener {
 
@@ -63,6 +61,36 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         //Initialize RecyclerView
         initRecyclerView()
 
+        if (mPrefs.getFirstRun()) {
+            // Check if device is running MIUI
+            if (marketViewModel.isMiUi()) {
+                // Show Xiaomi optimization warning
+                val builder = AlertDialog.Builder(
+                    requireActivity(),
+                    R.style.CustomAlertDialog
+                )
+                val layInflater = requireActivity().layoutInflater
+
+                @SuppressLint("InflateParams")
+                val dialogView = layInflater.inflate(R.layout.dialog_xiaomi_check, null)
+                builder.setView(dialogView)
+                builder.setNeutralButton(
+                    getString(R.string.CLOSE)
+                ) { dialogInterface, _ -> dialogInterface.dismiss() }
+                    .create()
+
+                val dialog = builder.show()
+                dialog.setCustomButtonStyle()
+
+                // Show the dialog
+                dialog.show()
+            }
+
+            // Set first run (onCreateView) to false
+            mPrefs.setFirstRun(false)
+            Log.d("firstRun", "App first run")
+        }
+
         // SwipeRefreshLayout refresh listener
         binding.srlMarketReload.setOnRefreshListener {
             // See checked filters
@@ -96,14 +124,14 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         // Swipe refresh customization
         binding.srlMarketReload.setColorSchemeResources(R.color.purple_app_accent)
 
-        marketViewModel.isLoading.observe(requireActivity(), { isLoading ->
+        marketViewModel.isLoading.observe(requireActivity()) { isLoading ->
             Log.d("FragmentMarket", "isLoading changed to $isLoading")
 
             // Set refreshing depending isLoading boolean in ViewModel
             binding.srlMarketReload.isRefreshing = isLoading
-        })
+        }
 
-        marketViewModel.cryptoLiveData.observe(requireActivity(), { cryptoList ->
+        marketViewModel.cryptoLiveData.observe(requireActivity()) { cryptoList ->
             Log.d("FragmentMarket", "Received cryptoList")
 
             // Set the cryptoList from API to the adapter
@@ -111,23 +139,14 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
 
             // Start ViewFlipper
             initViewFlipper(cryptoList)
-        })
+        }
 
-        Log.d(
-            "itemSwipe", "TS:${
-                SimpleDateFormat(
-                    "yyy-MM-dd HH:mm:ss",
-                    Locale.getDefault()
-                ).format(System.currentTimeMillis())
-            }"
-        )
-
-        marketViewModel.error.observe(requireActivity(), { errorMessage ->
+        marketViewModel.error.observe(requireActivity()) { errorMessage ->
             Log.d("FragmentMarket", "Error message")
 
             // Show toast when result is empty/null on ViewModel
             mAppContext.showToast(errorMessage)
-        })
+        }
 
         // Load crypto data from API now
         binding.srlMarketReload.post {
@@ -152,8 +171,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         )
 
         // Check if it is the first run
-        if (DataClass.firstRun) {
-            Log.d("onCreateOptionsMenu", "First run")
+        if (!marketViewModel.alreadyLaunched) {
             // Load the starting filters from the SharedPreferences and check the options
             val userFilterOption = mPrefs.getFilterOption()
             val userFilterOrder = mPrefs.getFilterOrder()
@@ -194,8 +212,9 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
                 }
             }
 
-            // Set first run to false
-            DataClass.firstRun = false
+            // Set alreadyLaunched to true in ViewModel
+            marketViewModel.alreadyLaunched = true
+            Log.d("firstLaunchFM", "First launch FM")
         } else {
             // See orderOption and orderFilter in ViewModel, and check the corresponding options
             when (marketViewModel.orderOption) {
@@ -203,13 +222,10 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
                 1 -> itemSymbol?.isChecked = true
                 2 -> itemPrice?.isChecked = true
                 3 -> itemPercentage?.isChecked = true
-
             }
             when (marketViewModel.orderFilter) {
                 0 -> itemAscending?.isChecked = true
                 1 -> itemDescending?.isChecked = true
-                else -> {
-                }
             }
             // Get the ID of the item selected previously ( of the new one
             marketViewModel.lastSelectedFilterItem = itemName!!.itemId
@@ -375,7 +391,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
 
     private fun initRecyclerView() {
         // Initialize RecyclerView layout manager and adapter
-        rwCryptoAdapter = CryptoListMarketAdapter(requireActivity())
+        rwCryptoAdapter = CryptoListMarketAdapter()
         binding.rwMarketCryptoList.layoutManager = LinearLayoutManager(context)
         binding.rwMarketCryptoList.adapter = rwCryptoAdapter
         binding.rwMarketCryptoList.setHasFixedSize(true)

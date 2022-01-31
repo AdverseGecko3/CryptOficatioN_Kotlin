@@ -54,6 +54,15 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
         } else {
             binding.tvFragmentCryptoDetailPriceChangePercentage24h.negativePrice()
         }
+        binding.tvFragmentCryptoDetailPriceChange24h.text = run {
+            if (selectedCrypto!!.price_change_24h >= 0) {
+                binding.tvFragmentCryptoDetailPriceChange24h.positivePrice()
+                "+${selectedCrypto!!.price_change_24h.customFormattedPrice(userCurrency)}"
+            } else {
+                binding.tvFragmentCryptoDetailPriceChange24h.negativePrice()
+                "-${selectedCrypto!!.price_change_24h.customFormattedPrice(userCurrency)}"
+            }
+        }
         binding.tvFragmentCryptoDetailPrice.text =
             selectedCrypto!!.current_price.customFormattedPrice(userCurrency)
 

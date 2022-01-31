@@ -246,14 +246,14 @@ class FragmentSettings : PreferenceFragmentCompat() {
     override fun onResume() {
         super.onResume()
         preferenceScreen
-                .sharedPreferences
+                .sharedPreferences!!
                 .registerOnSharedPreferenceChangeListener(preferenceChangeListener)
     }
 
     override fun onPause() {
         super.onPause()
         preferenceScreen
-                .sharedPreferences
+                .sharedPreferences!!
                 .unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
     }
 }

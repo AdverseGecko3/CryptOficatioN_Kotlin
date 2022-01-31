@@ -63,7 +63,20 @@
         android:textColor="@color/text"
         android:textSize="18sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/tvFragmentCryptoDetailPrice"
-        app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailPrice" />
+        app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailPrice"
+        app:layout_constraintEnd_toStartOf="@+id/tvFragmentCryptoDetailPriceChange24h" />
+
+    <TextView
+        android:id="@+id/tvFragmentCryptoDetailPriceChange24h"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:padding="5dp"
+        android:text="@string/HOLDER_CRYPTO_PRICE_CHANGE_24H"
+        android:textColor="@color/text"
+        android:textSize="12sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/tvFragmentCryptoDetailPrice"
+        app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailPriceChangePercentage24h" />
 
     <TextView
         android:id="@+id/tvFragmentCryptoDetailPriceHigh7d"

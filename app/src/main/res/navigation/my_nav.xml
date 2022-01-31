@@ -2,33 +2,32 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/my_nav"
-    app:startDestination="@id/fragmentMarket">
+    app:startDestination="@id/navigationFragmentMarket">
 
     <fragment
-        android:id="@+id/fragmentMarket"
+        android:id="@+id/navigationFragmentMarket"
         android:name="com.kotlin.cryptofication.ui.view.FragmentMarket"
-        android:label="FragmentMarket" >
+        android:label="FragmentMarket">
         <action
             android:id="@+id/action_fragmentMarket_to_dialogCryptoDetail"
             app:destination="@id/dialogCryptoDetail"
-            app:popUpTo="@id/fragmentMarket" />
+            app:popUpTo="@id/navigationFragmentMarket" />
     </fragment>
     <fragment
-        android:id="@+id/fragmentAlerts"
+        android:id="@+id/navigationFragmentAlerts"
         android:name="com.kotlin.cryptofication.ui.view.FragmentAlerts"
-        android:label="FragmentAlerts" >
+        android:label="FragmentAlerts">
         <action
             android:id="@+id/action_fragmentAlerts_to_dialogCryptoDetail"
             app:destination="@id/dialogCryptoDetail"
-            app:popUpTo="@id/fragmentAlerts" />
+            app:popUpTo="@id/navigationFragmentAlerts" />
     </fragment>
     <fragment
-        android:id="@+id/fragmentSettings"
+        android:id="@+id/navigationFragmentSettings"
         android:name="com.kotlin.cryptofication.ui.view.FragmentSettings"
         android:label="FragmentSettings" />
     <dialog
         android:id="@+id/dialogCryptoDetail"
         android:name="com.kotlin.cryptofication.ui.view.DialogCryptoDetail"
-        android:label="DialogCryptoDetail">
-    </dialog>
+        android:label="DialogCryptoDetail" />
 </navigation>

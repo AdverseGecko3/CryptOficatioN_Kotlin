@@ -3,33 +3,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/purple_background"
-    tools:context=".ui.view.SplashActivity">
+    android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/ivSplashLogo"
+    <TextView
+        android:id="@+id/tvDialogCreditsTitle"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/cryptofication_logo_long_white"
-        app:layout_constraintBottom_toTopOf="@+id/tvSplashPoweredBy"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="10sp"
+        android:text="@string/XIAOMI_CHECK_TITLE"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toTopOf="@+id/tvDialogCreditsContent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tvSplashPoweredBy"
+        android:id="@+id/tvDialogCreditsContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center|center_vertical"
-        android:padding="10dp"
-        android:text="@string/POWERED_BY"
-        android:textColor="@color/text"
-        android:textSize="18sp"
+        android:autoLink="web"
+        android:justificationMode="inter_word"
+        android:padding="20sp"
+        android:text="@string/XIAOMI_CHECK_TEXT"
+        android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivSplashLogo" />
+        app:layout_constraintTop_toBottomOf="@+id/tvDialogCreditsTitle"
+        tools:targetApi="o" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

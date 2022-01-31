@@ -1,7 +1,6 @@
 package com.kotlin.cryptofication.adapter
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.os.bundleOf
-import androidx.navigation.findNavController
+import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
@@ -21,9 +20,11 @@ import kotlinx.coroutines.*
 import kotlin.collections.ArrayList
 import com.kotlin.cryptofication.data.model.CryptoAlert
 import com.kotlin.cryptofication.databinding.AdapterMarketCryptoListBinding
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManager
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 
-class CryptoListMarketAdapter(private val context: Context) :
+class CryptoListMarketAdapter :
     RecyclerView.Adapter<CryptoListMarketAdapter.CryptoListMarketViewHolder>(),
     Filterable,
     ITHSwipe {
@@ -42,7 +43,7 @@ class CryptoListMarketAdapter(private val context: Context) :
         holder.bind(selectedCrypto)
         holder.binding.parentLayoutMarket.setOnClickListener {
             val bundle = bundleOf("selectedCrypto" to selectedCrypto)
-            it.findNavController()
+            findNavController(it)
                 .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
         }
     }
@@ -97,12 +98,15 @@ class CryptoListMarketAdapter(private val context: Context) :
     override fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder) {
         // Get the position and the crypto symbol of the item
         val position = viewHolder.bindingAdapterPosition
-        val cryptoSymbol = cryptoList[position].id
+        val cryptoId = cryptoList[position].id
+        val cryptoSymbol = cryptoList[position].symbol?.uppercase()
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         MainScope().launch {
-            if (mRoom.getSingleAlert(cryptoSymbol!!) == null) {
-                val cryptoSwiped = CryptoAlert(cryptoSymbol)
+            val savedAlerts: Int
+            if (mRoom.getSingleAlert(cryptoId!!) == null) {
+                val cryptoSwiped = CryptoAlert(cryptoId)
+                savedAlerts = mRoom.getAllAlerts().size
                 val resultInsert: Int = try {
                     mRoom.insertAlert(cryptoSwiped).toInt()
                 } catch (e: SQLiteConstraintException) {
@@ -117,6 +121,11 @@ class CryptoListMarketAdapter(private val context: Context) :
                         it > 0 -> {
                             // The item has been added to the database successfully. Add the action to undo the action
                             notifyItemChanged(position)
+
+                            if (savedAlerts == 0) {
+                                mAlarmManager.launchAlarmManager()
+                            }
+
                             Snackbar
                                 .make(
                                     viewHolder.itemView,
@@ -126,13 +135,17 @@ class CryptoListMarketAdapter(private val context: Context) :
                                 .setAction("UNDO") {
                                     MainScope().launch {
                                         // When undo is clicked, delete the item from table Favorites
-                                        when (/*mRoom.deleteAlert(cryptoSwiped)*/0) {
+                                        when (mRoom.deleteAlert(cryptoSwiped)) {
                                             0 ->
                                                 // The item couldn't be deleted
-                                                context.showToast("$cryptoSymbol couldn't be removed")
+                                                mAppContext.showToast("$cryptoSymbol couldn't be removed")
                                             1 -> {
                                                 // The item has been deleted successfully
-                                                context.showToast("$cryptoSymbol removed from Alerts")
+                                                mAppContext.showToast("$cryptoSymbol removed from Alerts")
+
+                                                if (savedAlerts == 0) {
+                                                    mAlarmManager.deleteAlarmManager()
+                                                }
                                             }
                                         }
                                     }
@@ -140,7 +153,7 @@ class CryptoListMarketAdapter(private val context: Context) :
                         }
                         else -> {
                             // The item was already in the database
-                            context.showToast("Error!")
+                            mAppContext.showToast("Error!")
                         }
                     }
                 }

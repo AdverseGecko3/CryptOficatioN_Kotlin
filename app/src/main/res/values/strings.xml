@@ -12,6 +12,7 @@
     <string name="HOLDER_CRYPTO_HIGH_24H">9999</string>
     <string name="HOLDER_CRYPTO_LOW_24H">9999</string>
     <string name="HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H">99%</string>
+    <string name="HOLDER_CRYPTO_PRICE_CHANGE_24H">99.99</string>
     <!--endregion-->
 
     <!--region STRINGS NORMAL-->
@@ -49,10 +50,17 @@
     <string name="LINKEDIN">LinkedIn</string>
     <string name="INSTAGRAM">Instagram</string>
     <string name="TWITTER">Twitter</string>
+    <string name="CREDITS_ICONS">LinkedIn, Instagram and Twitter icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a>
+        \n\nBell icon downloaded from <a href="https://icons8.com">www.icons8.com</a></string>
     <string name="CONTENT_CRYPTO_IMAGE">Icon of the Crypto coin</string>
     <string name="CONTENT_CRYPTO_STATUS">Icon indicating positive or negative price on the last 24 hours</string>
     <string name="CONTENT_ALERT_SETTINGS">Settings icon</string>
     <string name="RECYCLERVIEW_EMPTY">No crypto has been added as favorites!\nHead over to the Market and swipe a crypto to add it here</string>
+    <string name="XIAOMI_CHECK_TITLE">Xiaomi Check</string>
+    <string name="XIAOMI_CHECK_TEXT">We detected that you have a Xiaomi device (Xiaomi, Mi, Redmi, Poco, etc.) running MIUI.
+        \n\nIf you want to receive daily notifications, you should activate \'Autostart\' permission and deactivate MIUI battery optimization.
+        \n\nYou can find more info at the Settings menu.</string>
+    <string name="GO_TO_SETTINGS">Go to settings</string>
     <!--endregion-->
 
     <!--region STRINGS DOTS-->
@@ -152,10 +160,5 @@
 
     <string name="SETTINGS_ABOUT">About Me</string>
     <string name="SETTINGS_CREDITS">Credits</string>
-    <!--endregion-->
-
-    <!--region CREDITS-->
-    <string name="CREDITS_ICONS">LinkedIn, Instagram and Twitter icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a>
-    \n\nBell icon downloaded from <a href="https://icons8.com">www.icons8.com</a></string>
     <!--endregion-->
 </resources>

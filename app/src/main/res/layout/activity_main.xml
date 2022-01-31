@@ -8,13 +8,12 @@
     tools:context=".ui.view.MainActivity">
 
     <fragment
-        android:id="@+id/fragmentContainerView"
+        android:id="@+id/navHostFragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/navBottom"
-        app:defaultNavHost="true"
-        app:navGraph="@navigation/my_nav" />
+        app:defaultNavHost="true" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navBottom"
@@ -23,6 +22,7 @@
         android:layout_alignParentBottom="true"
         android:background="@drawable/recyclerview_border_round"
         app:itemIconTint="@drawable/color_nav"
+        app:elevation="5dp"
         app:itemTextColor="@drawable/color_nav"
         app:menu="@menu/bottom_nav" />
 </RelativeLayout>

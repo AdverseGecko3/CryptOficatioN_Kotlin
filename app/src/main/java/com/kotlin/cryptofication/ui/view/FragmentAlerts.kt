@@ -9,23 +9,25 @@ import android.widget.SearchView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
+import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.databinding.FragmentAlertsBinding
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.viewmodel.AlertsViewModel
-import com.kotlin.cryptofication.utilities.DataClass
 import com.kotlin.cryptofication.utilities.showToast
 
-class FragmentAlerts: Fragment(), SimpleItemTouchHelperCallback.SelectedChangeListener {
+class FragmentAlerts : Fragment(), SelectedChangeListener, CryptoListAlertsAdapter.OnCryptoClickListener {
 
     private var _binding: FragmentAlertsBinding? = null
     private val binding get() = _binding!!
-    private val alertsViewModel: AlertsViewModel by viewModels()
+    private val alertsViewModel: AlertsViewModel by navGraphViewModels(R.id.my_nav)
     private lateinit var rwCryptoAdapter: CryptoListAlertsAdapter
     private lateinit var mItemTouchHelper: ItemTouchHelper
     private var itemName: MenuItem? = null
@@ -88,26 +90,26 @@ class FragmentAlerts: Fragment(), SimpleItemTouchHelperCallback.SelectedChangeLi
         // Swipe refresh customization
         binding.srlAlertsReload.setColorSchemeResources(R.color.purple_app_accent)
 
-        alertsViewModel.isLoading.observe(requireActivity(), { isLoading ->
-            Log.d("FragmentMarket", "isLoading changed to $isLoading")
+        alertsViewModel.isLoading.observe(requireActivity()) { isLoading ->
+            Log.d("FragmentAlerts", "isLoading changed to $isLoading")
 
             // Set refreshing depending isLoading boolean in ViewModel
             binding.srlAlertsReload.isRefreshing = isLoading
-        })
+        }
 
-        alertsViewModel.cryptoLiveData.observe(requireActivity(), { cryptoList ->
+        alertsViewModel.cryptoLiveData.observe(requireActivity()) { cryptoList ->
             Log.d("FragmentMarket", "Received cryptoList")
 
             // Set the cryptoList from API to the adapter
             setListToAdapter(cryptoList)
-        })
+        }
 
-        alertsViewModel.error.observe(requireActivity(), { errorMessage ->
+        alertsViewModel.error.observe(requireActivity()) { errorMessage ->
             Log.d("FragmentMarket", "Error message")
 
             // Show toast when result is empty/null on ViewModel
             requireContext().showToast(errorMessage)
-        })
+        }
 
         // Load crypto data from API now
         binding.srlAlertsReload.post {
@@ -132,11 +134,10 @@ class FragmentAlerts: Fragment(), SimpleItemTouchHelperCallback.SelectedChangeLi
         )
 
         // Check if it is the first run
-        if (DataClass.firstRun) {
-            Log.d("onCreateOptionsMenu", "First run")
+        if (!alertsViewModel.alreadyLaunched) {
             // Load the starting filters from the SharedPreferences and check the options
-            val userFilterOption = CryptOficatioNApp.mPrefs.getFilterOption()
-            val userFilterOrder = CryptOficatioNApp.mPrefs.getFilterOrder()
+            val userFilterOption = mPrefs.getFilterOption()
+            val userFilterOrder = mPrefs.getFilterOrder()
             when (userFilterOption.toInt()) {
                 0 -> {
                     itemName?.isChecked = true
@@ -174,8 +175,9 @@ class FragmentAlerts: Fragment(), SimpleItemTouchHelperCallback.SelectedChangeLi
                 }
             }
 
-            // Set first run to false
-            DataClass.firstRun = false
+            // Set alreadyLaunched to true in ViewModel
+            alertsViewModel.alreadyLaunched = true
+            Log.d("firstLaunchFA", "First launch FA")
         } else {
             // See orderOption and orderFilter in ViewModel, and check the corresponding options
             when (alertsViewModel.orderOption) {
@@ -183,13 +185,10 @@ class FragmentAlerts: Fragment(), SimpleItemTouchHelperCallback.SelectedChangeLi
                 1 -> itemSymbol?.isChecked = true
                 2 -> itemPrice?.isChecked = true
                 3 -> itemPercentage?.isChecked = true
-
             }
             when (alertsViewModel.orderFilter) {
                 0 -> itemAscending?.isChecked = true
                 1 -> itemDescending?.isChecked = true
-                else -> {
-                }
             }
             // Get the ID of the item selected previously ( of the new one
             alertsViewModel.lastSelectedFilterItem = itemName!!.itemId
@@ -355,10 +354,11 @@ class FragmentAlerts: Fragment(), SimpleItemTouchHelperCallback.SelectedChangeLi
 
     private fun initRecyclerView() {
         // Initialize RecyclerView layout manager and adapter
-        rwCryptoAdapter = CryptoListAlertsAdapter(requireActivity())
+        rwCryptoAdapter = CryptoListAlertsAdapter()
         binding.rwAlertsCryptoList.layoutManager = LinearLayoutManager(context)
         binding.rwAlertsCryptoList.adapter = rwCryptoAdapter
         binding.rwAlertsCryptoList.setHasFixedSize(true)
+        rwCryptoAdapter.setOnCryptoClickListener(this)
 
         // Attach ItemTouchHelper (swipe items to favorite)
         val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "alerts")
@@ -370,6 +370,10 @@ class FragmentAlerts: Fragment(), SimpleItemTouchHelperCallback.SelectedChangeLi
         binding.srlAlertsReload.isEnabled = !swipingState
     }
 
+    override fun onCryptoClicked(bundle: Bundle) {
+        findNavController().navigate(R.id.action_fragmentAlerts_to_dialogCryptoDetail, bundle)
+    }
+
     private fun setListToAdapter(cryptoList: List<Crypto>) {
         if (cryptoList.isEmpty()) {
             binding.rwAlertsCryptoList.visibility = View.GONE
@@ -378,6 +382,11 @@ class FragmentAlerts: Fragment(), SimpleItemTouchHelperCallback.SelectedChangeLi
             binding.rwAlertsCryptoList.visibility = View.VISIBLE
             binding.tvAlertsCryptoListEmpty.visibility = View.GONE
             rwCryptoAdapter.setCryptos(cryptoList)
+            if (arguments?.getString("cryptoId") != null) {
+                Log.d("CryptoNotification", "Had cryptoId argument")
+                rwCryptoAdapter.goToCrypto(arguments?.getString("cryptoId")!!)
+                arguments?.remove("cryptoId")
+            }
         }
     }
 

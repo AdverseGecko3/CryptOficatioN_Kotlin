@@ -9,5 +9,6 @@ object Constants {
     const val PREF_ALERT_TIME = "prefAlertTime"
     const val PREF_ABOUT = "prefAbout"
     const val PREF_CREDITS = "prefCredits"
+    const val PREF_FIRST_RUN = "prefFirstRun"
     const val CHANNEL_ID = "CryptOficatioNChannel"
 }

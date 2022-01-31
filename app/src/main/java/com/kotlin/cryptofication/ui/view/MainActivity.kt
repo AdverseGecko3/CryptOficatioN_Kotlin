@@ -1,5 +1,6 @@
 package com.kotlin.cryptofication.ui.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -7,40 +8,100 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.kotlin.cryptofication.R
 
 class MainActivity : AppCompatActivity() {
 
-    private var mNavController: NavController? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (CryptOficatioNApp.mPrefs.getScheme()) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+        setTheme(R.style.Theme_CryptOficatioNKotlin)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Initialize bottomNav and navController
-        val bottomNavigation = findViewById<BottomNavigationView>(R.id.navBottom)
-        mNavController = findNavController(R.id.fragmentContainerView)
-        bottomNavigation.setupWithNavController(mNavController!!)
-        if (intent.getStringExtra("lastActivity") == "splash") {
-            Log.d("MainActivity", "Coming from Splash, staying in Market")
-        } else if (intent.getStringExtra("lastActivity") == "settings") {
-            Log.d("MainActivity", "Coming from Settings, returning to Settings")
-            mNavController!!.navigate(R.id.fragmentSettings)
-        } else if (intent.getStringExtra("lastActivity") == "alerts") {
-            Log.d("MainActivity", "Coming from Notification, going to Alerts")
-            mNavController!!.navigate(R.id.fragmentAlerts)
+        /*
+        // Initialize navController and bottomNav
+        val bottomNavView = findViewById<BottomNavigationView>(R.id.navBottom)
+        val navController = findNavController(R.id.navHostFragment)
+        bottomNavView.setupWithNavController(navController)
+        intent.getStringExtra("lastActivity")?.let {
+            when {
+                it == "settings" -> {
+                    Log.d("lastActivity", "Coming from Settings, returning to Settings")
+                    navController.navigate(R.id.navigationFragmentSettings)
+                }
+                it.contains("alerts") -> {
+                    Log.d("lastActivity", "Coming from Notification, going to Alerts")
+                    val cryptoId = it.substring(6, it.length)
+                    Log.d("lastActivity", "Bundle: $it - cryptoId: $cryptoId")
+                    val cryptoBundle = bundleOf("cryptoId" to cryptoId)
+                    navController.navigate(R.id.navigationFragmentAlerts, cryptoBundle)
+                }
+                else -> {
+                    Log.d("lastActivity", "else")
+                    navController.navigate(R.id.navigationFragmentMarket)
+                }
+            }
         }
-        intent.removeExtra("lastActivity")
+        intent?.removeExtra("lastActivity")
+        */
+
+        // Initialize navController and bottomNav
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
+        val bottomNavView = findViewById<BottomNavigationView>(R.id.navBottom)
+
+        val navController = navHostFragment.navController
+        val navGraph = navController.navInflater.inflate(R.navigation.my_nav)
+        navController.graph = navGraph
+        Log.d("lastActivity", "${intent.extras != null}")
+
+        if (intent.getStringExtra("lastActivity") != null) {
+            intent.getStringExtra("lastActivity")?.let {
+                when {
+                    it == "settings" -> {
+                        Log.d("lastActivity", "Coming from Settings, returning to Settings")
+                        navGraph.setStartDestination(R.id.navigationFragmentSettings)
+                        bottomNavView.setupWithNavController(navController)
+                        navController.navigate(R.id.navigationFragmentSettings)
+                    }
+                    it.contains("alerts") -> {
+                        Log.d("lastActivity", "Coming from Notification, going to Alerts")
+                        val cryptoId = it.substring(6, it.length)
+                        Log.d("lastActivity", "Bundle: $it - cryptoId: $cryptoId")
+                        val cryptoBundle = bundleOf("cryptoId" to cryptoId)
+                        navGraph.setStartDestination(R.id.navigationFragmentAlerts)
+                        bottomNavView.setupWithNavController(navController)
+                        navController.navigate(R.id.navigationFragmentAlerts, cryptoBundle)
+                    }
+                    else -> {
+                        Log.d("lastActivity", "lastActivity with unknown extra")
+                        navGraph.setStartDestination(R.id.navigationFragmentMarket)
+                        bottomNavView.setupWithNavController(navController)
+                    }
+                }
+                intent?.removeExtra("lastActivity")
+            }
+
+        } else {
+            Log.d("lastActivity", "lastActivity had no extras")
+            navGraph.setStartDestination(R.id.navigationFragmentMarket)
+            bottomNavView.setupWithNavController(navController)
+        }
     }
 
     override fun onBackPressed() {
         // Create dialog to confirm the dismiss
-        if (mNavController!!.previousBackStackEntry == null) {
+        //if (mNavController.previousBackStackEntry == null) {
             val builder = AlertDialog.Builder(this, R.style.CustomAlertDialog)
             val titleExit = TextView(this)
             titleExit.text = getString(R.string.EXIT)
@@ -65,7 +126,13 @@ class MainActivity : AppCompatActivity() {
             // Change the buttons color and weight
             val btnYes = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             val btnNo = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-            btnYes.setTextColor(ResourcesCompat.getColor(resources, R.color.purple_app_accent, null))
+            btnYes.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.purple_app_accent,
+                    null
+                )
+            )
             btnNo.setTextColor(ResourcesCompat.getColor(resources, R.color.purple_app_accent, null))
             val layoutParams = btnYes.layoutParams as LinearLayout.LayoutParams
             layoutParams.weight = 10f
@@ -74,14 +141,14 @@ class MainActivity : AppCompatActivity() {
 
             // Show the dialog
             dialog.show()
-        } else {
+        /*} else {
             super.onBackPressed()
-        }
+        }*/
     }
 
     override fun recreate() {
-        startActivity(intent.putExtra("lastActivity", "settings"))
         finish()
-        overridePendingTransition(R.anim.anim_fade_in_fast, R.anim.anim_fade_out_fast)
+        startActivity(Intent(this, javaClass).putExtra("lastActivity", "settings"))
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 }

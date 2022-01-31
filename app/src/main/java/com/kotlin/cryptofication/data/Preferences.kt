@@ -2,6 +2,7 @@ package com.kotlin.cryptofication.data
 
 import android.content.Context
 import com.kotlin.cryptofication.R
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManager
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mResources
 import com.kotlin.cryptofication.utilities.Constants
 import java.util.ArrayList
@@ -33,7 +34,11 @@ class Preferences(context: Context) {
     }
 
     fun getAlertTime(): String {
-        return userPrefs.getString(Constants.PREF_ALERT_TIME, "15:00")!!
+        return userPrefs.getString(Constants.PREF_ALERT_TIME, "00:00")!!
+    }
+
+    fun getFirstRun(): Boolean {
+        return userPrefs.getBoolean(Constants.PREF_FIRST_RUN, true)
     }
 
     fun getAllPreferences(): List<Any> {
@@ -92,9 +97,17 @@ class Preferences(context: Context) {
     }
 
     fun setAlertTime(alertTime: String?) {
+        mAlarmManager.modifyAlarmManager(alertTime!!)
         userPrefs
             .edit()
             .putString(Constants.PREF_ALERT_TIME, alertTime)
+            .apply()
+    }
+
+    fun setFirstRun(firstRun: Boolean) {
+        userPrefs
+            .edit()
+            .putBoolean(Constants.PREF_FIRST_RUN, firstRun)
             .apply()
     }
 }

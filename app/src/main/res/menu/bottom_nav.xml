@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/fragmentMarket"
+        android:id="@+id/navigationFragmentMarket"
         android:icon="@drawable/ic_trending_up"
         android:title="@string/MARKETS" />
     <item
-        android:id="@+id/fragmentAlerts"
+        android:id="@+id/navigationFragmentAlerts"
         android:icon="@drawable/ic_notifications"
         android:title="@string/ALERTS" />
     <item
-        android:id="@+id/fragmentSettings"
+        android:id="@+id/navigationFragmentSettings"
         android:icon="@drawable/ic_settings"
         android:title="@string/SETTINGS" />
 </menu>

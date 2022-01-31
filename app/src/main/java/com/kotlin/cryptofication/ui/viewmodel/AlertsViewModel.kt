@@ -16,6 +16,7 @@ class AlertsViewModel: ViewModel() {
     val isLoading = MutableLiveData<Boolean>()
     val error = MutableLiveData<String>()
 
+    var alreadyLaunched = false
     var orderOption = 0
     var orderFilter = 0
     var lastSelectedFilterItem = 0

@@ -1,36 +1,49 @@
 package com.kotlin.cryptofication.adapter
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.core.os.bundleOf
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.model.CryptoAlert
 import com.kotlin.cryptofication.data.repos.CryptoProvider
 import com.kotlin.cryptofication.databinding.AdapterAlertCryptoListBinding
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManager
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 import com.kotlin.cryptofication.utilities.*
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.*
-import kotlin.collections.ArrayList
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
-class CryptoListAlertsAdapter(private val context: Context) :
+
+class CryptoListAlertsAdapter :
     RecyclerView.Adapter<CryptoListAlertsAdapter.CryptoListAlertsViewHolder>(),
     Filterable,
     ITHSwipe {
 
     private var cryptoList: ArrayList<Crypto> = ArrayList()
     private var cryptoListFull: ArrayList<Crypto> = ArrayList()
+
+    private var mOnCryptoClickLister: OnCryptoClickListener? = null
+
+    interface OnCryptoClickListener {
+        fun onCryptoClicked(bundle: Bundle)
+    }
+
+    fun setOnCryptoClickListener(listener: OnCryptoClickListener?) {
+        mOnCryptoClickLister = listener
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CryptoListAlertsViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -43,8 +56,7 @@ class CryptoListAlertsAdapter(private val context: Context) :
         holder.bind(selectedCrypto)
         holder.binding.parentLayoutAlerts.setOnClickListener {
             val bundle = bundleOf("selectedCrypto" to selectedCrypto)
-            it.findNavController()
-                .navigate(R.id.action_fragmentAlerts_to_dialogCryptoDetail, bundle)
+            mOnCryptoClickLister?.onCryptoClicked(bundle)
         }
     }
 
@@ -100,19 +112,20 @@ class CryptoListAlertsAdapter(private val context: Context) :
         val position = viewHolder.bindingAdapterPosition
         val crypto = cryptoList[position]
         Log.d("itemSwipe", "Crypto: $crypto")
-        val cryptoSymbol = crypto.id
+        val cryptoId = crypto.id
+        val cryptoSymbol = crypto.symbol?.uppercase()
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the  current date)
         MainScope().launch {
-            val cryptoSwiped = CryptoAlert(cryptoSymbol!!)
-
+            val cryptoSwiped = CryptoAlert(cryptoId!!)
+            val savedAlerts = mRoom.getAllAlerts().size
             val resultDelete: Int = mRoom.deleteAlert(cryptoSwiped)
             Log.d("itemSwipe", "ResultDelete: $resultDelete")
 
             when (resultDelete) {
                 0 -> {
-                    // The item was already in the database
+                    // The item wasn't in the database
                     Snackbar
                         .make(
                             viewHolder.itemView,
@@ -122,10 +135,15 @@ class CryptoListAlertsAdapter(private val context: Context) :
                         .show()
                 }
                 else -> {
-                    // The item has been added to the database successfully. Add the action to undo the action
+                    // The item has been deleted from the database successfully. Add the action to undo the action
                     cryptoList.removeAt(position)
                     notifyItemRemoved(position)
                     CryptoProvider.cryptosAlerts = cryptoList
+
+                    if (savedAlerts == 1) {
+                        mAlarmManager.deleteAlarmManager()
+                    }
+
                     Snackbar
                         .make(
                             viewHolder.itemView,
@@ -147,20 +165,32 @@ class CryptoListAlertsAdapter(private val context: Context) :
                                     when {
                                         it == 0 ->
                                             // The item couldn't be deleted
-                                            context.showToast("$cryptoSymbol already in favorites")
+                                            mAppContext.showToast("$cryptoSymbol already in favorites")
                                         it > 0 -> {
                                             // The item has been deleted successfully
-                                            context.showToast("$cryptoSymbol added to favorites")
+                                            mAppContext.showToast("$cryptoSymbol added to favorites")
                                             Log.d("itemSwipe", "Crypto: $crypto")
                                             cryptoList.add(position, crypto)
                                             notifyItemInserted(position)
                                             CryptoProvider.cryptosAlerts = cryptoList
+                                            if (savedAlerts == 1) {
+                                                mAlarmManager.launchAlarmManager()
+                                            }
                                         }
                                     }
                                 }
                             }
                         }.show()
                 }
+            }
+        }
+    }
+
+    fun goToCrypto(cryptoId: String) {
+        for (crypto in cryptoList) {
+            if (crypto.id == cryptoId) {
+                val bundle = bundleOf("selectedCrypto" to crypto)
+                mOnCryptoClickLister?.onCryptoClicked(bundle)
             }
         }
     }
@@ -188,5 +218,3 @@ class CryptoListAlertsAdapter(private val context: Context) :
         }
     }
 }
-
-

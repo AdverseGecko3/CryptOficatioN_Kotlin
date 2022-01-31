@@ -17,9 +17,9 @@
         <item name="android:timePickerStyle">@style/CustomTimePicker</item>
     </style>
 
-    <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="SplashTheme" parent="Theme.CryptOficatioNKotlin">
         <!-- Splash screen -->
-        <item name="android:windowBackground">@drawable/splash_background_night</item>
+        <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 
     <style name="DialogListPreference" parent="Theme.MaterialComponents.DayNight.Dialog">
