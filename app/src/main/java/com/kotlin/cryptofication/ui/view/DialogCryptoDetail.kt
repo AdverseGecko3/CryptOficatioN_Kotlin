@@ -119,10 +119,10 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
 
         binding.tvFragmentCryptoDetailPriceHigh7d.text =
             binding.bcFragmentCryptoDetailLine.yChartMax.toDouble()
-                .customFormattedPrice(userCurrency, 1)
+                .customFormattedPrice(userCurrency)
         binding.tvFragmentCryptoDetailPriceLow7d.text =
             binding.bcFragmentCryptoDetailLine.yChartMin.toDouble()
-                .customFormattedPrice(userCurrency, 1)
+                .customFormattedPrice(userCurrency)
 
         return binding.root
     }

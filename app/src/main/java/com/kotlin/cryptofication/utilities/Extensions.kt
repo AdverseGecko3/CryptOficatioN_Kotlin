@@ -21,19 +21,23 @@ fun Context.showToast(message: String, length: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, length).show()
 }
 
-fun Double.customFormattedPrice(userCurrency: String, type: Int = 0): String {
+fun Double.customFormattedPrice(userCurrency: String): String {
     val currencySeparator = DecimalFormat().decimalFormatSymbols.decimalSeparator
-    var formattedPercentage = if (type == 0) {
-        String.format("%.6f", this)
-            .replace("0+$".toRegex(), "")
-    } else {
-        String.format("%.2f", this)
-            .replace("0+$".toRegex(), "")
+    var formattedPrice = when {
+        this >= 100 -> String.format("%.2f", this).replace("0+$".toRegex(), "")
+        this >= 1 -> String.format("%.3f", this).replace("0+$".toRegex(), "")
+        else -> {
+            val priceAfterSeparator =
+                this.toBigDecimal().toPlainString().split(currencySeparator)[1]
+            val leadingZeros =
+                priceAfterSeparator.length - priceAfterSeparator.replace("^0+".toRegex(), "").length
+            String.format("%.${leadingZeros + 4}f", this).replace("0+$".toRegex(), "")
+        }
     }
-    if (formattedPercentage.endsWith(currencySeparator)) {
-        formattedPercentage = formattedPercentage.substring(0, formattedPercentage.length - 1)
+    if (formattedPrice.endsWith(currencySeparator)) {
+        formattedPrice = formattedPrice.substring(0, formattedPrice.length - 1)
     }
-    return "$formattedPercentage$userCurrency"
+    return "$formattedPrice$userCurrency"
 }
 
 fun Double.customFormattedPercentage(): String {

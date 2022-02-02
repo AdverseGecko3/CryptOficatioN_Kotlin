@@ -150,8 +150,6 @@
         <item>150</item>
         <item>175</item>
         <item>200</item>
-        <item>225</item>
-        <item>250</item>
     </string-array>
     <string name="SETTINGS_ITEMS_PAGE_VALUE_DEFAULT">100</string>
 

@@ -58,7 +58,7 @@ class NotificationAlarmManager(context: Context) {
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
             calendarUser.timeInMillis,
-            1000 * 60 * 3,//60 * 24,
+            1000 * 60 * 60 * 24,
             pendingIntent
         )
     }
@@ -91,7 +91,7 @@ class NotificationAlarmManager(context: Context) {
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
             calendarUser.timeInMillis,
-            1000 * 60 * 3,//60 * 24,
+            1000 * 60 * 60 * 24,
             pendingIntent
         )
     }

@@ -7,6 +7,7 @@ import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.net.UnknownHostException
 
 class CryptoService {
@@ -26,7 +27,11 @@ class CryptoService {
                 response.body() ?: emptyList()
             } catch (e: UnknownHostException) {
                 e.printStackTrace()
-                Log.d("CryptoService", e.message!!)
+                e.message?.let { Log.e("CryptoService", it) }
+                emptyList()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                e.message?.let { Log.e("CryptoService", it) }
                 emptyList()
             }
         }
@@ -57,7 +62,7 @@ class CryptoService {
                 listAlert
             } catch (e: UnknownHostException) {
                 e.printStackTrace()
-                Log.d("CryptoService", e.message!!)
+                e.message?.let { Log.e("CryptoService", it) }
                 emptyList()
             }
         }

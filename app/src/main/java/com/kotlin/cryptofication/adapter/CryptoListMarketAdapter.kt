@@ -173,12 +173,12 @@ class CryptoListMarketAdapter :
     class CryptoListMarketViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         val binding = AdapterMarketCryptoListBinding.bind(itemView)
+        private val userCurrency = mPrefs.getCurrencySymbol()
 
         fun bind(crypto: Crypto) {
             Picasso.get().load(crypto.image).into(binding.ivAdapterMarketIcon)
             binding.tvAdapterMarketSymbol.text = crypto.symbol!!.uppercase()
             binding.tvAdapterMarketName.text = crypto.name
-            val userCurrency = mPrefs.getCurrencySymbol()
             val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
             binding.tvAdapterMarketPrice.text = currentPrice
             val priceChange = crypto.price_change_percentage_24h.customFormattedPercentage()

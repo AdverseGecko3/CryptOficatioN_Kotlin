@@ -47,9 +47,9 @@ class NotificationReceiver : BroadcastReceiver() {
                 crypto.price_change_percentage_24h.customFormattedPercentage()
             val text =
                 if (crypto.price_change_percentage_24h >= 0) {
-                    "$cryptoSymbol is $cryptoPriceChange up ($cryptoPercentageChange), currently at $cryptoPrice"
+                    "$cryptoSymbol is $cryptoPercentageChange up ($cryptoPriceChange), currently at $cryptoPrice"
                 } else {
-                    "$cryptoSymbol is $cryptoPriceChange down ($cryptoPercentageChange), currently at $cryptoPrice"
+                    "$cryptoSymbol is $cryptoPercentageChange down ($cryptoPriceChange), currently at $cryptoPrice"
                 }
 
             Log.d("NotifServ", "alerts${crypto.id}")

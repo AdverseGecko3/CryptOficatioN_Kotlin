@@ -17,7 +17,7 @@ object RetrofitHelper {
         // Build the retrofit adding the CoinGecko base url, he OkHttpClient and GsonConverter
         return Retrofit.Builder()
             .baseUrl("https://api.coingecko.com/api/v3/")
-            .callFactory(okHttpClient)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
