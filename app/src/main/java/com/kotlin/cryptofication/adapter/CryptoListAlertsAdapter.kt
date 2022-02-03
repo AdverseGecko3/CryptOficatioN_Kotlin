@@ -11,6 +11,9 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
@@ -22,10 +25,8 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 import com.kotlin.cryptofication.utilities.*
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-
 
 class CryptoListAlertsAdapter :
     RecyclerView.Adapter<CryptoListAlertsAdapter.CryptoListAlertsViewHolder>(),
@@ -35,14 +36,23 @@ class CryptoListAlertsAdapter :
     private var cryptoList: ArrayList<Crypto> = ArrayList()
     private var cryptoListFull: ArrayList<Crypto> = ArrayList()
 
-    private var mOnCryptoClickLister: OnCryptoClickListener? = null
+    private var onCryptoClickLister: OnCryptoClickListener? = null
+    private var onCryptoEmptyLister: OnCryptoEmptyListener? = null
 
     interface OnCryptoClickListener {
         fun onCryptoClicked(bundle: Bundle)
     }
 
+    interface OnCryptoEmptyListener {
+        fun onCryptoEmptied(isEmpty: Boolean)
+    }
+
     fun setOnCryptoClickListener(listener: OnCryptoClickListener?) {
-        mOnCryptoClickLister = listener
+        onCryptoClickLister = listener
+    }
+
+    fun setOnCryptoEmptyListener(listener: OnCryptoEmptyListener?) {
+        onCryptoEmptyLister = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CryptoListAlertsViewHolder {
@@ -56,7 +66,7 @@ class CryptoListAlertsAdapter :
         holder.bind(selectedCrypto)
         holder.binding.parentLayoutAlerts.setOnClickListener {
             val bundle = bundleOf("selectedCrypto" to selectedCrypto)
-            mOnCryptoClickLister?.onCryptoClicked(bundle)
+            onCryptoClickLister?.onCryptoClicked(bundle)
         }
     }
 
@@ -141,7 +151,9 @@ class CryptoListAlertsAdapter :
                     CryptoProvider.cryptosAlerts = cryptoList
 
                     if (savedAlerts == 1) {
+                        Log.d("savedAlerts", "Delete Alarm Manager")
                         mAlarmManager.deleteAlarmManager()
+                        onCryptoEmptyLister?.onCryptoEmptied(true)
                     }
 
                     Snackbar
@@ -174,7 +186,9 @@ class CryptoListAlertsAdapter :
                                             notifyItemInserted(position)
                                             CryptoProvider.cryptosAlerts = cryptoList
                                             if (savedAlerts == 1) {
+                                                Log.d("savedAlerts", "Launch Alarm Manager again")
                                                 mAlarmManager.launchAlarmManager()
+                                                onCryptoEmptyLister?.onCryptoEmptied(false)
                                             }
                                         }
                                     }
@@ -190,7 +204,7 @@ class CryptoListAlertsAdapter :
         for (crypto in cryptoList) {
             if (crypto.id == cryptoId) {
                 val bundle = bundleOf("selectedCrypto" to crypto)
-                mOnCryptoClickLister?.onCryptoClicked(bundle)
+                onCryptoClickLister?.onCryptoClicked(bundle)
             }
         }
     }
@@ -198,12 +212,21 @@ class CryptoListAlertsAdapter :
     class CryptoListAlertsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         val binding = AdapterAlertCryptoListBinding.bind(itemView)
+        private val userCurrency = mPrefs.getCurrencySymbol()
+        private val circularProgressDrawable = CircularProgressDrawable(itemView.context).apply {
+            setColorSchemeColors(R.color.purple_app_accent)
+            backgroundColor = R.color.text
+            strokeWidth = 10f
+            start()
+        }
 
         fun bind(crypto: Crypto) {
-            Picasso.get().load(crypto.image).into(binding.ivAdapterAlertIcon)
+            Glide.with(itemView).load(crypto.image).diskCacheStrategy(
+                DiskCacheStrategy.ALL
+            ).placeholder(circularProgressDrawable).override(0, 35)
+                .into(binding.ivAdapterAlertIcon)
             binding.tvAdapterAlertSymbol.text = crypto.symbol!!.uppercase()
             binding.tvAdapterAlertName.text = crypto.name
-            val userCurrency = mPrefs.getCurrencySymbol()
             val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
             binding.tvAdapterAlertPrice.text = currentPrice
             val priceChange = crypto.price_change_percentage_24h.customFormattedPercentage()

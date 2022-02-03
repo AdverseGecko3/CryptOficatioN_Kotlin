@@ -10,12 +10,14 @@ import android.widget.*
 import androidx.core.os.bundleOf
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.utilities.*
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
 import kotlin.collections.ArrayList
 import com.kotlin.cryptofication.data.model.CryptoAlert
@@ -174,9 +176,18 @@ class CryptoListMarketAdapter :
 
         val binding = AdapterMarketCryptoListBinding.bind(itemView)
         private val userCurrency = mPrefs.getCurrencySymbol()
+        private val circularProgressDrawable = CircularProgressDrawable(itemView.context).apply {
+            setColorSchemeColors(R.color.purple_app_accent)
+            backgroundColor = R.color.text
+            strokeWidth = 10f
+            start()
+        }
 
         fun bind(crypto: Crypto) {
-            Picasso.get().load(crypto.image).into(binding.ivAdapterMarketIcon)
+            Glide.with(itemView).load(crypto.image).diskCacheStrategy(
+                DiskCacheStrategy.ALL
+            ).placeholder(circularProgressDrawable).override(0, 35)
+                .into(binding.ivAdapterMarketIcon)
             binding.tvAdapterMarketSymbol.text = crypto.symbol!!.uppercase()
             binding.tvAdapterMarketName.text = crypto.name
             val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)

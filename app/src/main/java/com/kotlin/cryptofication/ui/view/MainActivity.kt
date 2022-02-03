@@ -13,10 +13,12 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.kotlin.cryptofication.R
+import com.kotlin.cryptofication.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (CryptOficatioNApp.mPrefs.getScheme()) {
@@ -27,38 +29,12 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.Theme_CryptOficatioNKotlin)
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        /*
-        // Initialize navController and bottomNav
-        val bottomNavView = findViewById<BottomNavigationView>(R.id.navBottom)
-        val navController = findNavController(R.id.navHostFragment)
-        bottomNavView.setupWithNavController(navController)
-        intent.getStringExtra("lastActivity")?.let {
-            when {
-                it == "settings" -> {
-                    Log.d("lastActivity", "Coming from Settings, returning to Settings")
-                    navController.navigate(R.id.navigationFragmentSettings)
-                }
-                it.contains("alerts") -> {
-                    Log.d("lastActivity", "Coming from Notification, going to Alerts")
-                    val cryptoId = it.substring(6, it.length)
-                    Log.d("lastActivity", "Bundle: $it - cryptoId: $cryptoId")
-                    val cryptoBundle = bundleOf("cryptoId" to cryptoId)
-                    navController.navigate(R.id.navigationFragmentAlerts, cryptoBundle)
-                }
-                else -> {
-                    Log.d("lastActivity", "else")
-                    navController.navigate(R.id.navigationFragmentMarket)
-                }
-            }
-        }
-        intent?.removeExtra("lastActivity")
-        */
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Initialize navController and bottomNav
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
-        val bottomNavView = findViewById<BottomNavigationView>(R.id.navBottom)
+        val bottomNavView = binding.navBottom
 
         val navController = navHostFragment.navController
         val navGraph = navController.navInflater.inflate(R.navigation.my_nav)
@@ -147,7 +123,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun recreate() {
-        finish()
+        //finish()
         startActivity(Intent(this, javaClass).putExtra("lastActivity", "settings"))
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }

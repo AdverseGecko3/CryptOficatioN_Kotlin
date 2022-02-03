@@ -84,14 +84,14 @@ class AlertsViewModel: ViewModel() {
         Log.d("changeSortRecyclerView", "cryptoList size: " + cryptoList.size)
         when (orderOption) {
             0 -> {
-                // Ordered by name
-                Log.d("changeSortRecyclerView", "Sort by name")
+                // Ordered by change percentage
+                Log.d("changeSortRecyclerView", "Sort by market cap")
                 return if (orderFilter == 0) {
                     // Order ascending
-                    cryptoList.sortedBy { crypto -> crypto.name }
+                    cryptoList.sortedBy { crypto -> crypto.market_cap_rank }
                 } else {
                     // Order descending
-                    cryptoList.sortedByDescending { crypto -> crypto.name }
+                    cryptoList.sortedByDescending { crypto -> crypto.market_cap_rank }
                 }
             }
             1 -> {
@@ -106,6 +106,17 @@ class AlertsViewModel: ViewModel() {
                 }
             }
             2 -> {
+                // Ordered by name
+                Log.d("changeSortRecyclerView", "Sort by name")
+                return if (orderFilter == 0) {
+                    // Order ascending
+                    cryptoList.sortedBy { crypto -> crypto.name }
+                } else {
+                    // Order descending
+                    cryptoList.sortedByDescending { crypto -> crypto.name }
+                }
+            }
+            3 -> {
                 // Ordered by price
                 Log.d("changeSortRecyclerView", "Sort by price")
                 return if (orderFilter == 0) {
@@ -116,7 +127,7 @@ class AlertsViewModel: ViewModel() {
                     cryptoList.sortedByDescending { crypto -> crypto.current_price }
                 }
             }
-            3 -> {
+            4 -> {
                 // Ordered by change percentage
                 Log.d("changeSortRecyclerView", "Sort by percentage")
                 return if (orderFilter == 0) {

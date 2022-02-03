@@ -34,8 +34,9 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
     private val marketViewModel: MarketViewModel by navGraphViewModels(R.id.my_nav)
     private lateinit var rwCryptoAdapter: CryptoListMarketAdapter
     private lateinit var mItemTouchHelper: ItemTouchHelper
-    private var itemName: MenuItem? = null
+    private var itemMarketCap: MenuItem? = null
     private var itemSymbol: MenuItem? = null
+    private var itemName: MenuItem? = null
     private var itemPrice: MenuItem? = null
     private var itemPercentage: MenuItem? = null
     private var itemAscending: MenuItem? = null
@@ -95,26 +96,15 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         binding.srlMarketReload.setOnRefreshListener {
             // See checked filters
             when {
-                itemName!!.isChecked -> {
-                    marketViewModel.orderOption = 0
-                }
-                itemSymbol!!.isChecked -> {
-                    marketViewModel.orderOption = 1
-                }
-                itemPrice!!.isChecked -> {
-                    marketViewModel.orderOption = 2
-                }
-                itemPercentage!!.isChecked -> {
-                    marketViewModel.orderOption = 3
-                }
+                itemMarketCap!!.isChecked -> marketViewModel.orderOption = 0
+                itemSymbol!!.isChecked -> marketViewModel.orderOption = 1
+                itemName!!.isChecked -> marketViewModel.orderOption = 2
+                itemPrice!!.isChecked -> marketViewModel.orderOption = 3
+                itemPercentage!!.isChecked -> marketViewModel.orderOption = 4
             }
             when {
-                itemAscending!!.isChecked -> {
-                    marketViewModel.orderFilter = 0
-                }
-                itemDescending!!.isChecked -> {
-                    marketViewModel.orderFilter = 1
-                }
+                itemAscending!!.isChecked -> marketViewModel.orderFilter = 0
+                itemDescending!!.isChecked -> marketViewModel.orderFilter = 1
             }
 
             // Load crypto data from API
@@ -177,37 +167,38 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
             val userFilterOrder = mPrefs.getFilterOrder()
             when (userFilterOption.toInt()) {
                 0 -> {
-                    itemName?.isChecked = true
+                    itemMarketCap!!.isChecked = true
                     marketViewModel.orderOption = 0
-
-                    marketViewModel.lastSelectedFilterItem = itemName!!.itemId
+                    marketViewModel.lastSelectedFilterItem = itemMarketCap!!.itemId
                 }
                 1 -> {
-                    itemSymbol?.isChecked = true
+                    itemSymbol!!.isChecked = true
                     marketViewModel.orderOption = 1
-
                     marketViewModel.lastSelectedFilterItem = itemSymbol!!.itemId
                 }
                 2 -> {
-                    itemPrice?.isChecked = true
+                    itemName!!.isChecked = true
                     marketViewModel.orderOption = 2
-
-                    marketViewModel.lastSelectedFilterItem = itemPrice!!.itemId
+                    marketViewModel.lastSelectedFilterItem = itemName!!.itemId
                 }
                 3 -> {
-                    itemPercentage?.isChecked = true
+                    itemPrice!!.isChecked = true
                     marketViewModel.orderOption = 3
-
+                    marketViewModel.lastSelectedFilterItem = itemPrice!!.itemId
+                }
+                4 -> {
+                    itemPercentage!!.isChecked = true
+                    marketViewModel.orderOption = 4
                     marketViewModel.lastSelectedFilterItem = itemPercentage!!.itemId
                 }
             }
             when (userFilterOrder.toInt()) {
                 0 -> {
-                    itemAscending?.isChecked = true
+                    itemAscending!!.isChecked = true
                     marketViewModel.orderFilter = 0
                 }
                 1 -> {
-                    itemDescending?.isChecked = true
+                    itemDescending!!.isChecked = true
                     marketViewModel.orderFilter = 1
                 }
             }
@@ -218,17 +209,31 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
         } else {
             // See orderOption and orderFilter in ViewModel, and check the corresponding options
             when (marketViewModel.orderOption) {
-                0 -> itemName?.isChecked = true
-                1 -> itemSymbol?.isChecked = true
-                2 -> itemPrice?.isChecked = true
-                3 -> itemPercentage?.isChecked = true
+                0 -> {
+                    itemMarketCap!!.isChecked = true
+                    marketViewModel.lastSelectedFilterItem = itemMarketCap!!.itemId
+                }
+                1 -> {
+                    itemSymbol!!.isChecked = true
+                    marketViewModel.lastSelectedFilterItem = itemSymbol!!.itemId
+                }
+                2 -> {
+                    itemName!!.isChecked = true
+                    marketViewModel.lastSelectedFilterItem = itemName!!.itemId
+                }
+                3 -> {
+                    itemPrice!!.isChecked = true
+                    marketViewModel.lastSelectedFilterItem = itemPrice!!.itemId
+                }
+                4 -> {
+                    itemPercentage!!.isChecked = true
+                    marketViewModel.lastSelectedFilterItem = itemPercentage!!.itemId
+                }
             }
             when (marketViewModel.orderFilter) {
-                0 -> itemAscending?.isChecked = true
-                1 -> itemDescending?.isChecked = true
+                0 -> itemAscending!!.isChecked = true
+                1 -> itemDescending!!.isChecked = true
             }
-            // Get the ID of the item selected previously ( of the new one
-            marketViewModel.lastSelectedFilterItem = itemName!!.itemId
         }
         Log.d(
             "onCreateOptionsMenu",
@@ -274,116 +279,77 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         //  Get the ID of the selected item
         val itemId = item.itemId
-        when (itemId) {
-            R.id.mnFilterOptionName -> {
-                if (marketViewModel.lastSelectedFilterItem == R.id.mnFilterOptionName) {
-                    if (itemAscending!!.isChecked) {
-                        itemDescending?.isChecked = true
-                        marketViewModel.orderFilter = 1
-                    } else {
-                        itemAscending?.isChecked = true
-                        marketViewModel.orderFilter = 0
-                    }
-                } else {
-                    item.isChecked = true
-                    itemAscending?.isChecked = true
-                    marketViewModel.orderFilter = 0
-                }
-                marketViewModel.lastSelectedFilterItem = itemId
-                marketViewModel.orderOption = 0
-            }
-            R.id.mnFilterOptionSymbol -> {
-                if (marketViewModel.lastSelectedFilterItem == R.id.mnFilterOptionSymbol) {
-                    if (itemAscending!!.isChecked) {
-                        itemDescending?.isChecked = true
-                        marketViewModel.orderFilter = 1
-                    } else {
-                        itemAscending?.isChecked = true
-                        marketViewModel.orderFilter = 0
-                    }
-                } else {
-                    item.isChecked = true
-                    itemAscending?.isChecked = true
-                    marketViewModel.orderFilter = 0
-                }
-                marketViewModel.lastSelectedFilterItem = itemId
-                marketViewModel.orderOption = 1
-            }
-            R.id.mnFilterOptionPrice -> {
-                if (marketViewModel.lastSelectedFilterItem == R.id.mnFilterOptionPrice) {
-                    if (itemAscending!!.isChecked) {
-                        itemDescending?.isChecked = true
-                        marketViewModel.orderFilter = 1
-                    } else {
-                        itemAscending?.isChecked = true
-                        marketViewModel.orderFilter = 0
-                    }
-                } else {
-                    item.isChecked = true
-                    itemAscending?.isChecked = true
-                    marketViewModel.orderFilter = 0
-                }
-                marketViewModel.lastSelectedFilterItem = itemId
-                marketViewModel.orderOption = 2
-            }
-            R.id.mnFilterOptionPercentage -> {
-                if (marketViewModel.lastSelectedFilterItem == R.id.mnFilterOptionPercentage) {
-                    if (itemAscending!!.isChecked) {
-                        itemDescending?.isChecked = true
-                        marketViewModel.orderFilter = 1
-                    } else {
-                        itemAscending?.isChecked = true
-                        marketViewModel.orderFilter = 0
-                    }
-                } else {
-                    item.isChecked = true
-                    itemAscending?.isChecked = true
-                    marketViewModel.orderFilter = 0
-                }
-                marketViewModel.lastSelectedFilterItem = itemId
-                marketViewModel.orderOption = 3
-            }
-            R.id.mnFilterOrderAscending -> {
-                itemAscending?.isChecked = true
-                marketViewModel.orderFilter = 0
-                marketViewModel.orderOption = when {
-                    itemName!!.isChecked -> {
-                        0
-                    }
-                    itemSymbol!!.isChecked -> {
-                        1
-                    }
-                    itemPrice!!.isChecked -> {
-                        2
-                    }
-                    else -> {
-                        3
-                    }
-                }
-            }
-            R.id.mnFilterOrderDescending -> {
-                itemDescending?.isChecked = true
-                marketViewModel.orderFilter = 1
-                marketViewModel.orderOption = when {
-                    itemName!!.isChecked -> {
-                        0
-                    }
-                    itemSymbol!!.isChecked -> {
-                        1
-                    }
-                    itemPrice!!.isChecked -> {
-                        2
-                    }
-                    else -> {
-                        3
-                    }
-                }
-            }
-        }
-        if (itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionSymbol ||
-            itemId == R.id.mnFilterOptionPrice || itemId == R.id.mnFilterOptionPercentage ||
-            itemId == R.id.mnFilterOrderAscending || itemId == R.id.mnFilterOrderDescending
+        if (itemId == R.id.mnFilterOptionMarketCap || itemId == R.id.mnFilterOptionSymbol ||
+            itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionPrice ||
+            itemId == R.id.mnFilterOptionPercentage || itemId == R.id.mnFilterOrderAscending ||
+            itemId == R.id.mnFilterOrderDescending
         ) {
+            Log.d(
+                "onOptionsItemSelected",
+                "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}"
+            )
+            if (itemId == R.id.mnFilterOptionMarketCap || itemId == R.id.mnFilterOptionSymbol ||
+                itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionPrice ||
+                itemId == R.id.mnFilterOptionPercentage
+            ) {
+                if (marketViewModel.lastSelectedFilterItem == itemId) {
+                    if (itemAscending!!.isChecked) {
+                        itemDescending!!.isChecked = true
+                        marketViewModel.orderFilter = 1
+                    } else {
+                        itemAscending!!.isChecked = true
+                        marketViewModel.orderFilter = 0
+                    }
+                } else {
+                    when (itemId) {
+                        R.id.mnFilterOptionMarketCap -> {
+                            itemMarketCap!!.isChecked = true
+                            marketViewModel.orderOption = 0
+                        }
+                        R.id.mnFilterOptionSymbol -> {
+                            itemSymbol!!.isChecked = true
+                            marketViewModel.orderOption = 1
+                        }
+                        R.id.mnFilterOptionName -> {
+                            itemName!!.isChecked = true
+                            marketViewModel.orderOption = 2
+                        }
+                        R.id.mnFilterOptionPrice -> {
+                            itemPrice!!.isChecked = true
+                            marketViewModel.orderOption = 3
+                        }
+                        R.id.mnFilterOptionPercentage -> {
+                            itemPercentage!!.isChecked = true
+                            marketViewModel.orderOption = 4
+                        }
+                    }
+                    itemAscending!!.isChecked = true
+                    marketViewModel.orderFilter = 0
+                    marketViewModel.lastSelectedFilterItem = itemId
+                }
+            } else {
+                marketViewModel.orderOption = when {
+                    itemMarketCap!!.isChecked -> 0
+                    itemSymbol!!.isChecked -> 1
+                    itemName!!.isChecked -> 2
+                    itemPrice!!.isChecked -> 3
+                    else -> 4
+                }
+                when (itemId) {
+                    R.id.mnFilterOrderAscending -> {
+                        itemAscending!!.isChecked = true
+                        marketViewModel.orderFilter = 0
+                    }
+                    R.id.mnFilterOrderDescending -> {
+                        itemDescending!!.isChecked = true
+                        marketViewModel.orderFilter = 1
+                    }
+                }
+            }
+            Log.d(
+                "onOptionsItemSelected",
+                "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}"
+            )
             marketViewModel.onFilterChanged()
         }
         return true
@@ -482,8 +448,9 @@ class FragmentMarket : Fragment(), SelectedChangeListener {
     }
 
     private fun referencesOptionsMenu(menu: Menu) {
-        itemName = menu.findItem(R.id.mnFilterOptionName)
+        itemMarketCap = menu.findItem(R.id.mnFilterOptionMarketCap)
         itemSymbol = menu.findItem(R.id.mnFilterOptionSymbol)
+        itemName = menu.findItem(R.id.mnFilterOptionName)
         itemPrice = menu.findItem(R.id.mnFilterOptionPrice)
         itemPercentage = menu.findItem(R.id.mnFilterOptionPercentage)
         itemAscending = menu.findItem(R.id.mnFilterOrderAscending)

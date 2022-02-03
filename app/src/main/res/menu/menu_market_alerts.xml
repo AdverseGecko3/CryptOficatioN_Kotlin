@@ -22,11 +22,14 @@
                     android:enabled="false"
                     android:title="@string/FILTER_TYPE" />
                 <item
-                    android:id="@+id/mnFilterOptionName"
-                    android:title="@string/FILTER_NAME" />
+                    android:id="@+id/mnFilterOptionMarketCap"
+                    android:title="@string/FILTER_MARKET_CAP" />
                 <item
                     android:id="@+id/mnFilterOptionSymbol"
                     android:title="@string/FILTER_SYMBOL" />
+                <item
+                    android:id="@+id/mnFilterOptionName"
+                    android:title="@string/FILTER_NAME" />
                 <item
                     android:id="@+id/mnFilterOptionPrice"
                     android:title="@string/FILTER_PRICE" />

@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter
+import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoClickListener
+import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoEmptyListener
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
 import com.kotlin.cryptofication.data.model.Crypto
@@ -23,15 +25,17 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.viewmodel.AlertsViewModel
 import com.kotlin.cryptofication.utilities.showToast
 
-class FragmentAlerts : Fragment(), SelectedChangeListener, CryptoListAlertsAdapter.OnCryptoClickListener {
+class FragmentAlerts : Fragment(), SelectedChangeListener,
+    OnCryptoClickListener, OnCryptoEmptyListener {
 
     private var _binding: FragmentAlertsBinding? = null
     private val binding get() = _binding!!
     private val alertsViewModel: AlertsViewModel by navGraphViewModels(R.id.my_nav)
     private lateinit var rwCryptoAdapter: CryptoListAlertsAdapter
     private lateinit var mItemTouchHelper: ItemTouchHelper
-    private var itemName: MenuItem? = null
+    private var itemMarketCap: MenuItem? = null
     private var itemSymbol: MenuItem? = null
+    private var itemName: MenuItem? = null
     private var itemPrice: MenuItem? = null
     private var itemPercentage: MenuItem? = null
     private var itemAscending: MenuItem? = null
@@ -61,26 +65,15 @@ class FragmentAlerts : Fragment(), SelectedChangeListener, CryptoListAlertsAdapt
         binding.srlAlertsReload.setOnRefreshListener {
             // See checked filters
             when {
-                itemName!!.isChecked -> {
-                    alertsViewModel.orderOption = 0
-                }
-                itemSymbol!!.isChecked -> {
-                    alertsViewModel.orderOption = 1
-                }
-                itemPrice!!.isChecked -> {
-                    alertsViewModel.orderOption = 2
-                }
-                itemPercentage!!.isChecked -> {
-                    alertsViewModel.orderOption = 3
-                }
+                itemMarketCap!!.isChecked -> alertsViewModel.orderOption = 0
+                itemSymbol!!.isChecked -> alertsViewModel.orderOption = 1
+                itemName!!.isChecked -> alertsViewModel.orderOption = 2
+                itemPrice!!.isChecked -> alertsViewModel.orderOption = 3
+                itemPercentage!!.isChecked -> alertsViewModel.orderOption = 4
             }
             when {
-                itemAscending!!.isChecked -> {
-                    alertsViewModel.orderFilter = 0
-                }
-                itemDescending!!.isChecked -> {
-                    alertsViewModel.orderFilter = 1
-                }
+                itemAscending!!.isChecked -> alertsViewModel.orderFilter = 0
+                itemDescending!!.isChecked -> alertsViewModel.orderFilter = 1
             }
 
             // Load crypto data from API
@@ -140,37 +133,38 @@ class FragmentAlerts : Fragment(), SelectedChangeListener, CryptoListAlertsAdapt
             val userFilterOrder = mPrefs.getFilterOrder()
             when (userFilterOption.toInt()) {
                 0 -> {
-                    itemName?.isChecked = true
+                    itemMarketCap!!.isChecked = true
                     alertsViewModel.orderOption = 0
-
-                    alertsViewModel.lastSelectedFilterItem = itemName!!.itemId
+                    alertsViewModel.lastSelectedFilterItem = itemMarketCap!!.itemId
                 }
                 1 -> {
-                    itemSymbol?.isChecked = true
+                    itemSymbol!!.isChecked = true
                     alertsViewModel.orderOption = 1
-
                     alertsViewModel.lastSelectedFilterItem = itemSymbol!!.itemId
                 }
                 2 -> {
-                    itemPrice?.isChecked = true
+                    itemName!!.isChecked = true
                     alertsViewModel.orderOption = 2
-
-                    alertsViewModel.lastSelectedFilterItem = itemPrice!!.itemId
+                    alertsViewModel.lastSelectedFilterItem = itemName!!.itemId
                 }
                 3 -> {
-                    itemPercentage?.isChecked = true
+                    itemPrice!!.isChecked = true
                     alertsViewModel.orderOption = 3
-
+                    alertsViewModel.lastSelectedFilterItem = itemPrice!!.itemId
+                }
+                4 -> {
+                    itemPercentage!!.isChecked = true
+                    alertsViewModel.orderOption = 4
                     alertsViewModel.lastSelectedFilterItem = itemPercentage!!.itemId
                 }
             }
             when (userFilterOrder.toInt()) {
                 0 -> {
-                    itemAscending?.isChecked = true
+                    itemAscending!!.isChecked = true
                     alertsViewModel.orderFilter = 0
                 }
                 1 -> {
-                    itemDescending?.isChecked = true
+                    itemDescending!!.isChecked = true
                     alertsViewModel.orderFilter = 1
                 }
             }
@@ -181,17 +175,31 @@ class FragmentAlerts : Fragment(), SelectedChangeListener, CryptoListAlertsAdapt
         } else {
             // See orderOption and orderFilter in ViewModel, and check the corresponding options
             when (alertsViewModel.orderOption) {
-                0 -> itemName?.isChecked = true
-                1 -> itemSymbol?.isChecked = true
-                2 -> itemPrice?.isChecked = true
-                3 -> itemPercentage?.isChecked = true
+                0 -> {
+                    itemMarketCap!!.isChecked = true
+                    alertsViewModel.lastSelectedFilterItem = itemMarketCap!!.itemId
+                }
+                1 -> {
+                    itemSymbol!!.isChecked = true
+                    alertsViewModel.lastSelectedFilterItem = itemSymbol!!.itemId
+                }
+                2 -> {
+                    itemName!!.isChecked = true
+                    alertsViewModel.lastSelectedFilterItem = itemName!!.itemId
+                }
+                3 -> {
+                    itemPrice!!.isChecked = true
+                    alertsViewModel.lastSelectedFilterItem = itemPrice!!.itemId
+                }
+                4 -> {
+                    itemPercentage!!.isChecked = true
+                    alertsViewModel.lastSelectedFilterItem = itemPercentage!!.itemId
+                }
             }
             when (alertsViewModel.orderFilter) {
-                0 -> itemAscending?.isChecked = true
-                1 -> itemDescending?.isChecked = true
+                0 -> itemAscending!!.isChecked = true
+                1 -> itemDescending!!.isChecked = true
             }
-            // Get the ID of the item selected previously ( of the new one
-            alertsViewModel.lastSelectedFilterItem = itemName!!.itemId
         }
         Log.d(
             "onCreateOptionsMenu",
@@ -235,118 +243,79 @@ class FragmentAlerts : Fragment(), SelectedChangeListener, CryptoListAlertsAdapt
 
     @SuppressLint("NonConstantResourceId", "UseCompatLoadingForDrawables")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        //  Get the ID of the selected item
+        // Get the ID of the selected item
         val itemId = item.itemId
-        when (itemId) {
-            R.id.mnFilterOptionName -> {
-                if (alertsViewModel.lastSelectedFilterItem == R.id.mnFilterOptionName) {
-                    if (itemAscending!!.isChecked) {
-                        itemDescending?.isChecked = true
-                        alertsViewModel.orderFilter = 1
-                    } else {
-                        itemAscending?.isChecked = true
-                        alertsViewModel.orderFilter = 0
-                    }
-                } else {
-                    item.isChecked = true
-                    itemAscending?.isChecked = true
-                    alertsViewModel.orderFilter = 0
-                }
-                alertsViewModel.lastSelectedFilterItem = itemId
-                alertsViewModel.orderOption = 0
-            }
-            R.id.mnFilterOptionSymbol -> {
-                if (alertsViewModel.lastSelectedFilterItem == R.id.mnFilterOptionSymbol) {
-                    if (itemAscending!!.isChecked) {
-                        itemDescending?.isChecked = true
-                        alertsViewModel.orderFilter = 1
-                    } else {
-                        itemAscending?.isChecked = true
-                        alertsViewModel.orderFilter = 0
-                    }
-                } else {
-                    item.isChecked = true
-                    itemAscending?.isChecked = true
-                    alertsViewModel.orderFilter = 0
-                }
-                alertsViewModel.lastSelectedFilterItem = itemId
-                alertsViewModel.orderOption = 1
-            }
-            R.id.mnFilterOptionPrice -> {
-                if (alertsViewModel.lastSelectedFilterItem == R.id.mnFilterOptionPrice) {
-                    if (itemAscending!!.isChecked) {
-                        itemDescending?.isChecked = true
-                        alertsViewModel.orderFilter = 1
-                    } else {
-                        itemAscending?.isChecked = true
-                        alertsViewModel.orderFilter = 0
-                    }
-                } else {
-                    item.isChecked = true
-                    itemAscending?.isChecked = true
-                    alertsViewModel.orderFilter = 0
-                }
-                alertsViewModel.lastSelectedFilterItem = itemId
-                alertsViewModel.orderOption = 2
-            }
-            R.id.mnFilterOptionPercentage -> {
-                if (alertsViewModel.lastSelectedFilterItem == R.id.mnFilterOptionPercentage) {
-                    if (itemAscending!!.isChecked) {
-                        itemDescending?.isChecked = true
-                        alertsViewModel.orderFilter = 1
-                    } else {
-                        itemAscending?.isChecked = true
-                        alertsViewModel.orderFilter = 0
-                    }
-                } else {
-                    item.isChecked = true
-                    itemAscending?.isChecked = true
-                    alertsViewModel.orderFilter = 0
-                }
-                alertsViewModel.lastSelectedFilterItem = itemId
-                alertsViewModel.orderOption = 3
-            }
-            R.id.mnFilterOrderAscending -> {
-                itemAscending?.isChecked = true
-                alertsViewModel.orderFilter = 0
-                alertsViewModel.orderOption = when {
-                    itemName!!.isChecked -> {
-                        0
-                    }
-                    itemSymbol!!.isChecked -> {
-                        1
-                    }
-                    itemPrice!!.isChecked -> {
-                        2
-                    }
-                    else -> {
-                        3
-                    }
-                }
-            }
-            R.id.mnFilterOrderDescending -> {
-                itemDescending?.isChecked = true
-                alertsViewModel.orderFilter = 1
-                alertsViewModel.orderOption = when {
-                    itemName!!.isChecked -> {
-                        0
-                    }
-                    itemSymbol!!.isChecked -> {
-                        1
-                    }
-                    itemPrice!!.isChecked -> {
-                        2
-                    }
-                    else -> {
-                        3
-                    }
-                }
-            }
-        }
-        if (itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionSymbol ||
-            itemId == R.id.mnFilterOptionPrice || itemId == R.id.mnFilterOptionPercentage ||
-            itemId == R.id.mnFilterOrderAscending || itemId == R.id.mnFilterOrderDescending
+        if (itemId == R.id.mnFilterOptionMarketCap || itemId == R.id.mnFilterOptionSymbol ||
+            itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionPrice ||
+            itemId == R.id.mnFilterOptionPercentage || itemId == R.id.mnFilterOrderAscending ||
+            itemId == R.id.mnFilterOrderDescending
         ) {
+            Log.d(
+                "onOptionsItemSelected",
+                "orderOption:${alertsViewModel.orderOption} - orderFilter:${alertsViewModel.orderFilter}"
+            )
+            if (itemId == R.id.mnFilterOptionMarketCap || itemId == R.id.mnFilterOptionSymbol ||
+                itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionPrice ||
+                itemId == R.id.mnFilterOptionPercentage
+            ) {
+                if (alertsViewModel.lastSelectedFilterItem == itemId) {
+                    if (itemAscending!!.isChecked) {
+                        itemDescending!!.isChecked = true
+                        alertsViewModel.orderFilter = 1
+                    } else {
+                        itemAscending!!.isChecked = true
+                        alertsViewModel.orderFilter = 0
+                    }
+                } else {
+                    when (itemId) {
+                        R.id.mnFilterOptionMarketCap -> {
+                            itemMarketCap!!.isChecked = true
+                            alertsViewModel.orderOption = 0
+                        }
+                        R.id.mnFilterOptionSymbol -> {
+                            itemSymbol!!.isChecked = true
+                            alertsViewModel.orderOption = 1
+                        }
+                        R.id.mnFilterOptionName -> {
+                            itemName!!.isChecked = true
+                            alertsViewModel.orderOption = 2
+                        }
+                        R.id.mnFilterOptionPrice -> {
+                            itemPrice!!.isChecked = true
+                            alertsViewModel.orderOption = 3
+                        }
+                        R.id.mnFilterOptionPercentage -> {
+                            itemPercentage!!.isChecked = true
+                            alertsViewModel.orderOption = 4
+                        }
+                    }
+                    itemAscending!!.isChecked = true
+                    alertsViewModel.orderFilter = 0
+                    alertsViewModel.lastSelectedFilterItem = itemId
+                }
+            } else {
+                alertsViewModel.orderOption = when {
+                    itemMarketCap!!.isChecked -> 0
+                    itemSymbol!!.isChecked -> 1
+                    itemName!!.isChecked -> 2
+                    itemPrice!!.isChecked -> 3
+                    else -> 4
+                }
+                when (itemId) {
+                    R.id.mnFilterOrderAscending -> {
+                        itemAscending!!.isChecked = true
+                        alertsViewModel.orderFilter = 0
+                    }
+                    R.id.mnFilterOrderDescending -> {
+                        itemDescending!!.isChecked = true
+                        alertsViewModel.orderFilter = 1
+                    }
+                }
+            }
+            Log.d(
+                "onOptionsItemSelected",
+                "orderOption:${alertsViewModel.orderOption} - orderFilter:${alertsViewModel.orderFilter}"
+            )
             alertsViewModel.onFilterChanged()
         }
         return true
@@ -359,6 +328,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener, CryptoListAlertsAdapt
         binding.rwAlertsCryptoList.adapter = rwCryptoAdapter
         binding.rwAlertsCryptoList.setHasFixedSize(true)
         rwCryptoAdapter.setOnCryptoClickListener(this)
+        rwCryptoAdapter.setOnCryptoEmptyListener(this)
 
         // Attach ItemTouchHelper (swipe items to favorite)
         val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "alerts")
@@ -374,25 +344,38 @@ class FragmentAlerts : Fragment(), SelectedChangeListener, CryptoListAlertsAdapt
         findNavController().navigate(R.id.action_fragmentAlerts_to_dialogCryptoDetail, bundle)
     }
 
+    override fun onCryptoEmptied(isEmpty: Boolean) {
+        changeItemsVisibility(isEmpty)
+    }
+
     private fun setListToAdapter(cryptoList: List<Crypto>) {
-        if (cryptoList.isEmpty()) {
-            binding.rwAlertsCryptoList.visibility = View.GONE
-            binding.tvAlertsCryptoListEmpty.visibility = View.VISIBLE
-        } else {
-            binding.rwAlertsCryptoList.visibility = View.VISIBLE
-            binding.tvAlertsCryptoListEmpty.visibility = View.GONE
+        if (cryptoList.isNotEmpty()) {
+            changeItemsVisibility(false)
             rwCryptoAdapter.setCryptos(cryptoList)
             if (arguments?.getString("cryptoId") != null) {
                 Log.d("CryptoNotification", "Had cryptoId argument")
                 rwCryptoAdapter.goToCrypto(arguments?.getString("cryptoId")!!)
                 arguments?.remove("cryptoId")
             }
+        } else {
+            changeItemsVisibility(true)
+        }
+    }
+
+    private fun changeItemsVisibility(isEmpty: Boolean) {
+        if (isEmpty) {
+            binding.rwAlertsCryptoList.visibility = View.GONE
+            binding.tvAlertsCryptoListEmpty.visibility = View.VISIBLE
+        } else {
+            binding.rwAlertsCryptoList.visibility = View.VISIBLE
+            binding.tvAlertsCryptoListEmpty.visibility = View.GONE
         }
     }
 
     private fun referencesOptionsMenu(menu: Menu) {
-        itemName = menu.findItem(R.id.mnFilterOptionName)
+        itemMarketCap = menu.findItem(R.id.mnFilterOptionMarketCap)
         itemSymbol = menu.findItem(R.id.mnFilterOptionSymbol)
+        itemName = menu.findItem(R.id.mnFilterOptionName)
         itemPrice = menu.findItem(R.id.mnFilterOptionPrice)
         itemPercentage = menu.findItem(R.id.mnFilterOptionPercentage)
         itemAscending = menu.findItem(R.id.mnFilterOrderAscending)
