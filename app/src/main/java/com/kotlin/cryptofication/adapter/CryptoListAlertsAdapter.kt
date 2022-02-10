@@ -36,8 +36,9 @@ class CryptoListAlertsAdapter :
     private var cryptoList: ArrayList<Crypto> = ArrayList()
     private var cryptoListFull: ArrayList<Crypto> = ArrayList()
 
-    private var onCryptoClickLister: OnCryptoClickListener? = null
-    private var onCryptoEmptyLister: OnCryptoEmptyListener? = null
+    private var onCryptoClickListener: OnCryptoClickListener? = null
+    private var onCryptoEmptyListener: OnCryptoEmptyListener? = null
+    private var onSnackbarCreatedListener: OnSnackbarCreatedLister? = null
 
     interface OnCryptoClickListener {
         fun onCryptoClicked(bundle: Bundle)
@@ -47,12 +48,20 @@ class CryptoListAlertsAdapter :
         fun onCryptoEmptied(isEmpty: Boolean)
     }
 
+    interface OnSnackbarCreatedLister {
+        fun onSnackbarCreated(snackbar: Snackbar)
+    }
+
     fun setOnCryptoClickListener(listener: OnCryptoClickListener?) {
-        onCryptoClickLister = listener
+        onCryptoClickListener = listener
     }
 
     fun setOnCryptoEmptyListener(listener: OnCryptoEmptyListener?) {
-        onCryptoEmptyLister = listener
+        onCryptoEmptyListener = listener
+    }
+
+    fun setOnSnackbarCreatedListener(listener: OnSnackbarCreatedLister?) {
+        onSnackbarCreatedListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CryptoListAlertsViewHolder {
@@ -66,7 +75,7 @@ class CryptoListAlertsAdapter :
         holder.bind(selectedCrypto)
         holder.binding.parentLayoutAlerts.setOnClickListener {
             val bundle = bundleOf("selectedCrypto" to selectedCrypto)
-            onCryptoClickLister?.onCryptoClicked(bundle)
+            onCryptoClickListener?.onCryptoClicked(bundle)
         }
     }
 
@@ -126,34 +135,42 @@ class CryptoListAlertsAdapter :
         val cryptoSymbol = crypto.symbol?.uppercase()
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
-        // Add the item to the database, at the Favorites table (cryptoSymbol and the  current date)
+        // Add the item to the database, at the Favorites table (cryptoSymbol and the current date)
         MainScope().launch {
             val cryptoSwiped = CryptoAlert(cryptoId!!)
             val savedAlerts = mRoom.getAllAlerts().size
+            Log.d("itemSwipe", "Alerts Size: $savedAlerts")
             val resultDelete: Int = mRoom.deleteAlert(cryptoSwiped)
             Log.d("itemSwipe", "ResultDelete: $resultDelete")
 
             when (resultDelete) {
                 0 -> {
                     // The item wasn't in the database
+                    cryptoList.removeAt(position)
+                    notifyItemRemoved(position)
+                    CryptoProvider.cryptosAlerts = cryptoList
+                    if (cryptoList.size == 0) {
+                        onCryptoEmptyListener?.onCryptoEmptied(true)
+                    }
                     Snackbar
                         .make(
                             viewHolder.itemView,
-                            "$cryptoSymbol couldn't be removed",
+                            "$cryptoSymbol couldn't be removed, updating list...",
                             Snackbar.LENGTH_LONG
-                        )
-                        .show()
+                        ).let { snackbar ->
+                            onSnackbarCreatedListener?.onSnackbarCreated(snackbar)
+                        }
                 }
                 else -> {
                     // The item has been deleted from the database successfully. Add the action to undo the action
                     cryptoList.removeAt(position)
                     notifyItemRemoved(position)
                     CryptoProvider.cryptosAlerts = cryptoList
-
                     if (savedAlerts == 1) {
                         Log.d("savedAlerts", "Delete Alarm Manager")
                         mAlarmManager.deleteAlarmManager()
-                        onCryptoEmptyLister?.onCryptoEmptied(true)
+                        onCryptoEmptyListener?.onCryptoEmptied(true)
+                        mPrefs.setDBHasItems(false)
                     }
 
                     Snackbar
@@ -188,13 +205,16 @@ class CryptoListAlertsAdapter :
                                             if (savedAlerts == 1) {
                                                 Log.d("savedAlerts", "Launch Alarm Manager again")
                                                 mAlarmManager.launchAlarmManager()
-                                                onCryptoEmptyLister?.onCryptoEmptied(false)
+                                                onCryptoEmptyListener?.onCryptoEmptied(false)
+                                                mPrefs.setDBHasItems(true)
                                             }
                                         }
                                     }
                                 }
                             }
-                        }.show()
+                        }.let { snackbar ->
+                            onSnackbarCreatedListener?.onSnackbarCreated(snackbar)
+                        }
                 }
             }
         }
@@ -204,7 +224,7 @@ class CryptoListAlertsAdapter :
         for (crypto in cryptoList) {
             if (crypto.id == cryptoId) {
                 val bundle = bundleOf("selectedCrypto" to crypto)
-                onCryptoClickLister?.onCryptoClicked(bundle)
+                onCryptoClickListener?.onCryptoClicked(bundle)
             }
         }
     }

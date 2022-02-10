@@ -13,8 +13,8 @@ android {
         applicationId "com.kotlin.cryptofication"
         minSdk 21
         targetSdk 31
-        versionCode 27
-        versionName "1.1.22"
+        versionCode 37
+        versionName "1.2.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -62,9 +62,12 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
     // Room
     implementation 'androidx.room:room-ktx:2.4.1'
+    annotationProcessor 'androidx.room:room-compiler:2.4.1'
     kapt 'androidx.room:room-compiler:2.4.1'
     // Graphs
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    // AdMob
+    implementation 'com.google.android.gms:play-services-ads:20.5.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

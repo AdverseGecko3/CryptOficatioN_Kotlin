@@ -14,7 +14,7 @@
         android:contentDescription="@string/CONTENT_CRYPTO_IMAGE"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tvAdapterMarketSymbol"
-        app:layout_constraintHorizontal_weight="7"
+        app:layout_constraintHorizontal_weight="5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@mipmap/ic_launcher_round" />
@@ -23,7 +23,7 @@
         android:id="@+id/tvAdapterMarketSymbol"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="2dp"
+        android:layout_marginStart="5dp"
         android:gravity="center_vertical"
         android:textColor="@color/text"
         android:textSize="15sp"
@@ -84,7 +84,7 @@
             android:id="@+id/ivAdapterMarketIconPriceChange"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="5"
+            android:layout_weight="3"
             android:contentDescription="@string/CONTENT_CRYPTO_STATUS"
             tools:src="@drawable/ic_arrow_drop_up" />
 
@@ -93,7 +93,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginStart="2dp"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:gravity="center_vertical"
             android:textColor="@color/text"
             android:textSize="13sp"

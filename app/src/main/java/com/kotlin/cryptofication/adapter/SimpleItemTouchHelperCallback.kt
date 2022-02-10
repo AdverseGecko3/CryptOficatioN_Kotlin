@@ -6,11 +6,10 @@ import android.util.Log
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp
-
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mResources
 import com.kotlin.cryptofication.utilities.doHaptic
 import kotlin.math.roundToInt
@@ -55,13 +54,14 @@ class SimpleItemTouchHelperCallback(
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
+        if (viewHolder.itemViewType == 1) return
         var rwSwipeBackground: ColorDrawable? = null
         var rwSwipeIcon: Drawable? = null
         when (fragment) {
             "market" -> {
                 rwSwipeBackground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     ColorDrawable(
-                        CryptOficatioNApp.mAppContext.getColor(R.color.yellow_favorite)
+                        mAppContext.getColor(R.color.yellow_favorite)
                     )
                 } else {
                     ColorDrawable(
@@ -69,13 +69,13 @@ class SimpleItemTouchHelperCallback(
                     )
                 }
                 rwSwipeIcon = ContextCompat.getDrawable(
-                    CryptOficatioNApp.mAppContext, R.drawable.ic_star
+                    mAppContext, R.drawable.ic_star
                 )!!
             }
             "alerts" -> {
                 rwSwipeBackground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     ColorDrawable(
-                        CryptOficatioNApp.mAppContext.getColor(R.color.red_delete)
+                        mAppContext.getColor(R.color.red_delete)
                     )
                 } else {
                     ColorDrawable(
@@ -83,7 +83,7 @@ class SimpleItemTouchHelperCallback(
                     )
                 }
                 rwSwipeIcon = ContextCompat.getDrawable(
-                    CryptOficatioNApp.mAppContext, R.drawable.ic_delete
+                    mAppContext, R.drawable.ic_delete
                 )!!
             }
         }

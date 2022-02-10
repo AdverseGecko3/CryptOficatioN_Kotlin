@@ -65,4 +65,9 @@
             android:key="prefCredits"
             android:title="@string/SETTINGS_CREDITS" />
     </PreferenceCategory>
+    <Preference
+        android:defaultValue="00:00"
+        android:key="prefVersion"
+        android:title="@string/VERSION"
+        android:summary="@string/HOLDER_APP_VERSION" />
 </PreferenceScreen>

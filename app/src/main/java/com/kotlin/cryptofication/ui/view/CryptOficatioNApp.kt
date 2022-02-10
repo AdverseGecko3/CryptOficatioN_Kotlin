@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.res.Resources
 import android.os.Build
+import com.google.android.gms.ads.MobileAds
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.notification.NotificationAlarmManager
 import com.kotlin.cryptofication.data.Preferences
@@ -42,6 +43,9 @@ class CryptOficatioNApp : Application() {
 
         // Alarm Manager class
         mAlarmManager = NotificationAlarmManager(applicationContext)
+
+        // Initialize AdMob
+        MobileAds.initialize(this)
     }
 
     private fun createNotificationChannel() {

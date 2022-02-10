@@ -13,10 +13,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter
 import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoClickListener
 import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoEmptyListener
+import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnSnackbarCreatedLister
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
 import com.kotlin.cryptofication.data.model.Crypto
@@ -24,9 +26,10 @@ import com.kotlin.cryptofication.databinding.FragmentAlertsBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.viewmodel.AlertsViewModel
 import com.kotlin.cryptofication.utilities.showToast
+import java.lang.IllegalArgumentException
 
 class FragmentAlerts : Fragment(), SelectedChangeListener,
-    OnCryptoClickListener, OnCryptoEmptyListener {
+    OnCryptoClickListener, OnCryptoEmptyListener, OnSnackbarCreatedLister {
 
     private var _binding: FragmentAlertsBinding? = null
     private val binding get() = _binding!!
@@ -329,6 +332,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         binding.rwAlertsCryptoList.setHasFixedSize(true)
         rwCryptoAdapter.setOnCryptoClickListener(this)
         rwCryptoAdapter.setOnCryptoEmptyListener(this)
+        rwCryptoAdapter.setOnSnackbarCreatedListener(this)
 
         // Attach ItemTouchHelper (swipe items to favorite)
         val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "alerts")
@@ -341,11 +345,23 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
     }
 
     override fun onCryptoClicked(bundle: Bundle) {
-        findNavController().navigate(R.id.action_fragmentAlerts_to_dialogCryptoDetail, bundle)
+        try {
+            findNavController().navigate(R.id.action_fragmentAlerts_to_dialogCryptoDetail, bundle)
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+            e.message?.let { message -> Log.e("onCryptoClicked", message) }
+        }
     }
 
     override fun onCryptoEmptied(isEmpty: Boolean) {
         changeItemsVisibility(isEmpty)
+    }
+
+    override fun onSnackbarCreated(snackbar: Snackbar) {
+        snackbar.apply {
+            anchorView = activity?.findViewById(R.id.navBottom)
+            show()
+        }
     }
 
     private fun setListToAdapter(cryptoList: List<Crypto>) {

@@ -15,7 +15,7 @@ import java.io.InputStreamReader
 import java.net.SocketTimeoutException
 
 class MarketViewModel: ViewModel() {
-    val cryptoLiveData = MutableLiveData<List<Crypto>>()
+    val cryptoLiveData = MutableLiveData<List<Any>>()
     val isLoading = MutableLiveData<Boolean>()
     val error = MutableLiveData<String>()
 
@@ -23,6 +23,7 @@ class MarketViewModel: ViewModel() {
     var orderOption = 0
     var orderFilter = 0
     var lastSelectedFilterItem = 0
+    var hasAlreadyData = false
 
     var getCryptoOnlineUseCase = GetCryptoMarketOnlineUseCase()
     var getCryptoOfflineUseCase = GetCryptoMarketOfflineUseCase()
@@ -43,7 +44,8 @@ class MarketViewModel: ViewModel() {
             if (!result.isNullOrEmpty()) {
                 // Sort cryptoList with the desired filters and post the list
                 result = sortCryptoList(result)
-                cryptoLiveData.postValue(result)
+                cryptoLiveData.postValue(result as List<Any>)
+                hasAlreadyData = true
 
                 // Stop refreshing
                 isLoading.postValue(false)
