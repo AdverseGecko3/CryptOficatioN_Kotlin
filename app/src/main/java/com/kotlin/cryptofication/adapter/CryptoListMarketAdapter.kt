@@ -39,23 +39,23 @@ class CryptoListMarketAdapter :
     private val viewTypeCrypto = 0
     private val viewTypeBannerAd = 1
 
-    private var onCryptoClickedLister: OnCryptoClickedListener? = null
-    private var onSnackbarCreatedLister: OnSnackbarCreatedLister? = null
+    private var onCryptoClickedListener: OnCryptoClickedListener? = null
+    private var onSnackbarCreatedListener: OnSnackbarCreatedListener? = null
 
     interface OnCryptoClickedListener {
         fun onCryptoClicked(bundle: Bundle)
     }
 
-    interface OnSnackbarCreatedLister {
+    interface OnSnackbarCreatedListener {
         fun onSnackbarCreated(snackbar: Snackbar)
     }
 
-    fun setOnCryptoClickListener(listener: OnCryptoClickedListener?) {
-        onCryptoClickedLister = listener
+    fun setOnCryptoClickedListener(listener: OnCryptoClickedListener?) {
+        onCryptoClickedListener = listener
     }
 
-    fun setOnSnackbarCreatedListener(listener: OnSnackbarCreatedLister?) {
-        onSnackbarCreatedLister = listener
+    fun setOnSnackbarCreatedListener(listener: OnSnackbarCreatedListener?) {
+        onSnackbarCreatedListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -80,13 +80,12 @@ class CryptoListMarketAdapter :
             viewTypeCrypto -> {
                 val cryptoHolder = holder as CryptoListMarketViewHolder
                 if (cryptoList[position] is Crypto) {
-                    Log.d("onBindViewHolder", "is Crypto")
                     val selectedCrypto = cryptoList[position] as Crypto
                     Log.d("onBindViewHolder", "is viewTypeCrypto - ${selectedCrypto.symbol}")
                     cryptoHolder.bind(selectedCrypto)
                     cryptoHolder.bindingCrypto.parentLayoutMarket.setOnClickListener {
                         val bundle = bundleOf("selectedCrypto" to selectedCrypto)
-                        onCryptoClickedLister?.onCryptoClicked(bundle)
+                        onCryptoClickedListener?.onCryptoClicked(bundle)
                     }
                 }
             }
@@ -94,21 +93,18 @@ class CryptoListMarketAdapter :
                 Log.d("onBindViewHolder", "is viewTypeBannerAd")
                 val bannerHolder = holder as AdBannerListMarketViewHolder
                 if (cryptoList[position] is AdView) {
-                    Log.d("onBindViewHolder", "is AdView")
                     val adView = cryptoList[position] as AdView
                     val adBannerView = bannerHolder.itemView as ViewGroup
                     if (adBannerView.childCount > 0) {
-                        Log.d("AdBannerListMarketVH", "childCount > 0")
                         adBannerView.removeAllViews()
                     }
                     if (adView.parent != null) {
-                        Log.d("AdBannerListMarketVH", "adview parent != null")
                         (adView.parent as ViewGroup).removeView(adView)
                     }
 
                     // Add the banner ad to the ad view.
                     adBannerView.addView(adView)
-                    Log.d("AdBannerListMarketVH", "added view")
+                    Log.d("AdBannerListMarketVH", "Added View")
                 }
             }
         }
@@ -123,16 +119,15 @@ class CryptoListMarketAdapter :
 
     private val filter = object : Filter() {
         override fun performFiltering(charSequence: CharSequence): FilterResults {
-            val filteredList: ArrayList<Any> = ArrayList()
+            val filteredList = ArrayList<Any>()
             val query = charSequence.toString()
 
             if (query.isEmpty()) {
                 Log.d("performFilter", "Filter empty")
                 filteredList.addAll(cryptoListFull)
             } else {
-                Log.d("performFilter", "Filter not empty")
                 val filterPattern = query.lowercase().trim { it <= ' ' }
-                Log.d("performFilter", filterPattern)
+                Log.d("performFilter", "Filter not empty: $filterPattern")
                 for ((i, item) in cryptoListFull.withIndex()) {
                     if (i == 0) {
                         filteredList.add(item)
@@ -145,10 +140,6 @@ class CryptoListMarketAdapter :
                     }
                 }
             }
-            Log.d(
-                "performFilter",
-                "List full:${cryptoList.size} List filter:${cryptoListFull.size}"
-            )
             val results = FilterResults()
             results.values = filteredList
             return results
@@ -228,7 +219,7 @@ class CryptoListMarketAdapter :
                                         }
                                     }
                                 }.let { snackbar ->
-                                    onSnackbarCreatedLister?.onSnackbarCreated(snackbar)
+                                    onSnackbarCreatedListener?.onSnackbarCreated(snackbar)
                                 }
 
                         }
@@ -246,7 +237,7 @@ class CryptoListMarketAdapter :
                         "$cryptoSymbol already in favorites",
                         Snackbar.LENGTH_SHORT
                     ).let { snackbar ->
-                        onSnackbarCreatedLister?.onSnackbarCreated(snackbar)
+                        onSnackbarCreatedListener?.onSnackbarCreated(snackbar)
                     }
             }
         }

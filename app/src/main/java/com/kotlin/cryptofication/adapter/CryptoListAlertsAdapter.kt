@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.android.gms.ads.AdView
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
@@ -29,82 +30,126 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 class CryptoListAlertsAdapter :
-    RecyclerView.Adapter<CryptoListAlertsAdapter.CryptoListAlertsViewHolder>(),
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     Filterable,
     ITHSwipe {
 
-    private var cryptoList: ArrayList<Crypto> = ArrayList()
-    private var cryptoListFull: ArrayList<Crypto> = ArrayList()
+    private var cryptoList: ArrayList<Any> = ArrayList()
+    private var cryptoListFull: ArrayList<Any> = ArrayList()
 
-    private var onCryptoClickListener: OnCryptoClickListener? = null
-    private var onCryptoEmptyListener: OnCryptoEmptyListener? = null
-    private var onSnackbarCreatedListener: OnSnackbarCreatedLister? = null
+    private val viewTypeCrypto = 0
+    private val viewTypeBannerAd = 1
 
-    interface OnCryptoClickListener {
+    private var onCryptoClickedListener: OnCryptoClickedListener? = null
+    private var onCryptoEmptiedListener: OnCryptoEmptiedListener? = null
+    private var onSnackbarCreatedListener: OnSnackbarCreatedListener? = null
+
+    interface OnCryptoClickedListener {
         fun onCryptoClicked(bundle: Bundle)
     }
 
-    interface OnCryptoEmptyListener {
+    interface OnCryptoEmptiedListener {
         fun onCryptoEmptied(isEmpty: Boolean)
     }
 
-    interface OnSnackbarCreatedLister {
+    interface OnSnackbarCreatedListener {
         fun onSnackbarCreated(snackbar: Snackbar)
     }
 
-    fun setOnCryptoClickListener(listener: OnCryptoClickListener?) {
-        onCryptoClickListener = listener
+    fun setOnCryptoClickedListener(listener: OnCryptoClickedListener?) {
+        onCryptoClickedListener = listener
     }
 
-    fun setOnCryptoEmptyListener(listener: OnCryptoEmptyListener?) {
-        onCryptoEmptyListener = listener
+    fun setOnCryptoEmptiedListener(listener: OnCryptoEmptiedListener?) {
+        onCryptoEmptiedListener = listener
     }
 
-    fun setOnSnackbarCreatedListener(listener: OnSnackbarCreatedLister?) {
+    fun setOnSnackbarCreatedListener(listener: OnSnackbarCreatedListener?) {
         onSnackbarCreatedListener = listener
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CryptoListAlertsViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.adapter_alert_crypto_list, parent, false)
-        return CryptoListAlertsViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            viewTypeCrypto -> {
+                Log.d("onCreateViewHolder", "is viewTypeCrypto")
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.adapter_alert_crypto_list, parent, false)
+                CryptoListAlertsViewHolder(view)
+            }
+            else -> {
+                Log.d("onCreateViewHolder", "is viewTypeBannerAd")
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.adapter_market_banner_ad, parent, false)
+                AdBannerListAlertsViewHolder(view)
+            }
+        }
     }
 
-    override fun onBindViewHolder(holder: CryptoListAlertsViewHolder, position: Int) {
-        val selectedCrypto = cryptoList[position]
-        holder.bind(selectedCrypto)
-        holder.binding.parentLayoutAlerts.setOnClickListener {
-            val bundle = bundleOf("selectedCrypto" to selectedCrypto)
-            onCryptoClickListener?.onCryptoClicked(bundle)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (getItemViewType(position)) {
+            viewTypeCrypto -> {
+                val cryptoHolder = holder as CryptoListAlertsViewHolder
+                if (cryptoList[position] is Crypto) {
+                    val selectedCrypto = cryptoList[position] as Crypto
+                    Log.d("onBindViewHolder", "is viewTypeCrypto - ${selectedCrypto.symbol}")
+                    cryptoHolder.bind(selectedCrypto)
+                    cryptoHolder.bindingCrypto.parentLayoutAlerts.setOnClickListener {
+                        val bundle = bundleOf("selectedCrypto" to selectedCrypto)
+                        onCryptoClickedListener?.onCryptoClicked(bundle)
+                    }
+                }
+            }
+            else -> {
+                Log.d("onBindViewHolder", "is viewTypeBannerAd")
+                val bannerHolder = holder as AdBannerListAlertsViewHolder
+                if (cryptoList[position] is AdView) {
+                    val adView = cryptoList[position] as AdView
+                    val adBannerView = bannerHolder.itemView as ViewGroup
+                    if (adBannerView.childCount > 0) {
+                        adBannerView.removeAllViews()
+                    }
+                    if (adView.parent != null) {
+                        (adView.parent as ViewGroup).removeView(adView)
+                    }
+
+                    // Add the banner ad to the ad view.
+                    adBannerView.addView(adView)
+                    Log.d("AdBannerListMarketVH", "Added view")
+                }
+            }
         }
     }
 
     override fun getItemCount() = cryptoList.size
 
+    override fun getItemViewType(position: Int): Int =
+        if (position % Constants.ITEMS_PER_AD == 0 || position == 0) viewTypeBannerAd else viewTypeCrypto
+
     override fun getFilter() = filter
 
     private val filter = object : Filter() {
         override fun performFiltering(charSequence: CharSequence): FilterResults {
-            val filteredList = ArrayList<Crypto>()
+            val filteredList = ArrayList<Any>()
             val query = charSequence.toString()
 
             if (query.isEmpty()) {
                 Log.d("performFilter", "Filter empty")
                 filteredList.addAll(cryptoListFull)
             } else {
-                Log.d("performFilter", "Filter not empty")
                 val filterPattern = query.lowercase().trim { it <= ' ' }
-                Log.d("performFilter", filterPattern)
-                for (crypto in cryptoListFull) {
-                    if (crypto.name!!.lowercase().contains(filterPattern)) {
-                        filteredList.add(crypto)
+                Log.d("performFilter", "Filter not empty: $filterPattern")
+                for ((i, item) in cryptoListFull.withIndex()) {
+                    if (i == 0) {
+                        filteredList.add(item)
+                        continue
+                    }
+                    if (getItemViewType(i) == viewTypeCrypto) {
+                        if ((item as Crypto).symbol!!.lowercase().contains(filterPattern) or
+                            item.name!!.lowercase().contains(filterPattern)
+                        ) filteredList.add(item)
                     }
                 }
             }
-            Log.d(
-                "performFilter",
-                "List full:${cryptoList.size} List filter:${cryptoListFull.size}"
-            )
             val results = FilterResults()
             results.values = filteredList
             return results
@@ -114,13 +159,13 @@ class CryptoListAlertsAdapter :
         @Suppress("UNCHECKED_CAST")
         override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
             cryptoList.clear()
-            cryptoList.addAll(filterResults.values as ArrayList<Crypto>)
+            cryptoList.addAll(filterResults.values as ArrayList<*>)
             notifyDataSetChanged()
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setCryptos(cryptoList: List<Crypto>) {
+    fun setCryptos(cryptoList: List<Any>) {
         this.cryptoList = ArrayList(cryptoList)
         this.cryptoListFull = ArrayList(cryptoList)
         notifyDataSetChanged()
@@ -129,8 +174,8 @@ class CryptoListAlertsAdapter :
     override fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder) {
         // Get the position and the crypto symbol of the item
         val position = viewHolder.bindingAdapterPosition
-        val crypto = cryptoList[position]
-        Log.d("itemSwipe", "Crypto: $crypto")
+        if (getItemViewType(position) == viewTypeBannerAd) return
+        val crypto = cryptoList[position] as Crypto
         val cryptoId = crypto.id
         val cryptoSymbol = crypto.symbol?.uppercase()
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
@@ -148,9 +193,9 @@ class CryptoListAlertsAdapter :
                     // The item wasn't in the database
                     cryptoList.removeAt(position)
                     notifyItemRemoved(position)
-                    CryptoProvider.cryptosAlerts = cryptoList
+                    CryptoProvider.cryptosAlerts = cleanAdsCryptoList(cryptoList)
                     if (cryptoList.size == 0) {
-                        onCryptoEmptyListener?.onCryptoEmptied(true)
+                        onCryptoEmptiedListener?.onCryptoEmptied(true)
                     }
                     Snackbar
                         .make(
@@ -165,11 +210,10 @@ class CryptoListAlertsAdapter :
                     // The item has been deleted from the database successfully. Add the action to undo the action
                     cryptoList.removeAt(position)
                     notifyItemRemoved(position)
-                    CryptoProvider.cryptosAlerts = cryptoList
+                    CryptoProvider.cryptosAlerts = cleanAdsCryptoList(cryptoList)
                     if (savedAlerts == 1) {
-                        Log.d("savedAlerts", "Delete Alarm Manager")
                         mAlarmManager.deleteAlarmManager()
-                        onCryptoEmptyListener?.onCryptoEmptied(true)
+                        onCryptoEmptiedListener?.onCryptoEmptied(true)
                         mPrefs.setDBHasItems(false)
                     }
 
@@ -201,11 +245,10 @@ class CryptoListAlertsAdapter :
                                             Log.d("itemSwipe", "Crypto: $crypto")
                                             cryptoList.add(position, crypto)
                                             notifyItemInserted(position)
-                                            CryptoProvider.cryptosAlerts = cryptoList
+                                            CryptoProvider.cryptosAlerts = cleanAdsCryptoList(cryptoList)
                                             if (savedAlerts == 1) {
-                                                Log.d("savedAlerts", "Launch Alarm Manager again")
                                                 mAlarmManager.launchAlarmManager()
-                                                onCryptoEmptyListener?.onCryptoEmptied(false)
+                                                onCryptoEmptiedListener?.onCryptoEmptied(false)
                                                 mPrefs.setDBHasItems(true)
                                             }
                                         }
@@ -220,18 +263,29 @@ class CryptoListAlertsAdapter :
         }
     }
 
+    private fun cleanAdsCryptoList(cryptoList: ArrayList<Any>): List<Crypto> {
+        val cleanCryptoList = ArrayList<Crypto>()
+        for (item in cryptoList) {
+            if (item is Crypto) {
+                cleanCryptoList.add(item)
+            }
+        }
+        return cleanCryptoList
+    }
+
     fun goToCrypto(cryptoId: String) {
-        for (crypto in cryptoList) {
-            if (crypto.id == cryptoId) {
-                val bundle = bundleOf("selectedCrypto" to crypto)
-                onCryptoClickListener?.onCryptoClicked(bundle)
+        for (item in cryptoList) {
+            if (item is Crypto) {
+                if (item.id == cryptoId) {
+                    val bundle = bundleOf("selectedCrypto" to item)
+                    onCryptoClickedListener?.onCryptoClicked(bundle)
+                }
             }
         }
     }
 
     class CryptoListAlertsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
-        val binding = AdapterAlertCryptoListBinding.bind(itemView)
+        val bindingCrypto = AdapterAlertCryptoListBinding.bind(itemView)
         private val userCurrency = mPrefs.getCurrencySymbol()
         private val circularProgressDrawable = CircularProgressDrawable(itemView.context).apply {
             setColorSchemeColors(R.color.purple_app_accent)
@@ -244,20 +298,22 @@ class CryptoListAlertsAdapter :
             Glide.with(itemView).load(crypto.image).diskCacheStrategy(
                 DiskCacheStrategy.ALL
             ).placeholder(circularProgressDrawable).override(0, 35)
-                .into(binding.ivAdapterAlertIcon)
-            binding.tvAdapterAlertSymbol.text = crypto.symbol!!.uppercase()
-            binding.tvAdapterAlertName.text = crypto.name
+                .into(bindingCrypto.ivAdapterAlertIcon)
+            bindingCrypto.tvAdapterAlertSymbol.text = crypto.symbol!!.uppercase()
+            bindingCrypto.tvAdapterAlertName.text = crypto.name
             val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
-            binding.tvAdapterAlertPrice.text = currentPrice
+            bindingCrypto.tvAdapterAlertPrice.text = currentPrice
             val priceChange = crypto.price_change_percentage_24h.customFormattedPercentage()
-            binding.tvAdapterAlertTextPriceChange.text = priceChange
+            bindingCrypto.tvAdapterAlertTextPriceChange.text = priceChange
             if (crypto.price_change_percentage_24h >= 0) {
-                binding.ivAdapterAlertIconPriceChange.positivePrice()
-                binding.tvAdapterAlertTextPriceChange.positivePrice()
+                bindingCrypto.ivAdapterAlertIconPriceChange.positivePrice()
+                bindingCrypto.tvAdapterAlertTextPriceChange.positivePrice()
             } else {
-                binding.ivAdapterAlertIconPriceChange.negativePrice()
-                binding.tvAdapterAlertTextPriceChange.negativePrice()
+                bindingCrypto.ivAdapterAlertIconPriceChange.negativePrice()
+                bindingCrypto.tvAdapterAlertTextPriceChange.negativePrice()
             }
         }
     }
+
+    class AdBannerListAlertsViewHolder(view: View) : RecyclerView.ViewHolder(view)
 }

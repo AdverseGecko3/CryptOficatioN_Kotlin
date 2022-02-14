@@ -19,7 +19,6 @@ class CryptoService {
             try {
                 val userCurrency = mPrefs.getCurrency()
                 val userItemsPage = mPrefs.getItemsPerPage()
-                Log.d("CryptoService", "userCurrency: $userCurrency")
                 val response = retrofit.create(CryptoAPIClient::class.java).getMarketCryptoList(
                     userCurrency, userItemsPage, "true"
                 )
@@ -46,11 +45,9 @@ class CryptoService {
                     var ids = ""
                     for(cryptoId in idsList) {
                         ids += "${cryptoId.id},"
-                        Log.d("CryptoService", "ids: $ids")
                     }
                     ids = ids.substring(0, ids.length - 1)
                     Log.d("CryptoService", "ids: $ids")
-                    Log.d("CryptoService", "userCurrency: $userCurrency")
                     val response = retrofit.create(CryptoAPIClient::class.java).getAlertsCryptoList(
                         ids, userCurrency, "true"
                     )

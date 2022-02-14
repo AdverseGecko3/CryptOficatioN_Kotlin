@@ -3,7 +3,6 @@ package com.kotlin.cryptofication.ui.view
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -131,11 +130,10 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
     }
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {
-        Log.d("onValue", h!!.y.toString())
         val bottomSheetDialog = dialog as BottomSheetDialog
         val bottomSheetBehavior = bottomSheetDialog.behavior
         bottomSheetBehavior.isDraggable = false
-        binding.tvFragmentCryptoDetailPrice.text = h.y.toDouble().customFormattedPrice(userCurrency)
+        binding.tvFragmentCryptoDetailPrice.text = h!!.y.toDouble().customFormattedPrice(userCurrency)
     }
 
     override fun onNothingSelected() {

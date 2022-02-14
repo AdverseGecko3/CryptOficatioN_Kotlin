@@ -21,7 +21,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter
 import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter.OnCryptoClickedListener
-import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter.OnSnackbarCreatedLister
+import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter.OnSnackbarCreatedListener
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
 import com.kotlin.cryptofication.data.model.Crypto
@@ -32,7 +32,7 @@ import com.kotlin.cryptofication.ui.viewmodel.MarketViewModel
 import com.kotlin.cryptofication.utilities.*
 
 class FragmentMarket : Fragment(), SelectedChangeListener,
-    OnCryptoClickedListener, OnSnackbarCreatedLister {
+    OnCryptoClickedListener, OnSnackbarCreatedListener {
 
     private var _binding: FragmentMarketBinding? = null
     private val binding get() = _binding!!
@@ -121,14 +121,14 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         // Swipe refresh customization
         binding.srlMarketReload.setColorSchemeResources(R.color.purple_app_accent)
 
-        marketViewModel.isLoading.observe(requireActivity()) { isLoading ->
+        marketViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             Log.d("FragmentMarket", "isLoading changed to $isLoading")
 
             // Set refreshing depending isLoading boolean in ViewModel
             binding.srlMarketReload.isRefreshing = isLoading
         }
 
-        marketViewModel.cryptoLiveData.observe(requireActivity()) { cryptoList ->
+        marketViewModel.cryptoLiveData.observe(viewLifecycleOwner) { cryptoList ->
             Log.d("FragmentMarket", "Received cryptoList")
 
             this.cryptoList = ArrayList(cryptoList)
@@ -140,7 +140,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
             initViewFlipper(cryptoList.map { it as Crypto })
         }
 
-        marketViewModel.error.observe(requireActivity()) { errorMessage ->
+        marketViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             Log.d("FragmentMarket", "Error message")
 
             // Show toast when result is empty/null on ViewModel
@@ -288,7 +288,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
 
     @SuppressLint("NonConstantResourceId", "UseCompatLoadingForDrawables")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        //  Get the ID of the selected item
+        // Get the ID of the selected item
         val itemId = item.itemId
         if (itemId == R.id.mnFilterOptionMarketCap || itemId == R.id.mnFilterOptionSymbol ||
             itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionPrice ||
@@ -372,7 +372,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         binding.rwMarketCryptoList.layoutManager = LinearLayoutManager(context)
         binding.rwMarketCryptoList.adapter = rwCryptoAdapter
         binding.rwMarketCryptoList.setHasFixedSize(true)
-        rwCryptoAdapter.setOnCryptoClickListener(this)
+        rwCryptoAdapter.setOnCryptoClickedListener(this)
         rwCryptoAdapter.setOnSnackbarCreatedListener(this)
 
         // Attach ItemTouchHelper (swipe items to favorite)
@@ -421,7 +421,6 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
     }
 
     private fun loadBannerAd(index: Int) {
-        Log.d("loadBannerAd", "$index")
         if (index >= cryptoList.size) {
             return
         }
@@ -504,7 +503,8 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         }
         binding.clViewFlipperOneLoadedFragmentMarket.setOnClickListener {
             val bundle = bundleOf("selectedCrypto" to firstCrypto)
-            findNavController().navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
+            findNavController()
+                .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
         }
 
         binding.tvVFTwoLoadedCryptoSymbol.text = secondCrypto.symbol!!.uppercase()
@@ -523,7 +523,8 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         }
         binding.clViewFlipperTwoLoadedFragmentMarket.setOnClickListener {
             val bundle = bundleOf("selectedCrypto" to secondCrypto)
-            findNavController().navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
+            findNavController()
+                .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
         }
 
         binding.tvVFThreeLoadedCryptoSymbol.text = thirdCrypto.symbol!!.uppercase()
@@ -542,7 +543,8 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         }
         binding.clViewFlipperThreeLoadedFragmentMarket.setOnClickListener {
             val bundle = bundleOf("selectedCrypto" to thirdCrypto)
-            findNavController().navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
+            findNavController()
+                .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
         }
     }
 
