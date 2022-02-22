@@ -20,7 +20,7 @@ import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.model.CryptoAlert
 import com.kotlin.cryptofication.data.repos.CryptoProvider
-import com.kotlin.cryptofication.databinding.AdapterAlertCryptoListBinding
+import com.kotlin.cryptofication.databinding.AdapterCryptoBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManager
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
@@ -73,13 +73,13 @@ class CryptoListAlertsAdapter :
             viewTypeCrypto -> {
                 Log.d("onCreateViewHolder", "is viewTypeCrypto")
                 val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.adapter_alert_crypto_list, parent, false)
+                    .inflate(R.layout.adapter_crypto, parent, false)
                 CryptoListAlertsViewHolder(view)
             }
             else -> {
                 Log.d("onCreateViewHolder", "is viewTypeBannerAd")
                 val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.adapter_market_banner_ad, parent, false)
+                    .inflate(R.layout.adapter_banner_ad, parent, false)
                 AdBannerListAlertsViewHolder(view)
             }
         }
@@ -93,7 +93,7 @@ class CryptoListAlertsAdapter :
                     val selectedCrypto = cryptoList[position] as Crypto
                     Log.d("onBindViewHolder", "is viewTypeCrypto - ${selectedCrypto.symbol}")
                     cryptoHolder.bind(selectedCrypto)
-                    cryptoHolder.bindingCrypto.parentLayoutAlerts.setOnClickListener {
+                    cryptoHolder.bindingCrypto.parentLayoutCrypto.setOnClickListener {
                         val bundle = bundleOf("selectedCrypto" to selectedCrypto)
                         onCryptoClickedListener?.onCryptoClicked(bundle)
                     }
@@ -285,7 +285,7 @@ class CryptoListAlertsAdapter :
     }
 
     class CryptoListAlertsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val bindingCrypto = AdapterAlertCryptoListBinding.bind(itemView)
+        val bindingCrypto = AdapterCryptoBinding.bind(itemView)
         private val userCurrency = mPrefs.getCurrencySymbol()
         private val circularProgressDrawable = CircularProgressDrawable(itemView.context).apply {
             setColorSchemeColors(R.color.purple_app_accent)
@@ -295,22 +295,24 @@ class CryptoListAlertsAdapter :
         }
 
         fun bind(crypto: Crypto) {
-            Glide.with(itemView).load(crypto.image).diskCacheStrategy(
-                DiskCacheStrategy.ALL
-            ).placeholder(circularProgressDrawable).override(0, 35)
-                .into(bindingCrypto.ivAdapterAlertIcon)
-            bindingCrypto.tvAdapterAlertSymbol.text = crypto.symbol!!.uppercase()
-            bindingCrypto.tvAdapterAlertName.text = crypto.name
-            val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
-            bindingCrypto.tvAdapterAlertPrice.text = currentPrice
-            val priceChange = crypto.price_change_percentage_24h.customFormattedPercentage()
-            bindingCrypto.tvAdapterAlertTextPriceChange.text = priceChange
-            if (crypto.price_change_percentage_24h >= 0) {
-                bindingCrypto.ivAdapterAlertIconPriceChange.positivePrice()
-                bindingCrypto.tvAdapterAlertTextPriceChange.positivePrice()
-            } else {
-                bindingCrypto.ivAdapterAlertIconPriceChange.negativePrice()
-                bindingCrypto.tvAdapterAlertTextPriceChange.negativePrice()
+            bindingCrypto.apply {
+                Glide.with(itemView).load(crypto.image).diskCacheStrategy(
+                    DiskCacheStrategy.AUTOMATIC
+                ).placeholder(circularProgressDrawable).override(0, 35)
+                    .into(ivAdapterCryptoIcon)
+                tvAdapterCryptoSymbol.text = crypto.symbol!!.uppercase()
+                tvAdapterCryptoName.text = crypto.name
+                val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
+                tvAdapterCryptoPrice.text = currentPrice
+                val priceChange = crypto.price_change_percentage_24h.customFormattedPercentage()
+                tvAdapterCryptoTextPriceChange.text = priceChange
+                if (crypto.price_change_percentage_24h >= 0) {
+                    ivAdapterCryptoIconPriceChange.positivePrice()
+                    tvAdapterCryptoTextPriceChange.positivePrice()
+                } else {
+                    ivAdapterCryptoIconPriceChange.negativePrice()
+                    tvAdapterCryptoTextPriceChange.negativePrice()
+                }
             }
         }
     }

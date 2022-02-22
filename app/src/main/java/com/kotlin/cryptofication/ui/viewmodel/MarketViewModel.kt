@@ -24,18 +24,49 @@ class MarketViewModel: ViewModel() {
     var orderFilter = 0
     var lastSelectedFilterItem = 0
     var hasAlreadyData = false
+    private var page = 1
 
     var getCryptoOnlineUseCase = GetCryptoMarketOnlineUseCase()
     var getCryptoOfflineUseCase = GetCryptoMarketOfflineUseCase()
+
+    var cryptoList: ArrayList<Any> = arrayListOf()
 
     fun onCreate() {
         viewModelScope.launch {
             // Start refreshing
             isLoading.postValue(true)
+            page = 1
             var result: List<Crypto> = emptyList()
             try {
                 // Get Cryptos from the API (online)
                 result = getCryptoOnlineUseCase()
+                Log.d("onCreateViewModel", "Result: $result")
+            } catch (e: SocketTimeoutException) {
+                e.printStackTrace()
+            }
+            if (!result.isNullOrEmpty()) {
+                // Sort cryptoList with the desired filters and post the list
+                result = sortCryptoList(result)
+                cryptoLiveData.postValue(result as List<Any>)
+                hasAlreadyData = true
+            } else {
+                // Send error to show a toast
+                error.postValue("Error while getting cryptos Online!")
+            }
+            // Stop refreshing
+            isLoading.postValue(false)
+        }
+    }
+
+    fun onLoadMorePages() {
+        viewModelScope.launch {
+            // Start refreshing
+            isLoading.postValue(true)
+            page++
+            var result: List<Crypto> = emptyList()
+            try {
+                // Get Cryptos from the API (online)
+                result = getCryptoOnlineUseCase(page)
                 Log.d("onCreateViewModel", "Result: $result")
             } catch (e: SocketTimeoutException) {
                 e.printStackTrace()
@@ -139,10 +170,11 @@ class MarketViewModel: ViewModel() {
     }
 
     fun isMiUi(): Boolean {
-        return !TextUtils.isEmpty(getSystemProperty("ro.miui.ui.version.name"))
+        return !TextUtils.isEmpty(getSystemProperty())
     }
 
-    private fun getSystemProperty(propName: String): String? {
+    private fun getSystemProperty(): String? {
+        val propName = "ro.miui.ui.version.name"
         val line: String
         var input: BufferedReader? = null
         try {

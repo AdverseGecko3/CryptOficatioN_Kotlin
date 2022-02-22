@@ -44,6 +44,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
     private var itemPercentage: MenuItem? = null
     private var itemAscending: MenuItem? = null
     private var itemDescending: MenuItem? = null
+    private var itemSearch: MenuItem? = null
 
     private var cryptoList: ArrayList<Any> = arrayListOf()
 
@@ -69,6 +70,11 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
 
         // SwipeRefreshLayout refresh listener
         binding.srlAlertsReload.setOnRefreshListener {
+            // See if searchView is expanded
+            if(itemSearch!!.isActionViewExpanded) {
+                itemSearch!!.collapseActionView()
+            }
+
             // See checked filters
             when {
                 itemMarketCap!!.isChecked -> alertsViewModel.orderOption = 0
@@ -127,8 +133,8 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         referencesOptionsMenu(menu)
 
         // Find itemSearch and viewSearch in the toolbar
-        val itemSearch = menu.findItem(R.id.mnSearch)
-        val viewSearch = itemSearch.actionView as SearchView
+        itemSearch = menu.findItem(R.id.mnSearch)
+        val viewSearch = itemSearch!!.actionView as SearchView
         Log.d(
             "onCreateOptionsMenu",
             "orderOption:${alertsViewModel.orderOption} - orderFilter:${alertsViewModel.orderFilter}"
@@ -229,7 +235,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
                 return false
             }
         })
-        itemSearch.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+        itemSearch!!.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 // Open the search
                 Log.d("itemSearch", "Opened search")
@@ -332,12 +338,16 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
     private fun initRecyclerView() {
         // Initialize RecyclerView layout manager and adapter
         rwCryptoAdapter = CryptoListAlertsAdapter()
-        binding.rwAlertsCryptoList.layoutManager = LinearLayoutManager(context)
-        binding.rwAlertsCryptoList.adapter = rwCryptoAdapter
-        binding.rwAlertsCryptoList.setHasFixedSize(true)
-        rwCryptoAdapter.setOnCryptoClickedListener(this)
-        rwCryptoAdapter.setOnCryptoEmptiedListener(this)
-        rwCryptoAdapter.setOnSnackbarCreatedListener(this)
+        binding.apply {
+            rwAlertsCryptoList.layoutManager = LinearLayoutManager(context)
+            rwAlertsCryptoList.adapter = rwCryptoAdapter
+            rwAlertsCryptoList.setHasFixedSize(true)
+        }
+        rwCryptoAdapter.apply {
+            setOnCryptoClickedListener(this@FragmentAlerts)
+            setOnCryptoEmptiedListener(this@FragmentAlerts)
+            setOnSnackbarCreatedListener(this@FragmentAlerts)
+        }
 
         // Attach ItemTouchHelper (swipe items to favorite)
         val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "alerts")
@@ -468,6 +478,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
     }
 
     override fun onDestroy() {
+        _binding = null
         for (item in cryptoList) {
             if (item is AdView) {
                 item.destroy()

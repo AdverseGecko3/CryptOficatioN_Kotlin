@@ -19,7 +19,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.model.CryptoAlert
-import com.kotlin.cryptofication.databinding.AdapterMarketCryptoListBinding
+import com.kotlin.cryptofication.databinding.AdapterCryptoBinding
+import com.kotlin.cryptofication.databinding.AdapterLoadMoreBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManager
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
@@ -27,6 +28,7 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 import com.kotlin.cryptofication.utilities.*
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import java.lang.ClassCastException
 
 class CryptoListMarketAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
@@ -38,9 +40,11 @@ class CryptoListMarketAdapter :
 
     private val viewTypeCrypto = 0
     private val viewTypeBannerAd = 1
+    private val viewTypeLoadMore = 2
 
     private var onCryptoClickedListener: OnCryptoClickedListener? = null
     private var onSnackbarCreatedListener: OnSnackbarCreatedListener? = null
+    private var onLoadMoreClickedListener: OnLoadMoreClickedListener? = null
 
     interface OnCryptoClickedListener {
         fun onCryptoClicked(bundle: Bundle)
@@ -48,6 +52,10 @@ class CryptoListMarketAdapter :
 
     interface OnSnackbarCreatedListener {
         fun onSnackbarCreated(snackbar: Snackbar)
+    }
+
+    interface OnLoadMoreClickedListener {
+        fun onLoadMoreClicked()
     }
 
     fun setOnCryptoClickedListener(listener: OnCryptoClickedListener?) {
@@ -58,20 +66,31 @@ class CryptoListMarketAdapter :
         onSnackbarCreatedListener = listener
     }
 
+    fun setOnLoadMoreClickedListener(listener: OnLoadMoreClickedListener?) {
+        onLoadMoreClickedListener = listener
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             viewTypeCrypto -> {
                 Log.d("onCreateViewHolder", "is viewTypeCrypto")
                 val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.adapter_market_crypto_list, parent, false)
+                    .inflate(R.layout.adapter_crypto, parent, false)
                 CryptoListMarketViewHolder(view)
             }
-            else -> {
+            viewTypeBannerAd -> {
                 Log.d("onCreateViewHolder", "is viewTypeBannerAd")
                 val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.adapter_market_banner_ad, parent, false)
+                    .inflate(R.layout.adapter_banner_ad, parent, false)
                 AdBannerListMarketViewHolder(view)
             }
+            viewTypeLoadMore -> {
+                Log.d("onCreateViewHolder", "is viewTypeLoadMore")
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.adapter_load_more, parent, false)
+                LoadMoreListMarketViewHolder(view)
+            }
+            else -> throw ClassCastException("Type unknown")
         }
     }
 
@@ -83,13 +102,13 @@ class CryptoListMarketAdapter :
                     val selectedCrypto = cryptoList[position] as Crypto
                     Log.d("onBindViewHolder", "is viewTypeCrypto - ${selectedCrypto.symbol}")
                     cryptoHolder.bind(selectedCrypto)
-                    cryptoHolder.bindingCrypto.parentLayoutMarket.setOnClickListener {
+                    cryptoHolder.bindingCrypto.parentLayoutCrypto.setOnClickListener {
                         val bundle = bundleOf("selectedCrypto" to selectedCrypto)
                         onCryptoClickedListener?.onCryptoClicked(bundle)
                     }
                 }
             }
-            else -> {
+            viewTypeBannerAd -> {
                 Log.d("onBindViewHolder", "is viewTypeBannerAd")
                 val bannerHolder = holder as AdBannerListMarketViewHolder
                 if (cryptoList[position] is AdView) {
@@ -107,13 +126,23 @@ class CryptoListMarketAdapter :
                     Log.d("AdBannerListMarketVH", "Added View")
                 }
             }
+            viewTypeLoadMore -> {
+                val loadMoreHolder = holder as LoadMoreListMarketViewHolder
+                Log.d("LoadMoreClicked", "viewTypeLoadMore")
+                loadMoreHolder.bindingLoadMore.btnLoadMore.setOnClickListener {
+                    onLoadMoreClickedListener?.onLoadMoreClicked()
+                }
+
+            }
         }
     }
 
     override fun getItemCount() = cryptoList.size
 
-    override fun getItemViewType(position: Int): Int =
-        if (position % Constants.ITEMS_PER_AD == 0 || position == 0) viewTypeBannerAd else viewTypeCrypto
+    override fun getItemViewType(position: Int): Int {
+        if (position == (cryptoListFull.lastIndex)) return viewTypeLoadMore
+        return if (position % Constants.ITEMS_PER_AD == 0 || position == 0) viewTypeBannerAd else viewTypeCrypto
+    }
 
     override fun getFilter() = filter
 
@@ -129,12 +158,13 @@ class CryptoListMarketAdapter :
                 val filterPattern = query.lowercase().trim { it <= ' ' }
                 Log.d("performFilter", "Filter not empty: $filterPattern")
                 for ((i, item) in cryptoListFull.withIndex()) {
+                    if (getItemViewType(i) == viewTypeLoadMore) continue
                     if (i == 0) {
                         filteredList.add(item)
                         continue
                     }
-                    if (getItemViewType(i) == viewTypeCrypto) {
-                        if ((item as Crypto).symbol!!.lowercase().contains(filterPattern) or
+                    if (getItemViewType(i) == viewTypeCrypto && item is Crypto) {
+                        if (item.symbol!!.lowercase().contains(filterPattern) or
                             item.name!!.lowercase().contains(filterPattern)
                         ) filteredList.add(item)
                     }
@@ -244,7 +274,7 @@ class CryptoListMarketAdapter :
     }
 
     class CryptoListMarketViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val bindingCrypto = AdapterMarketCryptoListBinding.bind(itemView)
+        val bindingCrypto = AdapterCryptoBinding.bind(itemView)
         private val userCurrency = mPrefs.getCurrencySymbol()
         private val circularProgressDrawable = CircularProgressDrawable(itemView.context).apply {
             setColorSchemeColors(R.color.purple_app_accent)
@@ -254,25 +284,31 @@ class CryptoListMarketAdapter :
         }
 
         fun bind(crypto: Crypto) {
-            Glide.with(itemView).load(crypto.image).diskCacheStrategy(
-                DiskCacheStrategy.ALL
-            ).placeholder(circularProgressDrawable).override(0, 35)
-                .into(bindingCrypto.ivAdapterMarketIcon)
-            bindingCrypto.tvAdapterMarketSymbol.text = crypto.symbol!!.uppercase()
-            bindingCrypto.tvAdapterMarketName.text = crypto.name
-            val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
-            bindingCrypto.tvAdapterMarketPrice.text = currentPrice
-            val priceChange = crypto.price_change_percentage_24h.customFormattedPercentage()
-            bindingCrypto.tvAdapterMarketTextPriceChange.text = priceChange
-            if (crypto.price_change_percentage_24h >= 0) {
-                bindingCrypto.ivAdapterMarketIconPriceChange.positivePrice()
-                bindingCrypto.tvAdapterMarketTextPriceChange.positivePrice()
-            } else {
-                bindingCrypto.ivAdapterMarketIconPriceChange.negativePrice()
-                bindingCrypto.tvAdapterMarketTextPriceChange.negativePrice()
+            bindingCrypto.apply {
+                Glide.with(itemView).load(crypto.image).diskCacheStrategy(
+                    DiskCacheStrategy.AUTOMATIC
+                ).placeholder(circularProgressDrawable).override(0, 35)
+                    .into(ivAdapterCryptoIcon)
+                tvAdapterCryptoSymbol.text = crypto.symbol!!.uppercase()
+                tvAdapterCryptoName.text = crypto.name
+                val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
+                tvAdapterCryptoPrice.text = currentPrice
+                val priceChange = crypto.price_change_percentage_24h.customFormattedPercentage()
+                tvAdapterCryptoTextPriceChange.text = priceChange
+                if (crypto.price_change_percentage_24h >= 0) {
+                    ivAdapterCryptoIconPriceChange.positivePrice()
+                    tvAdapterCryptoTextPriceChange.positivePrice()
+                } else {
+                    ivAdapterCryptoIconPriceChange.negativePrice()
+                    tvAdapterCryptoTextPriceChange.negativePrice()
+                }
             }
         }
     }
 
     class AdBannerListMarketViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+    class LoadMoreListMarketViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val bindingLoadMore = AdapterLoadMoreBinding.bind(itemView)
+    }
 }

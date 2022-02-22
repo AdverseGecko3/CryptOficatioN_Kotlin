@@ -22,6 +22,7 @@ import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter
 import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter.OnCryptoClickedListener
 import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter.OnSnackbarCreatedListener
+import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter.OnLoadMoreClickedListener
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
 import com.kotlin.cryptofication.data.model.Crypto
@@ -32,7 +33,7 @@ import com.kotlin.cryptofication.ui.viewmodel.MarketViewModel
 import com.kotlin.cryptofication.utilities.*
 
 class FragmentMarket : Fragment(), SelectedChangeListener,
-    OnCryptoClickedListener, OnSnackbarCreatedListener {
+    OnCryptoClickedListener, OnSnackbarCreatedListener, OnLoadMoreClickedListener {
 
     private var _binding: FragmentMarketBinding? = null
     private val binding get() = _binding!!
@@ -46,8 +47,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
     private var itemPercentage: MenuItem? = null
     private var itemAscending: MenuItem? = null
     private var itemDescending: MenuItem? = null
-
-    private var cryptoList: ArrayList<Any> = arrayListOf()
+    private var itemSearch: MenuItem? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -101,6 +101,11 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
 
         // SwipeRefreshLayout refresh listener
         binding.srlMarketReload.setOnRefreshListener {
+            // See if searchView is expanded
+            if(itemSearch!!.isActionViewExpanded) {
+                itemSearch!!.collapseActionView()
+            }
+
             // See checked filters
             when {
                 itemMarketCap!!.isChecked -> marketViewModel.orderOption = 0
@@ -131,7 +136,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         marketViewModel.cryptoLiveData.observe(viewLifecycleOwner) { cryptoList ->
             Log.d("FragmentMarket", "Received cryptoList")
 
-            this.cryptoList = ArrayList(cryptoList)
+            marketViewModel.cryptoList = ArrayList(cryptoList)
 
             // Set the cryptoList from API to the adapter
             setListToAdapter()
@@ -164,8 +169,8 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         referencesOptionsMenu(menu)
 
         // Find itemSearch and viewSearch in the toolbar
-        val itemSearch = menu.findItem(R.id.mnSearch)
-        val viewSearch = itemSearch.actionView as SearchView
+        itemSearch = menu.findItem(R.id.mnSearch)
+        val viewSearch = itemSearch!!.actionView as SearchView
         Log.d(
             "onCreateOptionsMenu",
             "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}"
@@ -266,7 +271,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
                 return false
             }
         })
-        itemSearch.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+        itemSearch!!.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 // Open the search
                 Log.d("itemSearch", "Opened search")
@@ -369,11 +374,17 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
     private fun initRecyclerView() {
         // Initialize RecyclerView layout manager and adapter
         rwCryptoAdapter = CryptoListMarketAdapter()
-        binding.rwMarketCryptoList.layoutManager = LinearLayoutManager(context)
-        binding.rwMarketCryptoList.adapter = rwCryptoAdapter
-        binding.rwMarketCryptoList.setHasFixedSize(true)
-        rwCryptoAdapter.setOnCryptoClickedListener(this)
-        rwCryptoAdapter.setOnSnackbarCreatedListener(this)
+        binding.apply {
+            rwMarketCryptoList.layoutManager = LinearLayoutManager(context)
+            rwMarketCryptoList.adapter = rwCryptoAdapter
+            rwMarketCryptoList.setHasFixedSize(true)
+        }
+
+        rwCryptoAdapter.apply {
+            setOnCryptoClickedListener(this@FragmentMarket)
+            setOnSnackbarCreatedListener(this@FragmentMarket)
+            setOnLoadMoreClickedListener(this@FragmentMarket)
+        }
 
         // Attach ItemTouchHelper (swipe items to favorite)
         val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "market")
@@ -402,18 +413,23 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         }
     }
 
+    override fun onLoadMoreClicked() {
+        marketViewModel.onLoadMorePages()
+    }
+
     private fun setListToAdapter() {
         var i = 0
-        while (i <= cryptoList.size) {
+        while (i <= marketViewModel.cryptoList.size) {
             val adView = AdView(requireContext()).apply {
                 adSize = AdSize.BANNER
                 adUnitId = resources.getString(R.string.ADMOB_BANNER_RECYCLERVIEW)
             }
-            cryptoList.add(i, adView)
+            marketViewModel.cryptoList.add(i, adView)
             i += Constants.ITEMS_PER_AD
         }
         loadBannerAds()
-        rwCryptoAdapter.setCryptos(cryptoList)
+        marketViewModel.cryptoList.add(Double)
+        rwCryptoAdapter.setCryptos(marketViewModel.cryptoList)
     }
 
     private fun loadBannerAds() {
@@ -421,11 +437,11 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
     }
 
     private fun loadBannerAd(index: Int) {
-        if (index >= cryptoList.size) {
+        if (index >= marketViewModel.cryptoList.size) {
             return
         }
 
-        val item = cryptoList[index] as? AdView
+        val item = marketViewModel.cryptoList[index] as? AdView
             ?: throw ClassCastException("Expected item at index $index to be a banner ad ad.")
 
         // Set an AdListener on the AdView to wait for the previous banner ad to finish loading before loading the next ad in the items list.
@@ -463,22 +479,28 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         Log.d("initVF", "${marketViewModel.hasAlreadyData}")
         if (cryptoList.isEmpty()) {
             if (!marketViewModel.hasAlreadyData) {
-                binding.clErrorFragmentMarket.visibility = View.VISIBLE
-                binding.vfLoadedFragmentMarket.visibility = View.GONE
-                binding.tvViewFlipperError.text = resources.getString(R.string.VIEWFLIPPER_EMPTY)
-                binding.vSeparator.below(binding.clErrorFragmentMarket)
+                binding.apply {
+                    clErrorFragmentMarket.visibility = View.VISIBLE
+                    vfLoadedFragmentMarket.visibility = View.GONE
+                    tvViewFlipperError.text = resources.getString(R.string.VIEWFLIPPER_EMPTY)
+                    vSeparator.below(binding.clErrorFragmentMarket)
+                }
             }
             return
         }
-        binding.vfLoadedFragmentMarket.visibility = View.VISIBLE
-        binding.clErrorFragmentMarket.visibility = View.GONE
-        binding.vSeparator.below(binding.vfLoadedFragmentMarket)
+        binding.apply {
+            vfLoadedFragmentMarket.visibility = View.VISIBLE
+            clErrorFragmentMarket.visibility = View.GONE
+            vSeparator.below(binding.vfLoadedFragmentMarket)
+        }
 
         val animationIn = AnimationUtils.loadAnimation(mAppContext, R.anim.enter_from_right)
         val animationOut = AnimationUtils.loadAnimation(mAppContext, R.anim.exit_to_left)
-        binding.vfLoadedFragmentMarket.inAnimation = animationIn
-        binding.vfLoadedFragmentMarket.outAnimation = animationOut
-        binding.vfLoadedFragmentMarket.startFlipping()
+        binding.apply {
+            vfLoadedFragmentMarket.inAnimation = animationIn
+            vfLoadedFragmentMarket.outAnimation = animationOut
+            vfLoadedFragmentMarket.startFlipping()
+        }
 
         val cryptoListSorted =
             cryptoList.sortedByDescending { crypto -> crypto.price_change_percentage_24h }
@@ -487,69 +509,74 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         val thirdCrypto = cryptoListSorted[2]
         val userCurrency = mPrefs.getCurrencySymbol()
 
-        binding.tvVFOneLoadedCryptoSymbol.text = firstCrypto.symbol!!.uppercase()
-        var currentPrice = firstCrypto.current_price.customFormattedPrice(userCurrency)
-        binding.tvVFOneLoadedCryptoCurrentPrice.text = currentPrice
-        var priceChange = firstCrypto.price_change_percentage_24h.customFormattedPercentage()
-        binding.tvVFOneLoadedCryptoPriceChange.text = priceChange
-        if (firstCrypto.price_change_percentage_24h >= 0) {
-            binding.ivVFOneLoadedCryptoPriceChange.positivePrice()
-            binding.tvVFOneLoadedCryptoCurrentPrice.positivePrice()
-            binding.tvVFOneLoadedCryptoPriceChange.positivePrice()
-        } else {
-            binding.ivVFOneLoadedCryptoPriceChange.negativePrice()
-            binding.tvVFOneLoadedCryptoCurrentPrice.negativePrice()
-            binding.tvVFOneLoadedCryptoPriceChange.negativePrice()
+        binding.apply {
+            tvVFOneLoadedCryptoSymbol.text = firstCrypto.symbol!!.uppercase()
+            val currentPrice = firstCrypto.current_price.customFormattedPrice(userCurrency)
+            tvVFOneLoadedCryptoCurrentPrice.text = currentPrice
+            val priceChange = firstCrypto.price_change_percentage_24h.customFormattedPercentage()
+            tvVFOneLoadedCryptoPriceChange.text = priceChange
+            if (firstCrypto.price_change_percentage_24h >= 0) {
+                ivVFOneLoadedCryptoPriceChange.positivePrice()
+                tvVFOneLoadedCryptoCurrentPrice.positivePrice()
+                tvVFOneLoadedCryptoPriceChange.positivePrice()
+            } else {
+                ivVFOneLoadedCryptoPriceChange.negativePrice()
+                tvVFOneLoadedCryptoCurrentPrice.negativePrice()
+                tvVFOneLoadedCryptoPriceChange.negativePrice()
+            }
+            clViewFlipperOneLoadedFragmentMarket.setOnClickListener {
+                val bundle = bundleOf("selectedCrypto" to firstCrypto)
+                findNavController()
+                    .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
+            }
         }
-        binding.clViewFlipperOneLoadedFragmentMarket.setOnClickListener {
-            val bundle = bundleOf("selectedCrypto" to firstCrypto)
-            findNavController()
-                .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
+        binding.apply {
+            tvVFTwoLoadedCryptoSymbol.text = secondCrypto.symbol!!.uppercase()
+            val currentPrice = secondCrypto.current_price.customFormattedPrice(userCurrency)
+            tvVFTwoLoadedCryptoCurrentPrice.text = currentPrice
+            val priceChange = secondCrypto.price_change_percentage_24h.customFormattedPercentage()
+            tvVFTwoLoadedCryptoPriceChange.text = priceChange
+            if (secondCrypto.price_change_percentage_24h >= 0) {
+                ivVFTwoLoadedCryptoPriceChange.positivePrice()
+                tvVFTwoLoadedCryptoCurrentPrice.positivePrice()
+                tvVFTwoLoadedCryptoPriceChange.positivePrice()
+            } else {
+                ivVFTwoLoadedCryptoPriceChange.negativePrice()
+                tvVFTwoLoadedCryptoCurrentPrice.negativePrice()
+                tvVFTwoLoadedCryptoPriceChange.negativePrice()
+            }
+            clViewFlipperTwoLoadedFragmentMarket.setOnClickListener {
+                val bundle = bundleOf("selectedCrypto" to secondCrypto)
+                findNavController()
+                    .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
+            }
         }
 
-        binding.tvVFTwoLoadedCryptoSymbol.text = secondCrypto.symbol!!.uppercase()
-        currentPrice = secondCrypto.current_price.customFormattedPrice(userCurrency)
-        binding.tvVFTwoLoadedCryptoCurrentPrice.text = currentPrice
-        priceChange = secondCrypto.price_change_percentage_24h.customFormattedPercentage()
-        binding.tvVFTwoLoadedCryptoPriceChange.text = priceChange
-        if (secondCrypto.price_change_percentage_24h >= 0) {
-            binding.ivVFTwoLoadedCryptoPriceChange.positivePrice()
-            binding.tvVFTwoLoadedCryptoCurrentPrice.positivePrice()
-            binding.tvVFTwoLoadedCryptoPriceChange.positivePrice()
-        } else {
-            binding.ivVFTwoLoadedCryptoPriceChange.negativePrice()
-            binding.tvVFTwoLoadedCryptoCurrentPrice.negativePrice()
-            binding.tvVFTwoLoadedCryptoPriceChange.negativePrice()
-        }
-        binding.clViewFlipperTwoLoadedFragmentMarket.setOnClickListener {
-            val bundle = bundleOf("selectedCrypto" to secondCrypto)
-            findNavController()
-                .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
-        }
-
-        binding.tvVFThreeLoadedCryptoSymbol.text = thirdCrypto.symbol!!.uppercase()
-        currentPrice = thirdCrypto.current_price.customFormattedPrice(userCurrency)
-        binding.tvVFThreeLoadedCryptoCurrentPrice.text = currentPrice
-        priceChange = thirdCrypto.price_change_percentage_24h.customFormattedPercentage()
-        binding.tvVFThreeLoadedCryptoPriceChange.text = priceChange
-        if (thirdCrypto.price_change_percentage_24h >= 0) {
-            binding.ivVFThreeLoadedCryptoPriceChange.positivePrice()
-            binding.tvVFThreeLoadedCryptoCurrentPrice.positivePrice()
-            binding.tvVFThreeLoadedCryptoPriceChange.positivePrice()
-        } else {
-            binding.ivVFThreeLoadedCryptoPriceChange.negativePrice()
-            binding.tvVFThreeLoadedCryptoCurrentPrice.negativePrice()
-            binding.tvVFThreeLoadedCryptoPriceChange.negativePrice()
-        }
-        binding.clViewFlipperThreeLoadedFragmentMarket.setOnClickListener {
-            val bundle = bundleOf("selectedCrypto" to thirdCrypto)
-            findNavController()
-                .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
+        binding.apply {
+            tvVFThreeLoadedCryptoSymbol.text = thirdCrypto.symbol!!.uppercase()
+            val currentPrice = thirdCrypto.current_price.customFormattedPrice(userCurrency)
+            tvVFThreeLoadedCryptoCurrentPrice.text = currentPrice
+            val priceChange = thirdCrypto.price_change_percentage_24h.customFormattedPercentage()
+            tvVFThreeLoadedCryptoPriceChange.text = priceChange
+            if (thirdCrypto.price_change_percentage_24h >= 0) {
+                ivVFThreeLoadedCryptoPriceChange.positivePrice()
+                tvVFThreeLoadedCryptoCurrentPrice.positivePrice()
+                tvVFThreeLoadedCryptoPriceChange.positivePrice()
+            } else {
+                ivVFThreeLoadedCryptoPriceChange.negativePrice()
+                tvVFThreeLoadedCryptoCurrentPrice.negativePrice()
+                tvVFThreeLoadedCryptoPriceChange.negativePrice()
+            }
+            clViewFlipperThreeLoadedFragmentMarket.setOnClickListener {
+                val bundle = bundleOf("selectedCrypto" to thirdCrypto)
+                findNavController()
+                    .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
+            }
         }
     }
 
     override fun onResume() {
-        for (item in cryptoList) {
+        for (item in marketViewModel.cryptoList) {
             if (item is AdView) {
                 item.resume()
             }
@@ -558,7 +585,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
     }
 
     override fun onPause() {
-        for (item in cryptoList) {
+        for (item in marketViewModel.cryptoList) {
             if (item is AdView) {
                 item.pause()
             }
@@ -567,7 +594,8 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
     }
 
     override fun onDestroy() {
-        for (item in cryptoList) {
+        _binding = null
+        for (item in marketViewModel.cryptoList) {
             if (item is AdView) {
                 item.destroy()
             }

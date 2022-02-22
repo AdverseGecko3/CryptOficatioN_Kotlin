@@ -7,5 +7,5 @@ class GetCryptoMarketOnlineUseCase {
 
     private val repository = CryptoRepository()
 
-    suspend operator fun invoke(): List<Crypto> = repository.getAllCryptoMarket()
+    suspend operator fun invoke(page: Int = 1): List<Crypto> = repository.getAllCryptoMarket(page)
 }

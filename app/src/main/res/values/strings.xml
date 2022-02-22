@@ -45,6 +45,7 @@
     <string name="CONFIRMATION_EXIT">Are you sure you want to exit?</string>
     <string name="NO">No</string>
     <string name="YES">Yes</string>
+    <string name="LOAD_MORE">Load more</string>
     <string name="ABOUT_INFO">Hi, my Name is Eric Barrero, and I\'m a student from Barcelona, Spain.\n
         This is my first "big" personal project, were I learnt how to implement some things I did not studied in school.
         It\'s not that big and complex, but for a rookie like me is a good starting point!\n\n
