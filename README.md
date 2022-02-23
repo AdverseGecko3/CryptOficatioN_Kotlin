@@ -16,11 +16,15 @@ But now, let me introduce you. I'm Eric Barrero, and this app is a sample of my 
 
 **- MVVM Architecture:** I started to learn clean architecture, and MVVM was my choice.
 
-**-Room:** In order to save favorite cryptos, Room local database is perfect.
+**- Room:** In order to save favorite cryptos, Room local database is perfect.
 
-**-Coroutines:** To make Asynchronous processes such as doing tasks in the background, making an API call, or getting values in Room, coroutines are the way to go.
+**- Coroutines:** To make Asynchronous processes such as doing tasks in the background, making an API call, or getting values in Room, coroutines are the way to go.
+
+**- ViewBinding:** For a better code comprehension, and also a cleaner one, ViewBinding is used to get the views from the XML file.
 
 **- API communication:** This app uses CoinGecko Free API, and thanks to Retrofit, the API communicates to this app via JSON.
+
+**- Splash Screen:** When app starts, a Splash Screen appears (made with layer-list).
 
 **- RecyclerView:** To ensure that the app is efficient when displaying the cryptos, the dynamic list RecyclerView is perfect.
 
@@ -30,10 +34,13 @@ But now, let me introduce you. I'm Eric Barrero, and this app is a sample of my 
 
 **- MPAndroidChart:** To give the user a grahic representation of the last 7 days price of a crypto, MPAndroidChart is the perfect library to display the graphs.
 
+**- Glide:** To display crypto icons, Glide is used to load the images URLs provided by CoinGecko API.
+
 **- XML design:** CryptOficatioN uses ConstraintLayout, to ensure that the UI is fully responsive.
 
+**- Notifications:** The user can set the time when he wants to receive the notifications. At that hour a service will call the API, format the data, and send a notification.
 
 
 Currently working on:
 
-**- Implement the notifications:** The user can set the time when he wants to receive the notifications. At that hour a service will call the API, format the data, and send a notification.
+**- Monetization:** Currently working on the implementation of Google AdMob, in order to monetize the app.
