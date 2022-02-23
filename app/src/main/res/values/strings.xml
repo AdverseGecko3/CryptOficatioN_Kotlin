@@ -13,6 +13,7 @@
     <string name="HOLDER_CRYPTO_LOW_24H">9999</string>
     <string name="HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H">99%</string>
     <string name="HOLDER_CRYPTO_PRICE_CHANGE_24H">99.99</string>
+    <string name="HOLDER_APP_VERSION">VX.X.X</string>
     <!--endregion-->
 
     <!--region STRINGS NORMAL-->
@@ -36,6 +37,7 @@
     <string name="CURRENCY_DOLLAR">$</string>
     <string name="CURRENCY">Currency</string>
     <string name="ALERT_TIME">Alert time</string>
+    <string name="VERSION">App version</string>
     <string name="COLOR_SCHEME">Color Scheme</string>
     <string name="ABOUT">About</string>
     <string name="MARKET">Market</string>
@@ -43,6 +45,7 @@
     <string name="CONFIRMATION_EXIT">Are you sure you want to exit?</string>
     <string name="NO">No</string>
     <string name="YES">Yes</string>
+    <string name="LOAD_MORE">Load more</string>
     <string name="ABOUT_INFO">Hi, my Name is Eric Barrero, and I\'m a student from Barcelona, Spain.\n
         This is my first "big" personal project, were I learnt how to implement some things I did not studied in school.
         It\'s not that big and complex, but for a rookie like me is a good starting point!\n\n
@@ -50,12 +53,15 @@
     <string name="LINKEDIN">LinkedIn</string>
     <string name="INSTAGRAM">Instagram</string>
     <string name="TWITTER">Twitter</string>
-    <string name="CREDITS_ICONS">LinkedIn, Instagram and Twitter icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a>
-        \n\nBell icon downloaded from <a href="https://icons8.com">www.icons8.com</a></string>
+    <string name="CREDITS">LinkedIn, Instagram and Twitter icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a>
+        \n\nBell icon downloaded from <a href="https://icons8.com">www.icons8.com</a>
+        \n\nData provided by <a href="http://www.coingecko.com">www.coingecko.com</a></string>
     <string name="CONTENT_CRYPTO_IMAGE">Icon of the Crypto coin</string>
     <string name="CONTENT_CRYPTO_STATUS">Icon indicating positive or negative price on the last 24 hours</string>
     <string name="CONTENT_ALERT_SETTINGS">Settings icon</string>
-    <string name="RECYCLERVIEW_EMPTY">No crypto has been added as favorites!\nHead over to the Market and swipe a crypto to add it here</string>
+    <string name="RECYCLERVIEW_EMPTY">No crypto has been added as favorites!\nHead over to the Markets tab and swipe a crypto to add it here</string>
+    <string name="VIEWFLIPPER_EMPTY">No data loaded. Please, check your internet connection and pull down to refresh</string>
+    <string name="LOADING_DATA">Loading data…</string>
     <string name="XIAOMI_CHECK_TITLE">Xiaomi Check</string>
     <string name="XIAOMI_CHECK_TEXT">We detected that you have a Xiaomi device (Xiaomi, Mi, Redmi, Poco, etc.) running MIUI.
         \n\nIf you want to receive daily notifications, you should activate \'Autostart\' permission and deactivate MIUI battery optimization.
@@ -99,6 +105,11 @@
     <string name="FILTER_ORDER">Filter Order</string>
     <string name="FILTER_ASCENDING">Ascending</string>
     <string name="FILTER_DESCENDING">Descending</string>
+    <!--endregion-->
+
+    <!--region SETTINGS-->
+    <string name="ADMOB_METADATA">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="ADMOB_BANNER_RECYCLERVIEW">ca-app-pub-3940256099942544/6300978111</string>
     <!--endregion-->
 
     <!--region SETTINGS-->

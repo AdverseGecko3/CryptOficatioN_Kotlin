@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 
 class AlertsViewModel: ViewModel() {
-    val cryptoLiveData = MutableLiveData<List<Crypto>>()
+    val cryptoLiveData = MutableLiveData<List<Any>>()
     val isLoading = MutableLiveData<Boolean>()
     val error = MutableLiveData<String>()
 
@@ -40,7 +40,7 @@ class AlertsViewModel: ViewModel() {
                 if (!result.isNullOrEmpty()) {
                     // Sort cryptoList with the desired filters and post the list
                     result = sortCryptoList(result)
-                    cryptoLiveData.postValue(result)
+                    cryptoLiveData.postValue(result as List<Any>)
                 } else {
                     // Send error to show a toast
                     error.postValue("Error while getting cryptos Online!")
@@ -48,7 +48,6 @@ class AlertsViewModel: ViewModel() {
             } else {
                 cryptoLiveData.postValue(emptyList())
             }
-
             // Stop refreshing
             isLoading.postValue(false)
         }
@@ -60,11 +59,10 @@ class AlertsViewModel: ViewModel() {
 
         // Get Cryptos from the provider (online)
         var result = getCryptoOfflineUseCase()
-        Log.d("onFilterChangeViewModel", "Result: $result")
         if (!result.isNullOrEmpty()) {
             // Sort cryptoList with the desired filters and post the list
             result = sortCryptoList(result)
-            cryptoLiveData.postValue(result)
+            cryptoLiveData.postValue(result as List<Any>)
 
             // Stop refreshing
             isLoading.postValue(false)
@@ -85,7 +83,6 @@ class AlertsViewModel: ViewModel() {
         when (orderOption) {
             0 -> {
                 // Ordered by change percentage
-                Log.d("changeSortRecyclerView", "Sort by market cap")
                 return if (orderFilter == 0) {
                     // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.market_cap_rank }
@@ -96,7 +93,6 @@ class AlertsViewModel: ViewModel() {
             }
             1 -> {
                 // Ordered by symbol
-                Log.d("changeSortRecyclerView", "Sort by symbol")
                 return if (orderFilter == 0) {
                     // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.symbol }
@@ -107,7 +103,6 @@ class AlertsViewModel: ViewModel() {
             }
             2 -> {
                 // Ordered by name
-                Log.d("changeSortRecyclerView", "Sort by name")
                 return if (orderFilter == 0) {
                     // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.name }
@@ -118,7 +113,6 @@ class AlertsViewModel: ViewModel() {
             }
             3 -> {
                 // Ordered by price
-                Log.d("changeSortRecyclerView", "Sort by price")
                 return if (orderFilter == 0) {
                     // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.current_price }
@@ -129,7 +123,6 @@ class AlertsViewModel: ViewModel() {
             }
             4 -> {
                 // Ordered by change percentage
-                Log.d("changeSortRecyclerView", "Sort by percentage")
                 return if (orderFilter == 0) {
                     // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.price_change_percentage_24h }

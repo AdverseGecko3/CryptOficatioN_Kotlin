@@ -5,6 +5,8 @@
       <map>
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/drawable-v24/color_nav.xml" value="0.30925925925925923" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/drawable-v24/dialog_round.xml" value="0.3769230769230769" />
+        <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/drawable-v24/ic_arrow_down.xml" value="0.228" />
+        <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/drawable-v24/ic_arrow_drop_down.xml" value="0.228" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/drawable-v24/ic_arrow_drop_up.xml" value="0.3769230769230769" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/drawable-v24/ic_broken_image.xml" value="0.3769230769230769" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/drawable-v24/ic_launcher_background.xml" value="0.3769230769230769" />
@@ -31,7 +33,12 @@
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/activity_main.xml" value="0.2997159090909091" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/activity_splash.xml" value="0.33" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/adapter_alert_crypto_list.xml" value="0.36666666666666664" />
+        <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/adapter_banner_ad.xml" value="0.3625" />
+        <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/adapter_crypto.xml" value="0.5" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/adapter_crypto_list.xml" value="0.36666666666666664" />
+        <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/adapter_load_more.xml" value="0.3625" />
+        <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/adapter_loading.xml" value="0.3625" />
+        <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/adapter_market_banner_ad.xml" value="0.3625" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/adapter_market_crypto_list.xml" value="0.36666666666666664" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/crypto_detail_dialog.xml" value="0.36666666666666664" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/dialog_about.xml" value="0.2957427536231884" />
@@ -40,7 +47,7 @@
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/dialog_xiaomi_check.xml" value="0.3625" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/fragment_alerts.xml" value="0.36666666666666664" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/fragment_crypto_detail.xml" value="0.36666666666666664" />
-        <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/fragment_market.xml" value="0.36666666666666664" />
+        <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/fragment_market.xml" value="0.33" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/layout/toolbar_home.xml" value="0.20520833333333333" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/menu/bottom_nav.xml" value="0.36666666666666664" />
         <entry key="..\:/OneDrive/OneDrive - Centre d'Estudis Monlau/Proyectos/Android/CryptOficatioN Kotlin/app/src/main/res/menu/menu.xml" value="0.36666666666666664" />

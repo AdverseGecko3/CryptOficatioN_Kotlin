@@ -3,7 +3,6 @@ package com.kotlin.cryptofication.ui.view
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,7 +59,7 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
                 "+${selectedCrypto!!.price_change_24h.customFormattedPrice(userCurrency)}"
             } else {
                 binding.tvFragmentCryptoDetailPriceChange24h.negativePrice()
-                "-${selectedCrypto!!.price_change_24h.customFormattedPrice(userCurrency)}"
+                selectedCrypto!!.price_change_24h.customFormattedPrice(userCurrency)
             }
         }
         binding.tvFragmentCryptoDetailPrice.text =
@@ -114,30 +113,27 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
             binding.bcFragmentCryptoDetailLine.highlightValue(null)
             binding.tvFragmentCryptoDetailPrice.text =
                 selectedCrypto!!.current_price.customFormattedPrice(userCurrency)
+            val bottomSheetDialog = dialog as BottomSheetDialog
+            val bottomSheetBehavior = bottomSheetDialog.behavior
+            bottomSheetBehavior.isDraggable = true
             false
         }
 
         binding.tvFragmentCryptoDetailPriceHigh7d.text =
-            binding.bcFragmentCryptoDetailLine.yChartMax.toDouble()
+            selectedCrypto!!.sparkline_in_7d!!.price.maxOrNull()!!
                 .customFormattedPrice(userCurrency)
         binding.tvFragmentCryptoDetailPriceLow7d.text =
-            binding.bcFragmentCryptoDetailLine.yChartMin.toDouble()
+            selectedCrypto!!.sparkline_in_7d!!.price.minOrNull()!!
                 .customFormattedPrice(userCurrency)
 
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onValueSelected(e: Entry?, h: Highlight?) {
         val bottomSheetDialog = dialog as BottomSheetDialog
         val bottomSheetBehavior = bottomSheetDialog.behavior
         bottomSheetBehavior.isDraggable = false
-
-    }
-
-    override fun onValueSelected(e: Entry?, h: Highlight?) {
-        Log.d("onValue", h!!.y.toString())
-        binding.tvFragmentCryptoDetailPrice.text = h.y.toDouble().customFormattedPrice(userCurrency)
+        binding.tvFragmentCryptoDetailPrice.text = h!!.y.toDouble().customFormattedPrice(userCurrency)
     }
 
     override fun onNothingSelected() {

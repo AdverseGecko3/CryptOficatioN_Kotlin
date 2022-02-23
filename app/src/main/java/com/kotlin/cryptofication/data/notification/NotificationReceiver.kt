@@ -97,7 +97,6 @@ class NotificationReceiver : BroadcastReceiver() {
     private suspend fun loadData(): List<Crypto> {
         var result: List<Crypto> = emptyList()
         do {
-            Log.d("NotifServ", "Entered do-while")
             try {
                 // Get Cryptos from the API (online)
                 result = getCryptoOnlineUseCase()

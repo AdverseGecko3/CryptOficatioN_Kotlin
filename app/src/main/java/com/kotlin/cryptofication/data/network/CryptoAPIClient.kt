@@ -12,7 +12,7 @@ interface CryptoAPIClient {
     @GET("coins/markets")
     suspend fun getMarketCryptoList(
         @Query("vs_currency") currency: String, @Query("per_page") perPage: String,
-        @Query("sparkline") sparkline: String
+        @Query("sparkline") sparkline: String, @Query("page") page: Int
     ): Response<List<Crypto>>
 
     /* Required params: ids, vs_currency, order, per_page, page, sparkline

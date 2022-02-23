@@ -7,7 +7,9 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
 import android.view.HapticFeedbackConstants
+import android.view.View
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -125,4 +127,8 @@ fun AlertDialog.setCustomButtonStyle(type: Int = 0) {
     layoutParams.gravity = Gravity.CENTER
 
     btnDismiss.layoutParams = layoutParams*/
+}
+
+fun View.below(view: View) {
+    (this.layoutParams as? RelativeLayout.LayoutParams)?.addRule(RelativeLayout.BELOW, view.id)
 }

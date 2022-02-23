@@ -15,7 +15,7 @@ import java.io.InputStreamReader
 import java.net.SocketTimeoutException
 
 class MarketViewModel: ViewModel() {
-    val cryptoLiveData = MutableLiveData<List<Crypto>>()
+    val cryptoLiveData = MutableLiveData<List<Any>>()
     val isLoading = MutableLiveData<Boolean>()
     val error = MutableLiveData<String>()
 
@@ -23,14 +23,19 @@ class MarketViewModel: ViewModel() {
     var orderOption = 0
     var orderFilter = 0
     var lastSelectedFilterItem = 0
+    var hasAlreadyData = false
+    private var page = 1
 
     var getCryptoOnlineUseCase = GetCryptoMarketOnlineUseCase()
     var getCryptoOfflineUseCase = GetCryptoMarketOfflineUseCase()
+
+    var cryptoList: ArrayList<Any> = arrayListOf()
 
     fun onCreate() {
         viewModelScope.launch {
             // Start refreshing
             isLoading.postValue(true)
+            page = 1
             var result: List<Crypto> = emptyList()
             try {
                 // Get Cryptos from the API (online)
@@ -39,21 +44,44 @@ class MarketViewModel: ViewModel() {
             } catch (e: SocketTimeoutException) {
                 e.printStackTrace()
             }
-
             if (!result.isNullOrEmpty()) {
                 // Sort cryptoList with the desired filters and post the list
                 result = sortCryptoList(result)
-                cryptoLiveData.postValue(result)
-
-                // Stop refreshing
-                isLoading.postValue(false)
+                cryptoLiveData.postValue(result as List<Any>)
+                hasAlreadyData = true
             } else {
                 // Send error to show a toast
                 error.postValue("Error while getting cryptos Online!")
-
-                // Stop refreshing
-                isLoading.postValue(false)
             }
+            // Stop refreshing
+            isLoading.postValue(false)
+        }
+    }
+
+    fun onLoadMorePages() {
+        viewModelScope.launch {
+            // Start refreshing
+            isLoading.postValue(true)
+            page++
+            var result: List<Crypto> = emptyList()
+            try {
+                // Get Cryptos from the API (online)
+                result = getCryptoOnlineUseCase(page)
+                Log.d("onCreateViewModel", "Result: $result")
+            } catch (e: SocketTimeoutException) {
+                e.printStackTrace()
+            }
+            if (!result.isNullOrEmpty()) {
+                // Sort cryptoList with the desired filters and post the list
+                result = sortCryptoList(result)
+                cryptoLiveData.postValue(result as List<Any>)
+                hasAlreadyData = true
+            } else {
+                // Send error to show a toast
+                error.postValue("Error while getting cryptos Online!")
+            }
+            // Stop refreshing
+            isLoading.postValue(false)
         }
     }
 
@@ -63,11 +91,10 @@ class MarketViewModel: ViewModel() {
 
         // Get Cryptos from the provider (online)
         var result = getCryptoOfflineUseCase()
-        Log.d("onFilterChangeViewModel", "Result: $result")
         if (!result.isNullOrEmpty()) {
             // Sort cryptoList with the desired filters and post the list
             result = sortCryptoList(result)
-            cryptoLiveData.postValue(result)
+            cryptoLiveData.postValue(result as List<Any>)
 
             // Stop refreshing
             isLoading.postValue(false)
@@ -88,7 +115,6 @@ class MarketViewModel: ViewModel() {
         when (orderOption) {
             0 -> {
                 // Ordered by change percentage
-                Log.d("changeSortRecyclerView", "Sort by market cap")
                 return if (orderFilter == 0) {
                     // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.market_cap_rank }
@@ -99,7 +125,6 @@ class MarketViewModel: ViewModel() {
             }
             1 -> {
                 // Ordered by symbol
-                Log.d("changeSortRecyclerView", "Sort by symbol")
                 return if (orderFilter == 0) {
                     // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.symbol }
@@ -110,7 +135,6 @@ class MarketViewModel: ViewModel() {
             }
             2 -> {
                 // Ordered by name
-                Log.d("changeSortRecyclerView", "Sort by name")
                 return if (orderFilter == 0) {
                     // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.name }
@@ -121,7 +145,6 @@ class MarketViewModel: ViewModel() {
             }
             3 -> {
                 // Ordered by price
-                Log.d("changeSortRecyclerView", "Sort by price")
                 return if (orderFilter == 0) {
                     // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.current_price }
@@ -132,7 +155,6 @@ class MarketViewModel: ViewModel() {
             }
             4 -> {
                 // Ordered by change percentage
-                Log.d("changeSortRecyclerView", "Sort by percentage")
                 return if (orderFilter == 0) {
                     // Order ascending
                     cryptoList.sortedBy { crypto -> crypto.price_change_percentage_24h }
@@ -148,10 +170,11 @@ class MarketViewModel: ViewModel() {
     }
 
     fun isMiUi(): Boolean {
-        return !TextUtils.isEmpty(getSystemProperty("ro.miui.ui.version.name"))
+        return !TextUtils.isEmpty(getSystemProperty())
     }
 
-    private fun getSystemProperty(propName: String): String? {
+    private fun getSystemProperty(): String? {
+        val propName = "ro.miui.ui.version.name"
         val line: String
         var input: BufferedReader? = null
         try {

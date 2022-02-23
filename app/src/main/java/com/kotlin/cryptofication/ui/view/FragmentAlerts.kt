@@ -13,20 +13,24 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.ads.*
+import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter
-import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoClickListener
-import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoEmptyListener
+import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoClickedListener
+import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoEmptiedListener
+import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnSnackbarCreatedListener
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
-import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.databinding.FragmentAlertsBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.viewmodel.AlertsViewModel
+import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.utilities.showToast
+import java.lang.IllegalArgumentException
 
 class FragmentAlerts : Fragment(), SelectedChangeListener,
-    OnCryptoClickListener, OnCryptoEmptyListener {
+    OnCryptoClickedListener, OnCryptoEmptiedListener, OnSnackbarCreatedListener {
 
     private var _binding: FragmentAlertsBinding? = null
     private val binding get() = _binding!!
@@ -40,6 +44,9 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
     private var itemPercentage: MenuItem? = null
     private var itemAscending: MenuItem? = null
     private var itemDescending: MenuItem? = null
+    private var itemSearch: MenuItem? = null
+
+    private var cryptoList: ArrayList<Any> = arrayListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,6 +70,11 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
 
         // SwipeRefreshLayout refresh listener
         binding.srlAlertsReload.setOnRefreshListener {
+            // See if searchView is expanded
+            if(itemSearch!!.isActionViewExpanded) {
+                itemSearch!!.collapseActionView()
+            }
+
             // See checked filters
             when {
                 itemMarketCap!!.isChecked -> alertsViewModel.orderOption = 0
@@ -83,22 +95,24 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         // Swipe refresh customization
         binding.srlAlertsReload.setColorSchemeResources(R.color.purple_app_accent)
 
-        alertsViewModel.isLoading.observe(requireActivity()) { isLoading ->
+        alertsViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             Log.d("FragmentAlerts", "isLoading changed to $isLoading")
 
             // Set refreshing depending isLoading boolean in ViewModel
             binding.srlAlertsReload.isRefreshing = isLoading
         }
 
-        alertsViewModel.cryptoLiveData.observe(requireActivity()) { cryptoList ->
-            Log.d("FragmentMarket", "Received cryptoList")
+        alertsViewModel.cryptoLiveData.observe(viewLifecycleOwner) { cryptoList ->
+            Log.d("FragmentAlerts", "Received cryptoList")
+
+            this.cryptoList = ArrayList(cryptoList)
 
             // Set the cryptoList from API to the adapter
-            setListToAdapter(cryptoList)
+            setListToAdapter()
         }
 
-        alertsViewModel.error.observe(requireActivity()) { errorMessage ->
-            Log.d("FragmentMarket", "Error message")
+        alertsViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            Log.d("FragmentAlerts", "Error message")
 
             // Show toast when result is empty/null on ViewModel
             requireContext().showToast(errorMessage)
@@ -106,7 +120,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
 
         // Load crypto data from API now
         binding.srlAlertsReload.post {
-            Log.d("FragmentMarket", "Post SwipeRefresh")
+            Log.d("FragmentAlerts", "Post SwipeRefresh")
             alertsViewModel.onCreate()
         }
 
@@ -119,8 +133,8 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         referencesOptionsMenu(menu)
 
         // Find itemSearch and viewSearch in the toolbar
-        val itemSearch = menu.findItem(R.id.mnSearch)
-        val viewSearch = itemSearch.actionView as SearchView
+        itemSearch = menu.findItem(R.id.mnSearch)
+        val viewSearch = itemSearch!!.actionView as SearchView
         Log.d(
             "onCreateOptionsMenu",
             "orderOption:${alertsViewModel.orderOption} - orderFilter:${alertsViewModel.orderFilter}"
@@ -221,7 +235,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
                 return false
             }
         })
-        itemSearch.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+        itemSearch!!.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 // Open the search
                 Log.d("itemSearch", "Opened search")
@@ -324,11 +338,16 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
     private fun initRecyclerView() {
         // Initialize RecyclerView layout manager and adapter
         rwCryptoAdapter = CryptoListAlertsAdapter()
-        binding.rwAlertsCryptoList.layoutManager = LinearLayoutManager(context)
-        binding.rwAlertsCryptoList.adapter = rwCryptoAdapter
-        binding.rwAlertsCryptoList.setHasFixedSize(true)
-        rwCryptoAdapter.setOnCryptoClickListener(this)
-        rwCryptoAdapter.setOnCryptoEmptyListener(this)
+        binding.apply {
+            rwAlertsCryptoList.layoutManager = LinearLayoutManager(context)
+            rwAlertsCryptoList.adapter = rwCryptoAdapter
+            rwAlertsCryptoList.setHasFixedSize(true)
+        }
+        rwCryptoAdapter.apply {
+            setOnCryptoClickedListener(this@FragmentAlerts)
+            setOnCryptoEmptiedListener(this@FragmentAlerts)
+            setOnSnackbarCreatedListener(this@FragmentAlerts)
+        }
 
         // Attach ItemTouchHelper (swipe items to favorite)
         val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "alerts")
@@ -341,17 +360,42 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
     }
 
     override fun onCryptoClicked(bundle: Bundle) {
-        findNavController().navigate(R.id.action_fragmentAlerts_to_dialogCryptoDetail, bundle)
+        try {
+            findNavController()
+                .navigate(R.id.action_fragmentAlerts_to_dialogCryptoDetail, bundle)
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+            e.message?.let { message -> Log.e("onCryptoClicked", message) }
+        }
     }
 
     override fun onCryptoEmptied(isEmpty: Boolean) {
         changeItemsVisibility(isEmpty)
     }
 
-    private fun setListToAdapter(cryptoList: List<Crypto>) {
+    override fun onSnackbarCreated(snackbar: Snackbar) {
+        snackbar.apply {
+            anchorView = activity?.findViewById(R.id.navBottom)
+            show()
+        }
+    }
+
+    private fun setListToAdapter() {
         if (cryptoList.isNotEmpty()) {
             changeItemsVisibility(false)
+
+            var i = 0
+            while (i <= cryptoList.size) {
+                val adView = AdView(requireContext()).apply {
+                    adSize = AdSize.BANNER
+                    adUnitId = resources.getString(R.string.ADMOB_BANNER_RECYCLERVIEW)
+                }
+                cryptoList.add(i, adView)
+                i += Constants.ITEMS_PER_AD
+            }
+            loadBannerAds()
             rwCryptoAdapter.setCryptos(cryptoList)
+
             if (arguments?.getString("cryptoId") != null) {
                 Log.d("CryptoNotification", "Had cryptoId argument")
                 rwCryptoAdapter.goToCrypto(arguments?.getString("cryptoId")!!)
@@ -362,6 +406,49 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         }
     }
 
+    private fun loadBannerAds() {
+        loadBannerAd(0)
+    }
+
+    private fun loadBannerAd(index: Int) {
+        if (index >= cryptoList.size) {
+            return
+        }
+
+        val item = cryptoList[index] as? AdView
+            ?: throw ClassCastException("Expected item at index $index to be a banner ad ad.")
+
+        // Set an AdListener on the AdView to wait for the previous banner ad to finish loading before loading the next ad in the items list.
+        item.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+                super.onAdLoaded()
+                // The previous banner ad loaded successfully, call this method again to
+                // load the next ad in the items list.
+                loadBannerAd(index + Constants.ITEMS_PER_AD)
+            }
+
+            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                // The previous banner ad failed to load. Call this method again to load
+                // the next ad in the items list.
+                val error = String.format(
+                    "domain: %s, code: %d, message: %s",
+                    loadAdError.domain, loadAdError.code, loadAdError.message
+                )
+                Log.e(
+                    "FragmentMarket",
+                    "The previous banner ad failed to load with error: "
+                            + error
+                            + ". Attempting to"
+                            + " load the next banner ad in the items list."
+                )
+                loadBannerAd(index + Constants.ITEMS_PER_AD)
+            }
+        }
+
+        // Load the banner ad.
+        item.loadAd(AdRequest.Builder().build())
+    }
+
     private fun changeItemsVisibility(isEmpty: Boolean) {
         if (isEmpty) {
             binding.rwAlertsCryptoList.visibility = View.GONE
@@ -370,6 +457,34 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
             binding.rwAlertsCryptoList.visibility = View.VISIBLE
             binding.tvAlertsCryptoListEmpty.visibility = View.GONE
         }
+    }
+
+    override fun onResume() {
+        for (item in cryptoList) {
+            if (item is AdView) {
+                item.resume()
+            }
+        }
+        super.onResume()
+    }
+
+    override fun onPause() {
+        for (item in cryptoList) {
+            if (item is AdView) {
+                item.pause()
+            }
+        }
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        _binding = null
+        for (item in cryptoList) {
+            if (item is AdView) {
+                item.destroy()
+            }
+        }
+        super.onDestroy()
     }
 
     private fun referencesOptionsMenu(menu: Menu) {

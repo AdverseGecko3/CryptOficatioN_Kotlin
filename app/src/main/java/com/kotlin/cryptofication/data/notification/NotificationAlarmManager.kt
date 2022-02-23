@@ -31,6 +31,7 @@ class NotificationAlarmManager(context: Context) {
 
     @SuppressLint("SimpleDateFormat")
     fun launchAlarmManager() {
+        Log.d("NotifServ", "Launched Alarm Manager")
         //deleteAlarmManager()
         val userAlarm = mPrefs.getAlertTime()
         val userAlarmParts = userAlarm.split(":")
@@ -41,19 +42,14 @@ class NotificationAlarmManager(context: Context) {
         calendarUser.set(Calendar.SECOND, 0)
         calendarUser.set(Calendar.MILLISECOND, 0)
 
-        Log.d("NotifServ", "${calendarNow.time} - ${calendarUser.time}")
-
         if ((calendarUser.timeInMillis + 5000) < calendarNow.timeInMillis) {
             calendarUser.add(Calendar.DAY_OF_MONTH, 1)
             Log.d("NotifServ", "Added 1 day")
-            Log.d("NotifServ", "${calendarNow.time} - ${calendarUser.time}")
             Log.d(
                 "NotifServ",
                 "${calendarNow.timeInMillis} - ${calendarUser.timeInMillis}"
             )
         }
-
-        Log.d("NotifServ", "Tamo activo")
 
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
@@ -65,6 +61,7 @@ class NotificationAlarmManager(context: Context) {
 
     @SuppressLint("SimpleDateFormat")
     fun modifyAlarmManager(newTime: String) {
+        Log.d("NotifServ", "Modified Alarm Manager")
         //deleteAlarmManager()
         val userAlarmParts = newTime.split(":")
         val calendarNow = Calendar.getInstance()
@@ -74,19 +71,14 @@ class NotificationAlarmManager(context: Context) {
         calendarUser.set(Calendar.SECOND, 0)
         calendarUser.set(Calendar.MILLISECOND, 0)
 
-        Log.d("NotifServ", "${calendarNow.time} - ${calendarUser.time}")
-
         if ((calendarUser.timeInMillis + 5000) < calendarNow.timeInMillis) {
             calendarUser.add(Calendar.DAY_OF_MONTH, 1)
             Log.d("NotifServ", "Added 1 day")
-            Log.d("NotifServ", "${calendarNow.time} - ${calendarUser.time}")
             Log.d(
                 "NotifServ",
                 "${calendarNow.timeInMillis} - ${calendarUser.timeInMillis}"
             )
         }
-
-        Log.d("NotifServ", "Tamo cambiao")
 
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
@@ -97,7 +89,7 @@ class NotificationAlarmManager(context: Context) {
     }
 
     fun deleteAlarmManager() {
-        Log.d("NotifServ", "Tamo out")
+        Log.d("NotifServ", "Deleted Alarm Manager")
         alarmManager.cancel(pendingIntent)
     }
 }

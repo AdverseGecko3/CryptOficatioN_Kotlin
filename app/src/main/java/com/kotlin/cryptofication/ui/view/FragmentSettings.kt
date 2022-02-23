@@ -17,6 +17,7 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
+import com.kotlin.cryptofication.BuildConfig
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
@@ -33,6 +34,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
     private var spScheme: SwitchPreference? = null
     private var pAbout: Preference? = null
     private var pCredits: Preference? = null
+    private var pVersion: Preference? = null
     private var preferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -231,6 +233,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
         lpItemsPage = findPreference(Constants.PREF_ITEMS_PAGE)
         pAbout = findPreference(Constants.PREF_ABOUT)
         pCredits = findPreference(Constants.PREF_CREDITS)
+        pVersion = findPreference(Constants.PREF_VERSION)
     }
 
     private fun loadPreferences() {
@@ -241,6 +244,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
         lpFilterOrder!!.value = listPreferences[3].toString()
         lpItemsPage!!.value = listPreferences[4].toString()
         pAlertTime!!.summary = listPreferences[5].toString()
+        pVersion!!.summary = BuildConfig.VERSION_NAME
     }
 
     override fun onResume() {

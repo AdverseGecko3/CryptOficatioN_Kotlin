@@ -41,6 +41,10 @@ class Preferences(context: Context) {
         return userPrefs.getBoolean(Constants.PREF_FIRST_RUN, true)
     }
 
+    fun getDBHasItems(): Boolean {
+        return userPrefs.getBoolean(Constants.PREF_DB_HAS_ITEMS, false)
+    }
+
     fun getAllPreferences(): List<Any> {
         val preferences: MutableList<Any> = ArrayList()
 
@@ -97,7 +101,9 @@ class Preferences(context: Context) {
     }
 
     fun setAlertTime(alertTime: String?) {
-        mAlarmManager.modifyAlarmManager(alertTime!!)
+        if (getDBHasItems()) {
+            mAlarmManager.modifyAlarmManager(alertTime!!)
+        }
         userPrefs
             .edit()
             .putString(Constants.PREF_ALERT_TIME, alertTime)
@@ -108,6 +114,13 @@ class Preferences(context: Context) {
         userPrefs
             .edit()
             .putBoolean(Constants.PREF_FIRST_RUN, firstRun)
+            .apply()
+    }
+
+    fun setDBHasItems(DBHasItems: Boolean) {
+        userPrefs
+            .edit()
+            .putBoolean(Constants.PREF_DB_HAS_ITEMS, DBHasItems)
             .apply()
     }
 }
