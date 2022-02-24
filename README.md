@@ -1,7 +1,7 @@
 # CryptOficatioN_Kotlin
 
 <p align="center" width="100%">
-    <img width="33%" src="https://github.com/AdverseGecko3/CryptOficatioN_Kotlin/blob/master/app/src/main/res/drawable-v24/cryptofication_logo_long_white_splash.png">
+    <img width="50%" src="https://github.com/AdverseGecko3/CryptOficatioN_Kotlin/blob/master/app/src/main/res/drawable-v24/CryptOficatioN_logo_long_white.png">
 </p>
 
 This is the Kotlin version of CryptOficatioN, an app that uses CoinGecko API to track the top cryptos!
