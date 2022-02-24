@@ -40,7 +40,8 @@ But now, let me introduce you. I'm Eric Barrero, and this app is a sample of my 
 
 **- Notifications:** The user can set the time when he wants to receive the notifications. At that hour a service will call the API, format the data, and send a notification.
 
+**- Monetization:** This app implements Google AdMob, in order to monetize the app.
 
 Currently working on:
 
-**- Monetization:** Currently working on the implementation of Google AdMob, in order to monetize the app.
+**- Testing:** Currently working on the implementation of tests.
