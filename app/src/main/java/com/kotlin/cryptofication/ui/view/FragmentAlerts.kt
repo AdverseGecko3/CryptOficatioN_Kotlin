@@ -59,11 +59,12 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         setHasOptionsMenu(true)
 
         // Insert custom toolbar
-        (requireActivity() as AppCompatActivity).supportActionBar?.displayOptions =
-            ActionBar.DISPLAY_SHOW_CUSTOM
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowCustomEnabled(true)
-        (requireActivity() as AppCompatActivity).supportActionBar?.setCustomView(R.layout.toolbar_home)
-        (requireActivity() as AppCompatActivity).supportActionBar?.elevation = 10f
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
+            setDisplayShowCustomEnabled(true)
+            setCustomView(R.layout.toolbar_home)
+            elevation = 10f
+        }
 
         //Initialize RecyclerView
         initRecyclerView()

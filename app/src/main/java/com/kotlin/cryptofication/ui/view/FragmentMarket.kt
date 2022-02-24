@@ -60,11 +60,12 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         setHasOptionsMenu(true)
 
         // Insert custom toolbar
-        (requireActivity() as AppCompatActivity).supportActionBar?.displayOptions =
-            ActionBar.DISPLAY_SHOW_CUSTOM
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowCustomEnabled(true)
-        (requireActivity() as AppCompatActivity).supportActionBar?.setCustomView(R.layout.toolbar_home)
-        (requireActivity() as AppCompatActivity).supportActionBar?.elevation = 10f
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
+            setDisplayShowCustomEnabled(true)
+            setCustomView(R.layout.toolbar_home)
+            elevation = 10f
+        }
 
         //Initialize RecyclerView
         initRecyclerView()
@@ -74,12 +75,11 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
             if (marketViewModel.isMiUi()) {
                 // Show Xiaomi optimization warning
                 val builder = AlertDialog.Builder(
-                    requireActivity(),
+                    activity as AppCompatActivity,
                     R.style.CustomAlertDialog
                 )
-                val layInflater = requireActivity().layoutInflater
+                val layInflater = (activity as AppCompatActivity).layoutInflater
 
-                @SuppressLint("InflateParams")
                 val dialogView = layInflater.inflate(R.layout.dialog_xiaomi_check, null)
                 builder.setView(dialogView)
                 builder.setNeutralButton(
@@ -102,7 +102,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         // SwipeRefreshLayout refresh listener
         binding.srlMarketReload.setOnRefreshListener {
             // See if searchView is expanded
-            if(itemSearch!!.isActionViewExpanded) {
+            if (itemSearch!!.isActionViewExpanded) {
                 itemSearch!!.collapseActionView()
             }
 
