@@ -9,8 +9,8 @@ import android.widget.SearchView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.ads.*
@@ -27,15 +27,21 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.viewmodel.AlertsViewModel
 import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.utilities.showToast
+import dagger.hilt.android.AndroidEntryPoint
 import java.lang.IllegalArgumentException
+import javax.inject.Inject
 
-class FragmentAlerts : Fragment(), SelectedChangeListener,
+@AndroidEntryPoint
+class FragmentAlerts :
+    Fragment(), SelectedChangeListener,
     OnCryptoClickedListener, OnCryptoEmptiedListener, OnSnackbarCreatedListener {
+
+    @Inject
+    lateinit var rwCryptoAdapter: CryptoListAlertsAdapter
 
     private var _binding: FragmentAlertsBinding? = null
     private val binding get() = _binding!!
-    private val alertsViewModel: AlertsViewModel by navGraphViewModels(R.id.my_nav)
-    private lateinit var rwCryptoAdapter: CryptoListAlertsAdapter
+    private val alertsViewModel: AlertsViewModel by hiltNavGraphViewModels(R.id.my_nav)
     private lateinit var mItemTouchHelper: ItemTouchHelper
     private var itemMarketCap: MenuItem? = null
     private var itemSymbol: MenuItem? = null
@@ -72,7 +78,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         // SwipeRefreshLayout refresh listener
         binding.srlAlertsReload.setOnRefreshListener {
             // See if searchView is expanded
-            if(itemSearch!!.isActionViewExpanded) {
+            if (itemSearch!!.isActionViewExpanded) {
                 itemSearch!!.collapseActionView()
             }
 
@@ -338,7 +344,6 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
 
     private fun initRecyclerView() {
         // Initialize RecyclerView layout manager and adapter
-        rwCryptoAdapter = CryptoListAlertsAdapter()
         binding.apply {
             rwAlertsCryptoList.layoutManager = LinearLayoutManager(context)
             rwAlertsCryptoList.adapter = rwCryptoAdapter

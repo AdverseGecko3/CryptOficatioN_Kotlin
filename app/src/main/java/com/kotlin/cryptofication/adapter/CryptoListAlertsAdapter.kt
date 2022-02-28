@@ -19,17 +19,21 @@ import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.model.CryptoAlert
+import com.kotlin.cryptofication.data.repos.CryptoAlertRepository
 import com.kotlin.cryptofication.data.repos.CryptoProvider
 import com.kotlin.cryptofication.databinding.AdapterCryptoBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManager
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 import com.kotlin.cryptofication.utilities.*
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CryptoListAlertsAdapter :
+class CryptoListAlertsAdapter @Inject constructor(
+    private val cryptoProvider: CryptoProvider,
+    private val mRoom: CryptoAlertRepository
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     Filterable,
     ITHSwipe {
@@ -193,7 +197,7 @@ class CryptoListAlertsAdapter :
                     // The item wasn't in the database
                     cryptoList.removeAt(position)
                     notifyItemRemoved(position)
-                    CryptoProvider.cryptosAlerts = cleanAdsCryptoList(cryptoList)
+                    cryptoProvider.cryptosAlerts = cleanAdsCryptoList(cryptoList)
                     if (cryptoList.size == 0) {
                         onCryptoEmptiedListener?.onCryptoEmptied(true)
                     }
@@ -210,7 +214,7 @@ class CryptoListAlertsAdapter :
                     // The item has been deleted from the database successfully. Add the action to undo the action
                     cryptoList.removeAt(position)
                     notifyItemRemoved(position)
-                    CryptoProvider.cryptosAlerts = cleanAdsCryptoList(cryptoList)
+                    cryptoProvider.cryptosAlerts = cleanAdsCryptoList(cryptoList)
                     if (savedAlerts == 1) {
                         mAlarmManager.deleteAlarmManager()
                         onCryptoEmptiedListener?.onCryptoEmptied(true)
@@ -245,7 +249,8 @@ class CryptoListAlertsAdapter :
                                             Log.d("itemSwipe", "Crypto: $crypto")
                                             cryptoList.add(position, crypto)
                                             notifyItemInserted(position)
-                                            CryptoProvider.cryptosAlerts = cleanAdsCryptoList(cryptoList)
+                                            cryptoProvider.cryptosAlerts =
+                                                cleanAdsCryptoList(cryptoList)
                                             if (savedAlerts == 1) {
                                                 mAlarmManager.launchAlarmManager()
                                                 onCryptoEmptiedListener?.onCryptoEmptied(false)

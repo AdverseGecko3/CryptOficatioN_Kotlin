@@ -8,13 +8,19 @@ import androidx.lifecycle.viewModelScope
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.domain.GetCryptoMarketOfflineUseCase
 import com.kotlin.cryptofication.domain.GetCryptoMarketOnlineUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.SocketTimeoutException
+import javax.inject.Inject
 
-class MarketViewModel: ViewModel() {
+@HiltViewModel
+class MarketViewModel @Inject constructor(
+    private val getCryptoOnlineUseCase: GetCryptoMarketOnlineUseCase,
+    private val getCryptoOfflineUseCase: GetCryptoMarketOfflineUseCase
+) : ViewModel() {
     val cryptoLiveData = MutableLiveData<List<Any>>()
     val isLoading = MutableLiveData<Boolean>()
     val error = MutableLiveData<String>()
@@ -25,9 +31,6 @@ class MarketViewModel: ViewModel() {
     var lastSelectedFilterItem = 0
     var hasAlreadyData = false
     private var page = 1
-
-    var getCryptoOnlineUseCase = GetCryptoMarketOnlineUseCase()
-    var getCryptoOfflineUseCase = GetCryptoMarketOfflineUseCase()
 
     var cryptoList: ArrayList<Any> = arrayListOf()
 

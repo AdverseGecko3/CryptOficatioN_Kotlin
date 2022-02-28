@@ -21,8 +21,10 @@ import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.setCustomButtonStyle
+import dagger.hilt.android.AndroidEntryPoint
 import java.lang.Exception
 
+@AndroidEntryPoint
 class FragmentSettings : PreferenceFragmentCompat() {
 
     private var lpCurrency: ListPreference? = null

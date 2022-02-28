@@ -1,12 +1,22 @@
-package com.kotlin.cryptofication.core
+package com.kotlin.cryptofication.di
 
+import com.kotlin.cryptofication.data.network.CryptoAPIClient
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 
-object RetrofitHelper {
-    fun getRetrofit(): Retrofit {
+@Module
+@InstallIn(SingletonComponent::class)
+object NetworkModule {
+    @Singleton
+    @Provides
+    fun provideRetrofit(): Retrofit {
         // Build an OkHttpClient for timeouts
         val okHttpClient = OkHttpClient().newBuilder()
             .connectTimeout(10, TimeUnit.SECONDS)
@@ -20,5 +30,11 @@ object RetrofitHelper {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideAPIClient(retrofit: Retrofit): CryptoAPIClient {
+        return retrofit.create(CryptoAPIClient::class.java)
     }
 }

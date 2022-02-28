@@ -28,7 +28,6 @@ import com.kotlin.cryptofication.utilities.positivePrice
 class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedListener {
     private var _binding: DialogCryptoDetailBinding? = null
     private val binding get() = _binding!!
-    private var selectedCrypto: Crypto? = null
     private val userCurrency = mPrefs.getCurrencySymbol()
 
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
@@ -39,35 +38,35 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
     ): View {
         _binding = DialogCryptoDetailBinding.inflate(layoutInflater, container, false)
 
-        selectedCrypto = arguments?.getParcelable("selectedCrypto")
+        val selectedCrypto: Crypto? = arguments?.getParcelable("selectedCrypto")
 
         // Set the data to TextViews
         binding.tvFragmentCryptoDetailName.text = selectedCrypto!!.name
-        binding.tvFragmentCryptoDetailSymbol.text = selectedCrypto!!.symbol!!.uppercase()
+        binding.tvFragmentCryptoDetailSymbol.text = selectedCrypto.symbol!!.uppercase()
         binding.tvFragmentCryptoDetailRank.text =
-            "#${selectedCrypto!!.market_cap_rank}"
+            "#${selectedCrypto.market_cap_rank}"
         binding.tvFragmentCryptoDetailPriceChangePercentage24h.text =
-            selectedCrypto!!.price_change_percentage_24h.customFormattedPercentage()
-        if (selectedCrypto!!.price_change_percentage_24h >= 0) {
+            selectedCrypto.price_change_percentage_24h.customFormattedPercentage()
+        if (selectedCrypto.price_change_percentage_24h >= 0) {
             binding.tvFragmentCryptoDetailPriceChangePercentage24h.positivePrice()
         } else {
             binding.tvFragmentCryptoDetailPriceChangePercentage24h.negativePrice()
         }
         binding.tvFragmentCryptoDetailPriceChange24h.text = run {
-            if (selectedCrypto!!.price_change_24h >= 0) {
+            if (selectedCrypto.price_change_24h >= 0) {
                 binding.tvFragmentCryptoDetailPriceChange24h.positivePrice()
-                "+${selectedCrypto!!.price_change_24h.customFormattedPrice(userCurrency)}"
+                "+${selectedCrypto.price_change_24h.customFormattedPrice(userCurrency)}"
             } else {
                 binding.tvFragmentCryptoDetailPriceChange24h.negativePrice()
-                selectedCrypto!!.price_change_24h.customFormattedPrice(userCurrency)
+                selectedCrypto.price_change_24h.customFormattedPrice(userCurrency)
             }
         }
         binding.tvFragmentCryptoDetailPrice.text =
-            selectedCrypto!!.current_price.customFormattedPrice(userCurrency)
+            selectedCrypto.current_price.customFormattedPrice(userCurrency)
 
         val lineData = arrayListOf<Entry>()
-        for (i in selectedCrypto!!.sparkline_in_7d!!.price.indices) {
-            lineData.add(Entry(i.toFloat(), selectedCrypto!!.sparkline_in_7d!!.price[i].toFloat()))
+        for (i in selectedCrypto.sparkline_in_7d!!.price.indices) {
+            lineData.add(Entry(i.toFloat(), selectedCrypto.sparkline_in_7d!!.price[i].toFloat()))
         }
 
         val lds = LineDataSet(lineData, "LineData")
@@ -112,7 +111,7 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
             binding.bcFragmentCryptoDetailLine.onTouchListener.setLastHighlighted(null)
             binding.bcFragmentCryptoDetailLine.highlightValue(null)
             binding.tvFragmentCryptoDetailPrice.text =
-                selectedCrypto!!.current_price.customFormattedPrice(userCurrency)
+                selectedCrypto.current_price.customFormattedPrice(userCurrency)
             val bottomSheetDialog = dialog as BottomSheetDialog
             val bottomSheetBehavior = bottomSheetDialog.behavior
             bottomSheetBehavior.isDraggable = true
@@ -120,10 +119,10 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
         }
 
         binding.tvFragmentCryptoDetailPriceHigh7d.text =
-            selectedCrypto!!.sparkline_in_7d!!.price.maxOrNull()!!
+            selectedCrypto.sparkline_in_7d!!.price.maxOrNull()!!
                 .customFormattedPrice(userCurrency)
         binding.tvFragmentCryptoDetailPriceLow7d.text =
-            selectedCrypto!!.sparkline_in_7d!!.price.minOrNull()!!
+            selectedCrypto.sparkline_in_7d!!.price.minOrNull()!!
                 .customFormattedPrice(userCurrency)
 
         return binding.root
@@ -133,7 +132,8 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
         val bottomSheetDialog = dialog as BottomSheetDialog
         val bottomSheetBehavior = bottomSheetDialog.behavior
         bottomSheetBehavior.isDraggable = false
-        binding.tvFragmentCryptoDetailPrice.text = h!!.y.toDouble().customFormattedPrice(userCurrency)
+        binding.tvFragmentCryptoDetailPrice.text =
+            h!!.y.toDouble().customFormattedPrice(userCurrency)
     }
 
     override fun onNothingSelected() {

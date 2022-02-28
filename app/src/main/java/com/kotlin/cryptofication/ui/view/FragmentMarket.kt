@@ -12,8 +12,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.ads.*
@@ -31,14 +31,19 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.viewmodel.MarketViewModel
 import com.kotlin.cryptofication.utilities.*
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class FragmentMarket : Fragment(), SelectedChangeListener,
     OnCryptoClickedListener, OnSnackbarCreatedListener, OnLoadMoreClickedListener {
 
+    @Inject
+    lateinit var rwCryptoAdapter: CryptoListMarketAdapter
+
     private var _binding: FragmentMarketBinding? = null
     private val binding get() = _binding!!
-    private val marketViewModel: MarketViewModel by navGraphViewModels(R.id.my_nav)
-    private lateinit var rwCryptoAdapter: CryptoListMarketAdapter
+    private val marketViewModel: MarketViewModel by hiltNavGraphViewModels(R.id.my_nav)
     private lateinit var mItemTouchHelper: ItemTouchHelper
     private var itemMarketCap: MenuItem? = null
     private var itemSymbol: MenuItem? = null
@@ -373,7 +378,6 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
 
     private fun initRecyclerView() {
         // Initialize RecyclerView layout manager and adapter
-        rwCryptoAdapter = CryptoListMarketAdapter()
         binding.apply {
             rwMarketCryptoList.layoutManager = LinearLayoutManager(context)
             rwMarketCryptoList.adapter = rwCryptoAdapter

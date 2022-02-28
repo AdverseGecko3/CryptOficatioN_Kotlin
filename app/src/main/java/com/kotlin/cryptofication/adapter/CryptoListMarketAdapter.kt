@@ -19,18 +19,19 @@ import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.model.CryptoAlert
+import com.kotlin.cryptofication.data.repos.CryptoAlertRepository
 import com.kotlin.cryptofication.databinding.AdapterCryptoBinding
 import com.kotlin.cryptofication.databinding.AdapterLoadMoreBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManager
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 import com.kotlin.cryptofication.utilities.*
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.lang.ClassCastException
+import javax.inject.Inject
 
-class CryptoListMarketAdapter :
+class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlertRepository) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     Filterable,
     ITHSwipe {

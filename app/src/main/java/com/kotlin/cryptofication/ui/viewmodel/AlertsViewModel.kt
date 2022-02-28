@@ -5,13 +5,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kotlin.cryptofication.data.model.Crypto
+import com.kotlin.cryptofication.data.repos.CryptoAlertRepository
 import com.kotlin.cryptofication.domain.GetCryptoAlertsOfflineUseCase
 import com.kotlin.cryptofication.domain.GetCryptoAlertsOnlineUseCase
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
+import javax.inject.Inject
 
-class AlertsViewModel: ViewModel() {
+@HiltViewModel
+class AlertsViewModel @Inject constructor(
+    private val getCryptoOnlineUseCase: GetCryptoAlertsOnlineUseCase,
+    private val getCryptoOfflineUseCase: GetCryptoAlertsOfflineUseCase,
+    private val mRoom: CryptoAlertRepository
+) : ViewModel() {
     val cryptoLiveData = MutableLiveData<List<Any>>()
     val isLoading = MutableLiveData<Boolean>()
     val error = MutableLiveData<String>()
@@ -20,9 +27,6 @@ class AlertsViewModel: ViewModel() {
     var orderOption = 0
     var orderFilter = 0
     var lastSelectedFilterItem = 0
-
-    var getCryptoOnlineUseCase = GetCryptoAlertsOnlineUseCase()
-    var getCryptoOfflineUseCase = GetCryptoAlertsOfflineUseCase()
 
     fun onCreate() {
         viewModelScope.launch {
