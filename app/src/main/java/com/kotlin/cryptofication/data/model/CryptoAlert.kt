@@ -8,4 +8,3 @@ data class CryptoAlert(
     @PrimaryKey
     var id: String
 )
-
