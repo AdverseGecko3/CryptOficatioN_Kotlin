@@ -203,7 +203,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
         MainScope().launch {
             val savedAlerts: Int
             if (mRoom.getSingleAlert(cryptoId!!) == null) {
-                val cryptoSwiped = CryptoAlert(cryptoId)
+                val cryptoSwiped = CryptoAlert(cryptoId, 0F)
                 savedAlerts = mRoom.getAllAlerts().size
                 val resultInsert: Int = try {
                     mRoom.insertAlert(cryptoSwiped).toInt()

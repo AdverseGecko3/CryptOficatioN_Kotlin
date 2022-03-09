@@ -7,12 +7,14 @@
     <string name="HOLDER_CRYPTO_ID">ABC1234</string>
     <string name="HOLDER_CRYPTO_NAME">ABCD</string>
     <string name="HOLDER_CRYPTO_SYMBOL">ABC</string>
-    <string name="HOLDER_CRYPTO_CURRENT_PRICE">9999</string>
+    <string name="HOLDER_CRYPTO_CURRENT_PRICE">9999.99$</string>
     <string name="HOLDER_CRYPTO_MARKET_CAP_RANK">999</string>
-    <string name="HOLDER_CRYPTO_HIGH_24H">9999</string>
-    <string name="HOLDER_CRYPTO_LOW_24H">9999</string>
+    <string name="HOLDER_CRYPTO_HIGH_24H">9999.99$</string>
+    <string name="HOLDER_CRYPTO_LOW_24H">9999.99$</string>
     <string name="HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H">99%</string>
-    <string name="HOLDER_CRYPTO_PRICE_CHANGE_24H">99.99</string>
+    <string name="HOLDER_CRYPTO_PRICE_CHANGE_24H">99.99$</string>
+    <string name="HOLDER_ALERTS_PORTFOLIO_TOTAL">= XXXXX.XX$</string>
+    <string name="HOLDER_ALERTS_PORTFOLIO_TOKEN_QUANTITY">Token Quantity</string>
     <string name="HOLDER_APP_VERSION">VX.X.X</string>
     <!--endregion-->
 

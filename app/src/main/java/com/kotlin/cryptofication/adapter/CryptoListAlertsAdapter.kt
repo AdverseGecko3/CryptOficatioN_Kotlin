@@ -186,7 +186,7 @@ class CryptoListAlertsAdapter @Inject constructor(
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the current date)
         MainScope().launch {
-            val cryptoSwiped = CryptoAlert(cryptoId!!)
+            val cryptoSwiped = CryptoAlert(cryptoId!!, 0F)
             val savedAlerts = mRoom.getAllAlerts().size
             Log.d("itemSwipe", "Alerts Size: $savedAlerts")
             val resultDelete: Int = mRoom.deleteAlert(cryptoSwiped)
