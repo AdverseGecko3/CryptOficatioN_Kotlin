@@ -44,32 +44,17 @@ class CryptoListAlertsAdapter @Inject constructor(
     private val viewTypeCrypto = 0
     private val viewTypeBannerAd = 1
 
-    private var onCryptoClickedListener: OnCryptoClickedListener? = null
-    private var onCryptoEmptiedListener: OnCryptoEmptiedListener? = null
-    private var onSnackbarCreatedListener: OnSnackbarCreatedListener? = null
+    private var onCryptoListAlertsListener: OnCryptoListAlertsListener? = null
 
-    interface OnCryptoClickedListener {
+    interface OnCryptoListAlertsListener {
         fun onCryptoClicked(bundle: Bundle)
-    }
-
-    interface OnCryptoEmptiedListener {
         fun onCryptoEmptied(isEmpty: Boolean)
-    }
-
-    interface OnSnackbarCreatedListener {
         fun onSnackbarCreated(snackbar: Snackbar)
+        fun onAlertChanged()
     }
 
-    fun setOnCryptoClickedListener(listener: OnCryptoClickedListener?) {
-        onCryptoClickedListener = listener
-    }
-
-    fun setOnCryptoEmptiedListener(listener: OnCryptoEmptiedListener?) {
-        onCryptoEmptiedListener = listener
-    }
-
-    fun setOnSnackbarCreatedListener(listener: OnSnackbarCreatedListener?) {
-        onSnackbarCreatedListener = listener
+    fun setOnCryptoListAlertsListener(listener: OnCryptoListAlertsListener?) {
+        onCryptoListAlertsListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -99,7 +84,7 @@ class CryptoListAlertsAdapter @Inject constructor(
                     cryptoHolder.bind(selectedCrypto)
                     cryptoHolder.bindingCrypto.parentLayoutCrypto.setOnClickListener {
                         val bundle = bundleOf("selectedCrypto" to selectedCrypto)
-                        onCryptoClickedListener?.onCryptoClicked(bundle)
+                        onCryptoListAlertsListener?.onCryptoClicked(bundle)
                     }
                 }
             }
@@ -148,8 +133,8 @@ class CryptoListAlertsAdapter @Inject constructor(
                         continue
                     }
                     if (getItemViewType(i) == viewTypeCrypto) {
-                        if ((item as Crypto).symbol!!.lowercase().contains(filterPattern) or
-                            item.name!!.lowercase().contains(filterPattern)
+                        if ((item as Crypto).symbol.lowercase().contains(filterPattern) or
+                            item.name.lowercase().contains(filterPattern)
                         ) filteredList.add(item)
                     }
                 }
@@ -181,12 +166,12 @@ class CryptoListAlertsAdapter @Inject constructor(
         if (getItemViewType(position) == viewTypeBannerAd) return
         val crypto = cryptoList[position] as Crypto
         val cryptoId = crypto.id
-        val cryptoSymbol = crypto.symbol?.uppercase()
+        val cryptoSymbol = crypto.symbol.uppercase()
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the current date)
         MainScope().launch {
-            val cryptoSwiped = CryptoAlert(cryptoId!!, 0F)
+            val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
             val savedAlerts = mRoom.getAllAlerts().size
             Log.d("itemSwipe", "Alerts Size: $savedAlerts")
             val resultDelete: Int = mRoom.deleteAlert(cryptoSwiped)
@@ -198,8 +183,9 @@ class CryptoListAlertsAdapter @Inject constructor(
                     cryptoList.removeAt(position)
                     notifyItemRemoved(position)
                     cryptoProvider.cryptosAlerts = cleanAdsCryptoList(cryptoList)
+                    onCryptoListAlertsListener?.onAlertChanged()
                     if (cryptoList.size == 0) {
-                        onCryptoEmptiedListener?.onCryptoEmptied(true)
+                        onCryptoListAlertsListener?.onCryptoEmptied(true)
                     }
                     Snackbar
                         .make(
@@ -207,7 +193,7 @@ class CryptoListAlertsAdapter @Inject constructor(
                             "$cryptoSymbol couldn't be removed, updating list...",
                             Snackbar.LENGTH_LONG
                         ).let { snackbar ->
-                            onSnackbarCreatedListener?.onSnackbarCreated(snackbar)
+                            onCryptoListAlertsListener?.onSnackbarCreated(snackbar)
                         }
                 }
                 else -> {
@@ -215,9 +201,10 @@ class CryptoListAlertsAdapter @Inject constructor(
                     cryptoList.removeAt(position)
                     notifyItemRemoved(position)
                     cryptoProvider.cryptosAlerts = cleanAdsCryptoList(cryptoList)
+                    onCryptoListAlertsListener?.onAlertChanged()
                     if (savedAlerts == 1) {
                         mAlarmManager.deleteAlarmManager()
-                        onCryptoEmptiedListener?.onCryptoEmptied(true)
+                        onCryptoListAlertsListener?.onCryptoEmptied(true)
                         mPrefs.setDBHasItems(false)
                     }
 
@@ -251,9 +238,10 @@ class CryptoListAlertsAdapter @Inject constructor(
                                             notifyItemInserted(position)
                                             cryptoProvider.cryptosAlerts =
                                                 cleanAdsCryptoList(cryptoList)
+                                            onCryptoListAlertsListener?.onAlertChanged()
                                             if (savedAlerts == 1) {
                                                 mAlarmManager.launchAlarmManager()
-                                                onCryptoEmptiedListener?.onCryptoEmptied(false)
+                                                onCryptoListAlertsListener?.onCryptoEmptied(false)
                                                 mPrefs.setDBHasItems(true)
                                             }
                                         }
@@ -261,7 +249,7 @@ class CryptoListAlertsAdapter @Inject constructor(
                                 }
                             }
                         }.let { snackbar ->
-                            onSnackbarCreatedListener?.onSnackbarCreated(snackbar)
+                            onCryptoListAlertsListener?.onSnackbarCreated(snackbar)
                         }
                 }
             }
@@ -283,7 +271,7 @@ class CryptoListAlertsAdapter @Inject constructor(
             if (item is Crypto) {
                 if (item.id == cryptoId) {
                     val bundle = bundleOf("selectedCrypto" to item)
-                    onCryptoClickedListener?.onCryptoClicked(bundle)
+                    onCryptoListAlertsListener?.onCryptoClicked(bundle)
                 }
             }
         }
@@ -305,7 +293,7 @@ class CryptoListAlertsAdapter @Inject constructor(
                     DiskCacheStrategy.AUTOMATIC
                 ).placeholder(circularProgressDrawable).override(0, 35)
                     .into(ivAdapterCryptoIcon)
-                tvAdapterCryptoSymbol.text = crypto.symbol!!.uppercase()
+                tvAdapterCryptoSymbol.text = crypto.symbol.uppercase()
                 tvAdapterCryptoName.text = crypto.name
                 val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
                 tvAdapterCryptoPrice.text = currentPrice

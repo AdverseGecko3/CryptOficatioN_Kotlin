@@ -41,7 +41,7 @@ class Preferences(context: Context) {
         return userPrefs.getBoolean(Constants.PREF_FIRST_RUN, true)
     }
 
-    fun getDBHasItems(): Boolean {
+    private fun getDBHasItems(): Boolean {
         return userPrefs.getBoolean(Constants.PREF_DB_HAS_ITEMS, false)
     }
 

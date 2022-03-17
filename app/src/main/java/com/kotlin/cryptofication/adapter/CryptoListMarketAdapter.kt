@@ -43,32 +43,16 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
     private val viewTypeBannerAd = 1
     private val viewTypeLoadMore = 2
 
-    private var onCryptoClickedListener: OnCryptoClickedListener? = null
-    private var onSnackbarCreatedListener: OnSnackbarCreatedListener? = null
-    private var onLoadMoreClickedListener: OnLoadMoreClickedListener? = null
+    private var onCryptoListMarketListener: OnCryptoListMarketListener? = null
 
-    interface OnCryptoClickedListener {
+    interface OnCryptoListMarketListener {
         fun onCryptoClicked(bundle: Bundle)
-    }
-
-    interface OnSnackbarCreatedListener {
         fun onSnackbarCreated(snackbar: Snackbar)
-    }
-
-    interface OnLoadMoreClickedListener {
         fun onLoadMoreClicked()
     }
 
-    fun setOnCryptoClickedListener(listener: OnCryptoClickedListener?) {
-        onCryptoClickedListener = listener
-    }
-
-    fun setOnSnackbarCreatedListener(listener: OnSnackbarCreatedListener?) {
-        onSnackbarCreatedListener = listener
-    }
-
-    fun setOnLoadMoreClickedListener(listener: OnLoadMoreClickedListener?) {
-        onLoadMoreClickedListener = listener
+    fun setOnCryptoListMarketListener(listener: OnCryptoListMarketListener?) {
+        onCryptoListMarketListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -105,7 +89,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
                     cryptoHolder.bind(selectedCrypto)
                     cryptoHolder.bindingCrypto.parentLayoutCrypto.setOnClickListener {
                         val bundle = bundleOf("selectedCrypto" to selectedCrypto)
-                        onCryptoClickedListener?.onCryptoClicked(bundle)
+                        onCryptoListMarketListener?.onCryptoClicked(bundle)
                     }
                 }
             }
@@ -131,7 +115,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
                 val loadMoreHolder = holder as LoadMoreListMarketViewHolder
                 Log.d("LoadMoreClicked", "viewTypeLoadMore")
                 loadMoreHolder.bindingLoadMore.btnLoadMore.setOnClickListener {
-                    onLoadMoreClickedListener?.onLoadMoreClicked()
+                    onCryptoListMarketListener?.onLoadMoreClicked()
                 }
 
             }
@@ -165,8 +149,8 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
                         continue
                     }
                     if (getItemViewType(i) == viewTypeCrypto && item is Crypto) {
-                        if (item.symbol!!.lowercase().contains(filterPattern) or
-                            item.name!!.lowercase().contains(filterPattern)
+                        if (item.symbol.lowercase().contains(filterPattern) or
+                            item.name.lowercase().contains(filterPattern)
                         ) filteredList.add(item)
                     }
                 }
@@ -197,13 +181,13 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
         if (getItemViewType(position) == viewTypeBannerAd) return
         val crypto = cryptoList[position] as Crypto
         val cryptoId = crypto.id
-        val cryptoSymbol = crypto.symbol?.uppercase()
+        val cryptoSymbol = crypto.symbol.uppercase()
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         MainScope().launch {
             val savedAlerts: Int
-            if (mRoom.getSingleAlert(cryptoId!!) == null) {
-                val cryptoSwiped = CryptoAlert(cryptoId, 0F)
+            if (mRoom.getSingleAlert(cryptoId) == null) {
+                val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
                 savedAlerts = mRoom.getAllAlerts().size
                 val resultInsert: Int = try {
                     mRoom.insertAlert(cryptoSwiped).toInt()
@@ -250,7 +234,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
                                         }
                                     }
                                 }.let { snackbar ->
-                                    onSnackbarCreatedListener?.onSnackbarCreated(snackbar)
+                                    onCryptoListMarketListener?.onSnackbarCreated(snackbar)
                                 }
 
                         }
@@ -268,7 +252,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
                         "$cryptoSymbol already in favorites",
                         Snackbar.LENGTH_SHORT
                     ).let { snackbar ->
-                        onSnackbarCreatedListener?.onSnackbarCreated(snackbar)
+                        onCryptoListMarketListener?.onSnackbarCreated(snackbar)
                     }
             }
         }
@@ -290,7 +274,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
                     DiskCacheStrategy.AUTOMATIC
                 ).placeholder(circularProgressDrawable).override(0, 35)
                     .into(ivAdapterCryptoIcon)
-                tvAdapterCryptoSymbol.text = crypto.symbol!!.uppercase()
+                tvAdapterCryptoSymbol.text = crypto.symbol.uppercase()
                 tvAdapterCryptoName.text = crypto.name
                 val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
                 tvAdapterCryptoPrice.text = currentPrice

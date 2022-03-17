@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parentLayoutCrypto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp">
+
+    <TextView
+        android:id="@+id/tvAdapterPortfolioSymbol"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="5dp"
+        android:gravity="center_vertical"
+        android:textColor="@color/text"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/llAdapterPortfolioNamePrice"
+        app:layout_constraintHorizontal_weight="10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/HOLDER_CRYPTO_NAME" />
+
+    <LinearLayout
+        android:id="@+id/llAdapterPortfolioNamePrice"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tvAdapterPortfolioTextPriceChange"
+        app:layout_constraintHorizontal_weight="20"
+        app:layout_constraintStart_toEndOf="@id/tvAdapterPortfolioSymbol"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/etAdapterPortfolioQuantity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginEnd="10sp"
+            android:hint="@string/HOLDER_ALERTS_PORTFOLIO_TOKEN_QUANTITY"
+            android:imeOptions="actionDone"
+            android:inputType="numberDecimal"
+            tools:ignore="Autofill"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvAdapterPortfolioTextPriceChange"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="2dp"
+        android:gravity="center_vertical"
+        android:text="@string/HOLDER_CRYPTO_CURRENT_PRICE"
+        android:textColor="@color/text"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="10"
+        app:layout_constraintStart_toEndOf="@id/llAdapterPortfolioNamePrice"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/HOLDER_CRYPTO_CURRENT_PRICE" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

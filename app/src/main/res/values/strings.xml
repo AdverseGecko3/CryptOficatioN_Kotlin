@@ -13,6 +13,7 @@
     <string name="HOLDER_CRYPTO_LOW_24H">9999.99$</string>
     <string name="HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H">99%</string>
     <string name="HOLDER_CRYPTO_PRICE_CHANGE_24H">99.99$</string>
+    <string name="HOLDER_CRYPTO_CURRENT_PORTFOLIO">0$</string>
     <string name="HOLDER_ALERTS_PORTFOLIO_TOTAL">= XXXXX.XX$</string>
     <string name="HOLDER_ALERTS_PORTFOLIO_TOKEN_QUANTITY">Token Quantity</string>
     <string name="HOLDER_APP_VERSION">VX.X.X</string>
@@ -85,6 +86,7 @@
     <string name="LOW_24H_DOTS">Low 24h:</string>
     <string name="PRICE_CHANGE_PERCENTAGE_24H_DOTS">Price change 24h:</string>
     <string name="TITLE_DOTS">Title:</string>
+    <string name="TOTAL_DOTS">Total:</string>
     <!--endregion-->
 
     <!--region NAV-->

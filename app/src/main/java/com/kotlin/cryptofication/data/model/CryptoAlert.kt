@@ -10,6 +10,12 @@ data class CryptoAlert(
     @ColumnInfo(name = "id")
     val id: String,
 
+    @ColumnInfo(name = "symbol")
+    val symbol: String,
+
+    @ColumnInfo(name = "current_price")
+    var current_price: Double,
+
     @ColumnInfo(name = "quantity")
-    val quantity: Float
+    var quantity: Double
 )

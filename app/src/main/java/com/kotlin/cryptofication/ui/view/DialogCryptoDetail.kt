@@ -43,7 +43,7 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
         binding.apply {
             // Set the data to TextViews
             tvFragmentCryptoDetailName.text = selectedCrypto!!.name
-            tvFragmentCryptoDetailSymbol.text = selectedCrypto.symbol!!.uppercase()
+            tvFragmentCryptoDetailSymbol.text = selectedCrypto.symbol.uppercase()
             tvFragmentCryptoDetailRank.text =
                 "#${selectedCrypto.market_cap_rank}"
             tvFragmentCryptoDetailPriceChangePercentage24h.text =

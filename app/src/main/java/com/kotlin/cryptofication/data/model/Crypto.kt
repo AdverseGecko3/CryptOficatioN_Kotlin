@@ -5,10 +5,10 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Crypto(
-    val id: String?,
-    val name: String?,
-    val symbol: String?,
-    val image: String?,
+    val id: String,
+    val name: String,
+    val symbol: String,
+    val image: String,
     val current_price: Double,
     val market_cap_rank: Int,
     val high_24h: Double,

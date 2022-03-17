@@ -2,7 +2,6 @@ package com.kotlin.cryptofication.domain
 
 import android.util.Log
 import com.kotlin.cryptofication.data.model.Crypto
-import com.kotlin.cryptofication.data.network.CryptoService
 import com.kotlin.cryptofication.data.repos.CryptoProvider
 import com.kotlin.cryptofication.data.repos.CryptoRepository
 import javax.inject.Inject

@@ -40,7 +40,7 @@ class NotificationReceiver @Inject constructor(
         val listNotifications = arrayListOf<Notification>()
         val i = Intent(context, MainActivity::class.java)
         for ((index, crypto: Crypto) in cryptoList.withIndex()) {
-            val cryptoSymbol = crypto.symbol?.uppercase()
+            val cryptoSymbol = crypto.symbol.uppercase()
             Log.d("NotifServ", "Crypto Symbol: $cryptoSymbol")
             val cryptoPrice = crypto.current_price.customFormattedPrice(mPrefs.getCurrencySymbol())
             val cryptoPriceChange =

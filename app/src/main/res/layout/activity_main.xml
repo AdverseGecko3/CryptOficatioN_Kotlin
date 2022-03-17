@@ -22,7 +22,7 @@
         android:id="@+id/navBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/recyclerview_border_round"
+        android:background="@drawable/bottom_navigation_border"
         app:elevation="5dp"
         app:itemIconTint="@drawable/color_nav"
         app:itemTextColor="@drawable/color_nav"

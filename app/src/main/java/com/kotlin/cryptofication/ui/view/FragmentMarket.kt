@@ -20,9 +20,7 @@ import com.google.android.gms.ads.*
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter
-import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter.OnCryptoClickedListener
-import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter.OnSnackbarCreatedListener
-import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter.OnLoadMoreClickedListener
+import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter.OnCryptoListMarketListener
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
 import com.kotlin.cryptofication.data.model.Crypto
@@ -35,8 +33,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class FragmentMarket : Fragment(), SelectedChangeListener,
-    OnCryptoClickedListener, OnSnackbarCreatedListener, OnLoadMoreClickedListener {
+class FragmentMarket :
+    Fragment(), SelectedChangeListener,
+    OnCryptoListMarketListener {
 
     @Inject
     lateinit var rwCryptoAdapter: CryptoListMarketAdapter
@@ -384,11 +383,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
             rwMarketCryptoList.setHasFixedSize(true)
         }
 
-        rwCryptoAdapter.apply {
-            setOnCryptoClickedListener(this@FragmentMarket)
-            setOnSnackbarCreatedListener(this@FragmentMarket)
-            setOnLoadMoreClickedListener(this@FragmentMarket)
-        }
+        rwCryptoAdapter.setOnCryptoListMarketListener(this)
 
         // Attach ItemTouchHelper (swipe items to favorite)
         val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "market")
@@ -422,65 +417,11 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
     }
 
     private fun setListToAdapter() {
-        var i = 0
-        while (i <= marketViewModel.cryptoList.size) {
-            val adView = AdView(requireContext()).apply {
-                adSize = AdSize.BANNER
-                adUnitId = resources.getString(R.string.ADMOB_BANNER_RECYCLERVIEW)
-            }
-            marketViewModel.cryptoList.add(i, adView)
-            i += Constants.ITEMS_PER_AD
-        }
-        loadBannerAds()
-        marketViewModel.cryptoList.add(Double)
+        marketViewModel.addBanners()
         rwCryptoAdapter.setCryptos(marketViewModel.cryptoList)
     }
 
-    private fun loadBannerAds() {
-        loadBannerAd(0)
-    }
-
-    private fun loadBannerAd(index: Int) {
-        if (index >= marketViewModel.cryptoList.size) {
-            return
-        }
-
-        val item = marketViewModel.cryptoList[index] as? AdView
-            ?: throw ClassCastException("Expected item at index $index to be a banner ad ad.")
-
-        // Set an AdListener on the AdView to wait for the previous banner ad to finish loading before loading the next ad in the items list.
-        item.adListener = object : AdListener() {
-            override fun onAdLoaded() {
-                super.onAdLoaded()
-                // The previous banner ad loaded successfully, call this method again to
-                // load the next ad in the items list.
-                loadBannerAd(index + Constants.ITEMS_PER_AD)
-            }
-
-            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                // The previous banner ad failed to load. Call this method again to load
-                // the next ad in the items list.
-                val error = String.format(
-                    "domain: %s, code: %d, message: %s",
-                    loadAdError.domain, loadAdError.code, loadAdError.message
-                )
-                Log.e(
-                    "FragmentMarket",
-                    "The previous banner ad failed to load with error: "
-                            + error
-                            + ". Attempting to"
-                            + " load the next banner ad in the items list."
-                )
-                loadBannerAd(index + Constants.ITEMS_PER_AD)
-            }
-        }
-
-        // Load the banner ad.
-        item.loadAd(AdRequest.Builder().build())
-    }
-
     private fun initViewFlipper(cryptoList: List<Crypto>) {
-        Log.d("initVF", "${marketViewModel.hasAlreadyData}")
         if (cryptoList.isEmpty()) {
             if (!marketViewModel.hasAlreadyData) {
                 binding.apply {
@@ -514,7 +455,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         val userCurrency = mPrefs.getCurrencySymbol()
 
         binding.apply {
-            tvVFOneLoadedCryptoSymbol.text = firstCrypto.symbol!!.uppercase()
+            tvVFOneLoadedCryptoSymbol.text = firstCrypto.symbol.uppercase()
             val currentPrice = firstCrypto.current_price.customFormattedPrice(userCurrency)
             tvVFOneLoadedCryptoCurrentPrice.text = currentPrice
             val priceChange = firstCrypto.price_change_percentage_24h.customFormattedPercentage()
@@ -535,7 +476,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
             }
         }
         binding.apply {
-            tvVFTwoLoadedCryptoSymbol.text = secondCrypto.symbol!!.uppercase()
+            tvVFTwoLoadedCryptoSymbol.text = secondCrypto.symbol.uppercase()
             val currentPrice = secondCrypto.current_price.customFormattedPrice(userCurrency)
             tvVFTwoLoadedCryptoCurrentPrice.text = currentPrice
             val priceChange = secondCrypto.price_change_percentage_24h.customFormattedPercentage()
@@ -557,7 +498,7 @@ class FragmentMarket : Fragment(), SelectedChangeListener,
         }
 
         binding.apply {
-            tvVFThreeLoadedCryptoSymbol.text = thirdCrypto.symbol!!.uppercase()
+            tvVFThreeLoadedCryptoSymbol.text = thirdCrypto.symbol.uppercase()
             val currentPrice = thirdCrypto.current_price.customFormattedPrice(userCurrency)
             tvVFThreeLoadedCryptoCurrentPrice.text = currentPrice
             val priceChange = thirdCrypto.price_change_percentage_24h.customFormattedPercentage()

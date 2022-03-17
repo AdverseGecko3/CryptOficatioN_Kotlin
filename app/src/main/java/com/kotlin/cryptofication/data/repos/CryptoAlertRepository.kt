@@ -12,5 +12,7 @@ class CryptoAlertRepository @Inject constructor(private val dao: CryptoAlertDAO)
 
     suspend fun insertAlert(cryptoAlert: CryptoAlert) = dao.insert(cryptoAlert)
 
+    suspend fun modifyQuantityAlert(cryptoAlert: CryptoAlert) = dao.update(cryptoAlert)
+
     suspend fun deleteAlert(cryptoAlert: CryptoAlert) = dao.delete(cryptoAlert)
 }
