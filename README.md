@@ -1,7 +1,7 @@
 # CryptOficatioN_Kotlin
 
 <p align="center" width="100%">
-    <img width="33%" src="https://github.com/AdverseGecko3/CryptOficatioN_Kotlin/blob/master/app/src/main/res/drawable-v24/cryptofication_logo_long_white_splash.png">
+    <img width="50%" src="https://github.com/AdverseGecko3/CryptOficatioN_Kotlin/blob/master/app/src/main/res/drawable-v24/CryptOficatioN_logo_long_white.png">
 </p>
 
 This is the Kotlin version of CryptOficatioN, an app that uses CoinGecko API to track the top cryptos!
@@ -40,7 +40,8 @@ But now, let me introduce you. I'm Eric Barrero, and this app is a sample of my 
 
 **- Notifications:** The user can set the time when he wants to receive the notifications. At that hour a service will call the API, format the data, and send a notification.
 
+**- Monetization:** This app implements Google AdMob, in order to monetize the app.
 
 Currently working on:
 
-**- Monetization:** Currently working on the implementation of Google AdMob, in order to monetize the app.
+**- Testing:** Currently working on the implementation of tests.
