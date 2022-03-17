@@ -23,12 +23,12 @@
     </style>
 
     <style name="DialogListPreference" parent="Theme.MaterialComponents.Light.Dialog">
-        <item name="android:windowBackground">@drawable/dialog_round</item>
+        <item name="android:windowBackground">@drawable/border_round</item>
         <item name="android:colorControlActivated">@color/purple_app_accent</item>
     </style>
 
     <style name="CustomAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:windowBackground">@drawable/dialog_round</item>
+        <item name="android:windowBackground">@drawable/border_round</item>
         <item name="android:textColorPrimary">@color/text</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:fontFamily">@font/sansation</item>
@@ -39,7 +39,7 @@
     </style>
 
     <style name="BottomSheetModalStyle" parent="Widget.Design.BottomSheet.Modal">
-        <item name="android:background">@drawable/dialog_round</item>
+        <item name="android:background">@drawable/border_round</item>
     </style>
 
     <style name="CustomTimePicker" parent="android:Widget.Material.Light.TimePicker">

@@ -11,7 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
-import com.kotlin.cryptofication.domain.GetCryptoAlertsOnlineUseCase
+import com.kotlin.cryptofication.domain.GetCryptoMarketOnlineUseCase
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.view.MainActivity
 import com.kotlin.cryptofication.utilities.Constants.CHANNEL_ID
@@ -20,11 +20,13 @@ import com.kotlin.cryptofication.utilities.customFormattedPrice
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
+import javax.inject.Inject
 
-class NotificationReceiver : BroadcastReceiver() {
+class NotificationReceiver @Inject constructor(
+    private val getCryptoOnlineUseCase: GetCryptoMarketOnlineUseCase
+) : BroadcastReceiver() {
 
     private val groupKey = "com.kotlin.CryptOficatioN"
-    private val getCryptoOnlineUseCase = GetCryptoAlertsOnlineUseCase()
 
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d("NotifServ", "Received!")
@@ -38,7 +40,7 @@ class NotificationReceiver : BroadcastReceiver() {
         val listNotifications = arrayListOf<Notification>()
         val i = Intent(context, MainActivity::class.java)
         for ((index, crypto: Crypto) in cryptoList.withIndex()) {
-            val cryptoSymbol = crypto.symbol?.uppercase()
+            val cryptoSymbol = crypto.symbol.uppercase()
             Log.d("NotifServ", "Crypto Symbol: $cryptoSymbol")
             val cryptoPrice = crypto.current_price.customFormattedPrice(mPrefs.getCurrencySymbol())
             val cryptoPriceChange =

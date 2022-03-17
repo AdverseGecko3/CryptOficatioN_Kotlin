@@ -5,37 +5,47 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
+import android.widget.FrameLayout
 import android.widget.SearchView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.ads.*
+import com.google.android.gms.ads.AdView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter
-import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoClickedListener
-import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoEmptiedListener
-import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnSnackbarCreatedListener
+import com.kotlin.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoListAlertsListener
+import com.kotlin.cryptofication.adapter.CryptoListAlertsPortfolioAdapter
+import com.kotlin.cryptofication.adapter.CryptoListAlertsPortfolioAdapter.OnCryptoListAlertsPortfolioListener
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.kotlin.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
+import com.kotlin.cryptofication.data.model.CryptoAlert
 import com.kotlin.cryptofication.databinding.FragmentAlertsBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.viewmodel.AlertsViewModel
-import com.kotlin.cryptofication.utilities.Constants
+import com.kotlin.cryptofication.utilities.customFormattedPrice
 import com.kotlin.cryptofication.utilities.showToast
-import java.lang.IllegalArgumentException
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-class FragmentAlerts : Fragment(), SelectedChangeListener,
-    OnCryptoClickedListener, OnCryptoEmptiedListener, OnSnackbarCreatedListener {
+@AndroidEntryPoint
+class FragmentAlerts :
+    Fragment(), SelectedChangeListener, OnCryptoListAlertsListener,
+    OnCryptoListAlertsPortfolioListener {
+
+    @Inject
+    lateinit var rwCryptoAdapter: CryptoListAlertsAdapter
 
     private var _binding: FragmentAlertsBinding? = null
     private val binding get() = _binding!!
-    private val alertsViewModel: AlertsViewModel by navGraphViewModels(R.id.my_nav)
-    private lateinit var rwCryptoAdapter: CryptoListAlertsAdapter
+    private val alertsViewModel: AlertsViewModel by hiltNavGraphViewModels(R.id.my_nav)
+    private lateinit var rwCryptoPortfolioAdapter: CryptoListAlertsPortfolioAdapter
     private lateinit var mItemTouchHelper: ItemTouchHelper
     private var itemMarketCap: MenuItem? = null
     private var itemSymbol: MenuItem? = null
@@ -45,8 +55,6 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
     private var itemAscending: MenuItem? = null
     private var itemDescending: MenuItem? = null
     private var itemSearch: MenuItem? = null
-
-    private var cryptoList: ArrayList<Any> = arrayListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,11 +67,18 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         setHasOptionsMenu(true)
 
         // Insert custom toolbar
-        (requireActivity() as AppCompatActivity).supportActionBar?.displayOptions =
-            ActionBar.DISPLAY_SHOW_CUSTOM
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowCustomEnabled(true)
-        (requireActivity() as AppCompatActivity).supportActionBar?.setCustomView(R.layout.toolbar_home)
-        (requireActivity() as AppCompatActivity).supportActionBar?.elevation = 10f
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
+            setDisplayShowCustomEnabled(true)
+            setCustomView(R.layout.toolbar_home)
+            elevation = 10f
+        }
+
+        // FrameLayout height and ImageView padding
+        layoutParams()
+
+        // BottomSheet behavior
+        bottomSheetBehavior()
 
         //Initialize RecyclerView
         initRecyclerView()
@@ -71,7 +86,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         // SwipeRefreshLayout refresh listener
         binding.srlAlertsReload.setOnRefreshListener {
             // See if searchView is expanded
-            if(itemSearch!!.isActionViewExpanded) {
+            if (itemSearch!!.isActionViewExpanded) {
                 itemSearch!!.collapseActionView()
             }
 
@@ -105,10 +120,17 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         alertsViewModel.cryptoLiveData.observe(viewLifecycleOwner) { cryptoList ->
             Log.d("FragmentAlerts", "Received cryptoList")
 
-            this.cryptoList = ArrayList(cryptoList)
+            alertsViewModel.cryptoList = ArrayList(cryptoList)
 
             // Set the cryptoList from API to the adapter
-            setListToAdapter()
+            setCryptoListAlertsToAdapter()
+        }
+
+        alertsViewModel.alertsLiveData.observe(viewLifecycleOwner) { alertsList ->
+            Log.d("FragmentAlerts", "Received alertsList")
+
+            // Set the cryptoList from API to the adapter
+            setCryptoListAlertsPortfolioToAdapter(ArrayList(alertsList))
         }
 
         alertsViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
@@ -335,24 +357,96 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         return true
     }
 
+    private fun layoutParams() {
+        // FrameLayout height
+        val fl: FrameLayout = binding.bsAlertsPortfolio
+        val params = fl.layoutParams
+        params.height = resources.displayMetrics.heightPixels / 2
+        fl.layoutParams = params
+
+        // ImageView padding
+        val drawableHeight = binding.ivAlertsScrollBottomSheet.drawable.intrinsicHeight / 2
+        binding.ivAlertsScrollBottomSheet.setPadding(0, drawableHeight, 0, drawableHeight)
+    }
+
+    private fun bottomSheetBehavior() {
+        BottomSheetBehavior.from(binding.bsAlertsPortfolio).apply {
+            peekHeight = binding.ivAlertsScrollBottomSheet.drawable.intrinsicHeight * 2
+            this.state = BottomSheetBehavior.STATE_COLLAPSED
+            addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    when (newState) {
+                        BottomSheetBehavior.STATE_COLLAPSED -> {
+                            binding.ivAlertsScrollBottomSheet.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_arrow_up,
+                                    null
+                                )
+                            )
+                        }
+                        BottomSheetBehavior.STATE_EXPANDED -> {
+                            binding.ivAlertsScrollBottomSheet.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_arrow_down,
+                                    null
+                                )
+                            )
+                        }
+                        BottomSheetBehavior.STATE_DRAGGING, BottomSheetBehavior.STATE_SETTLING -> {
+                            binding.ivAlertsScrollBottomSheet.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_remove,
+                                    null
+                                )
+                            )
+                        }
+                        else -> {
+
+                        }
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+                }
+            })
+        }
+        binding.ivAlertsScrollBottomSheet.setOnClickListener {
+            when (BottomSheetBehavior.from(binding.bsAlertsPortfolio).state) {
+                BottomSheetBehavior.STATE_COLLAPSED -> BottomSheetBehavior.from(binding.bsAlertsPortfolio).state =
+                    BottomSheetBehavior.STATE_EXPANDED
+                BottomSheetBehavior.STATE_EXPANDED -> BottomSheetBehavior.from(binding.bsAlertsPortfolio).state =
+                    BottomSheetBehavior.STATE_COLLAPSED
+                else -> {
+
+                }
+            }
+        }
+    }
+
     private fun initRecyclerView() {
-        // Initialize RecyclerView layout manager and adapter
-        rwCryptoAdapter = CryptoListAlertsAdapter()
+        // Initialize RecyclerViews layout managers, adapters and interfaces
+        rwCryptoPortfolioAdapter = CryptoListAlertsPortfolioAdapter()
         binding.apply {
-            rwAlertsCryptoList.layoutManager = LinearLayoutManager(context)
-            rwAlertsCryptoList.adapter = rwCryptoAdapter
-            rwAlertsCryptoList.setHasFixedSize(true)
+            rwAlertsCryptoCryptoList.layoutManager = LinearLayoutManager(context)
+            rwAlertsCryptoCryptoList.adapter = rwCryptoAdapter
+            rwAlertsCryptoCryptoList.setHasFixedSize(true)
+
+            rwAlertsCryptoPortfolioList.layoutManager = LinearLayoutManager(context)
+            rwAlertsCryptoPortfolioList.adapter = rwCryptoPortfolioAdapter
+            rwAlertsCryptoPortfolioList.setHasFixedSize(true)
         }
-        rwCryptoAdapter.apply {
-            setOnCryptoClickedListener(this@FragmentAlerts)
-            setOnCryptoEmptiedListener(this@FragmentAlerts)
-            setOnSnackbarCreatedListener(this@FragmentAlerts)
-        }
+
+        rwCryptoAdapter.setOnCryptoListAlertsListener(this)
+        rwCryptoPortfolioAdapter.setOnCryptoListAlertsPortfolioListener(this)
 
         // Attach ItemTouchHelper (swipe items to favorite)
         val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "alerts")
         mItemTouchHelper = ItemTouchHelper(callback)
-        mItemTouchHelper.attachToRecyclerView(binding.rwAlertsCryptoList)
+        mItemTouchHelper.attachToRecyclerView(binding.rwAlertsCryptoCryptoList)
     }
 
     override fun onSelectedChange(swipingState: Boolean) {
@@ -380,21 +474,25 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         }
     }
 
-    private fun setListToAdapter() {
-        if (cryptoList.isNotEmpty()) {
+    override fun onQuantityUpdatedCrypto(cryptoAlert: CryptoAlert) {
+        alertsViewModel.updateCryptoAlert(cryptoAlert)
+    }
+
+    override fun onQuantityUpdatedTotal(total: Double) {
+        binding.tvAlertsCryptoPortfolioTotalText.text =
+            total.customFormattedPrice(mPrefs.getCurrencySymbol())
+    }
+
+    override fun onAlertChanged() {
+        alertsViewModel.onAlertsUpdated()
+    }
+
+    private fun setCryptoListAlertsToAdapter() {
+        if (alertsViewModel.cryptoList.isNotEmpty()) {
             changeItemsVisibility(false)
 
-            var i = 0
-            while (i <= cryptoList.size) {
-                val adView = AdView(requireContext()).apply {
-                    adSize = AdSize.BANNER
-                    adUnitId = resources.getString(R.string.ADMOB_BANNER_RECYCLERVIEW)
-                }
-                cryptoList.add(i, adView)
-                i += Constants.ITEMS_PER_AD
-            }
-            loadBannerAds()
-            rwCryptoAdapter.setCryptos(cryptoList)
+            alertsViewModel.addBanners()
+            rwCryptoAdapter.setCryptos(alertsViewModel.cryptoList)
 
             if (arguments?.getString("cryptoId") != null) {
                 Log.d("CryptoNotification", "Had cryptoId argument")
@@ -406,61 +504,28 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
         }
     }
 
-    private fun loadBannerAds() {
-        loadBannerAd(0)
-    }
-
-    private fun loadBannerAd(index: Int) {
-        if (index >= cryptoList.size) {
-            return
-        }
-
-        val item = cryptoList[index] as? AdView
-            ?: throw ClassCastException("Expected item at index $index to be a banner ad ad.")
-
-        // Set an AdListener on the AdView to wait for the previous banner ad to finish loading before loading the next ad in the items list.
-        item.adListener = object : AdListener() {
-            override fun onAdLoaded() {
-                super.onAdLoaded()
-                // The previous banner ad loaded successfully, call this method again to
-                // load the next ad in the items list.
-                loadBannerAd(index + Constants.ITEMS_PER_AD)
-            }
-
-            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                // The previous banner ad failed to load. Call this method again to load
-                // the next ad in the items list.
-                val error = String.format(
-                    "domain: %s, code: %d, message: %s",
-                    loadAdError.domain, loadAdError.code, loadAdError.message
-                )
-                Log.e(
-                    "FragmentMarket",
-                    "The previous banner ad failed to load with error: "
-                            + error
-                            + ". Attempting to"
-                            + " load the next banner ad in the items list."
-                )
-                loadBannerAd(index + Constants.ITEMS_PER_AD)
-            }
-        }
-
-        // Load the banner ad.
-        item.loadAd(AdRequest.Builder().build())
+    private fun setCryptoListAlertsPortfolioToAdapter(alertsList: ArrayList<CryptoAlert>) {
+        rwCryptoPortfolioAdapter.setCryptos(alertsList)
     }
 
     private fun changeItemsVisibility(isEmpty: Boolean) {
-        if (isEmpty) {
-            binding.rwAlertsCryptoList.visibility = View.GONE
-            binding.tvAlertsCryptoListEmpty.visibility = View.VISIBLE
-        } else {
-            binding.rwAlertsCryptoList.visibility = View.VISIBLE
-            binding.tvAlertsCryptoListEmpty.visibility = View.GONE
+        binding.apply {
+            if (isEmpty) {
+                rwAlertsCryptoCryptoList.visibility = View.GONE
+                rwAlertsCryptoPortfolioList.visibility = View.GONE
+                bsAlertsPortfolio.visibility = View.GONE
+                tvAlertsCryptoListEmpty.visibility = View.VISIBLE
+            } else {
+                rwAlertsCryptoCryptoList.visibility = View.VISIBLE
+                rwAlertsCryptoPortfolioList.visibility = View.VISIBLE
+                bsAlertsPortfolio.visibility = View.VISIBLE
+                tvAlertsCryptoListEmpty.visibility = View.GONE
+            }
         }
     }
 
     override fun onResume() {
-        for (item in cryptoList) {
+        for (item in alertsViewModel.cryptoList) {
             if (item is AdView) {
                 item.resume()
             }
@@ -469,7 +534,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
     }
 
     override fun onPause() {
-        for (item in cryptoList) {
+        for (item in alertsViewModel.cryptoList) {
             if (item is AdView) {
                 item.pause()
             }
@@ -479,7 +544,7 @@ class FragmentAlerts : Fragment(), SelectedChangeListener,
 
     override fun onDestroy() {
         _binding = null
-        for (item in cryptoList) {
+        for (item in alertsViewModel.cryptoList) {
             if (item is AdView) {
                 item.destroy()
             }

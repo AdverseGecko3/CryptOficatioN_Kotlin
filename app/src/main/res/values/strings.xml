@@ -7,12 +7,15 @@
     <string name="HOLDER_CRYPTO_ID">ABC1234</string>
     <string name="HOLDER_CRYPTO_NAME">ABCD</string>
     <string name="HOLDER_CRYPTO_SYMBOL">ABC</string>
-    <string name="HOLDER_CRYPTO_CURRENT_PRICE">9999</string>
+    <string name="HOLDER_CRYPTO_CURRENT_PRICE">9999.99$</string>
     <string name="HOLDER_CRYPTO_MARKET_CAP_RANK">999</string>
-    <string name="HOLDER_CRYPTO_HIGH_24H">9999</string>
-    <string name="HOLDER_CRYPTO_LOW_24H">9999</string>
+    <string name="HOLDER_CRYPTO_HIGH_24H">9999.99$</string>
+    <string name="HOLDER_CRYPTO_LOW_24H">9999.99$</string>
     <string name="HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H">99%</string>
-    <string name="HOLDER_CRYPTO_PRICE_CHANGE_24H">99.99</string>
+    <string name="HOLDER_CRYPTO_PRICE_CHANGE_24H">99.99$</string>
+    <string name="HOLDER_CRYPTO_CURRENT_PORTFOLIO">0$</string>
+    <string name="HOLDER_ALERTS_PORTFOLIO_TOTAL">= XXXXX.XX$</string>
+    <string name="HOLDER_ALERTS_PORTFOLIO_TOKEN_QUANTITY">Token Quantity</string>
     <string name="HOLDER_APP_VERSION">VX.X.X</string>
     <!--endregion-->
 
@@ -36,8 +39,9 @@
     <string name="CURRENCY_EURO">€</string>
     <string name="CURRENCY_DOLLAR">$</string>
     <string name="CURRENCY">Currency</string>
-    <string name="ALERT_TIME">Alert time</string>
+    <string name="NOTIFICATION_TIME">Notification time</string>
     <string name="VERSION">App version</string>
+    <string name="NOTIFICATIONS">Notifications</string>
     <string name="COLOR_SCHEME">Color Scheme</string>
     <string name="ABOUT">About</string>
     <string name="MARKET">Market</string>
@@ -46,6 +50,7 @@
     <string name="NO">No</string>
     <string name="YES">Yes</string>
     <string name="LOAD_MORE">Load more</string>
+    <string name="NO_DATA">No data</string>
     <string name="ABOUT_INFO">Hi, my Name is Eric Barrero, and I\'m a student from Barcelona, Spain.\n
         This is my first "big" personal project, were I learnt how to implement some things I did not studied in school.
         It\'s not that big and complex, but for a rookie like me is a good starting point!\n\n
@@ -67,6 +72,9 @@
         \n\nIf you want to receive daily notifications, you should activate \'Autostart\' permission and deactivate MIUI battery optimization.
         \n\nYou can find more info at the Settings menu.</string>
     <string name="GO_TO_SETTINGS">Go to settings</string>
+    <string name="INFO_NOTIFICATIONS">Xiaomi devices (Xiaomi, Mi, Redmi, Poco, etc.) running MIUI or others may have Battery Optimization
+        active and/or application \'Autostart\' deactivated, causing troubles when trying to receive notifications.
+        \n\nIn order to solve it, please, deactivate any kind of Battery Optimization and allow CryptOficatioN to autostart.</string>
     <!--endregion-->
 
     <!--region STRINGS DOTS-->
@@ -78,13 +86,7 @@
     <string name="LOW_24H_DOTS">Low 24h:</string>
     <string name="PRICE_CHANGE_PERCENTAGE_24H_DOTS">Price change 24h:</string>
     <string name="TITLE_DOTS">Title:</string>
-    <!--endregion-->
-
-    <!--region ACTIVITIES-->
-    <string name="title_activity_fragment_main">MainActivity</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="TOTAL_DOTS">Total:</string>
     <!--endregion-->
 
     <!--region NAV-->
@@ -107,7 +109,7 @@
     <string name="FILTER_DESCENDING">Descending</string>
     <!--endregion-->
 
-    <!--region SETTINGS-->
+    <!--region ADMOB-->
     <string name="ADMOB_METADATA">ca-app-pub-3940256099942544~3347511713</string>
     <string name="ADMOB_BANNER_RECYCLERVIEW">ca-app-pub-3940256099942544/6300978111</string>
     <!--endregion-->
@@ -155,7 +157,7 @@
     </string-array>
     <string name="SETTINGS_FILTER_ORDER_VALUE_DEFAULT">0</string>
 
-    <string name="SETTINGS_ITEMS_PAGE">Items to show</string>
+    <string name="SETTINGS_ITEMS_PAGE">Items per page</string>
     <string-array name="SETTINGS_ITEMS_PAGE_ENTRIES_VALUES">
         <item>50</item>
         <item>75</item>
@@ -166,6 +168,8 @@
         <item>200</item>
     </string-array>
     <string name="SETTINGS_ITEMS_PAGE_VALUE_DEFAULT">100</string>
+
+    <string name="SETTINGS_INFO_NOTIFICATIONS">Info about notifications</string>
 
     <string name="SETTINGS_DARK_MODE">Dark Mode</string>
     <string name="SETTINGS_DARK_MODE_SUMMARY">Enable dark mode</string>

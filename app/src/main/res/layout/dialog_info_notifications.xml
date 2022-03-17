@@ -3,31 +3,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/purple_background"
-    tools:context=".ui.view.MainActivity">
+    android:layout_height="wrap_content">
 
-    <fragment
-        android:id="@+id/navHostFragment"
-        android:name="androidx.navigation.fragment.NavHostFragment"
+    <TextView
+        android:id="@+id/tvDialogCreditsTitle"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:defaultNavHost="true"
-        app:layout_constraintBottom_toTopOf="@+id/navBottom"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="10sp"
+        android:text="@string/SETTINGS_INFO_NOTIFICATIONS"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toTopOf="@+id/tvDialogCreditsContent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/navBottom"
+    <TextView
+        android:id="@+id/tvDialogCreditsContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bottom_navigation_border"
-        app:elevation="5dp"
-        app:itemIconTint="@drawable/color_nav"
-        app:itemTextColor="@drawable/color_nav"
+        android:autoLink="web"
+        android:justificationMode="inter_word"
+        android:padding="20sp"
+        android:text="@string/INFO_NOTIFICATIONS"
+        android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav" />
+        app:layout_constraintTop_toBottomOf="@+id/tvDialogCreditsTitle"
+        tools:targetApi="o" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,7 +2,8 @@ package com.kotlin.cryptofication.domain
 
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.repos.CryptoProvider
+import javax.inject.Inject
 
-class GetCryptoAlertsOfflineUseCase {
-    operator fun invoke(): List<Crypto> = CryptoProvider.cryptosAlerts
+class GetCryptoAlertsOfflineUseCase @Inject constructor(private val cryptoProvider: CryptoProvider) {
+    operator fun invoke(): List<Crypto> = cryptoProvider.cryptosAlerts
 }

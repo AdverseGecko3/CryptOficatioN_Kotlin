@@ -13,6 +13,9 @@ interface CryptoAlertDAO {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(cryptoAlert: CryptoAlert): Long
 
+    @Update
+    suspend fun update(cryptoAlert: CryptoAlert): Int
+
     @Delete
     suspend fun delete(cryptoAlert: CryptoAlert): Int
 }

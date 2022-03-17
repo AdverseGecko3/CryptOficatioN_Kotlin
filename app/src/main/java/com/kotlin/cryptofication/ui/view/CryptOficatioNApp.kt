@@ -10,16 +10,16 @@ import com.google.android.gms.ads.MobileAds
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.notification.NotificationAlarmManager
 import com.kotlin.cryptofication.data.Preferences
-import com.kotlin.cryptofication.data.repos.CryptoAlertRepository
 import com.kotlin.cryptofication.utilities.Constants.CHANNEL_ID
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class CryptOficatioNApp : Application() {
 
     companion object {
         lateinit var mAppContext: Context
         lateinit var mResources: Resources
         lateinit var mPrefs: Preferences
-        lateinit var mRoom: CryptoAlertRepository
         lateinit var mAlarmManager: NotificationAlarmManager
     }
 
@@ -34,9 +34,6 @@ class CryptOficatioNApp : Application() {
 
         // Set a Preferences instance
         mPrefs = Preferences(applicationContext)
-
-        // Create Room
-        mRoom = CryptoAlertRepository(applicationContext as Application)
 
         // Create notification channel
         createNotificationChannel()

@@ -38,13 +38,17 @@
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
     <PreferenceCategory
-        android:icon="@drawable/ic_clock"
-        android:title="@string/ALERT_TIME">
+        android:icon="@drawable/ic_notifications"
+        android:title="@string/NOTIFICATIONS">
         <Preference
             android:defaultValue="00:00"
             android:key="prefAlertTime"
-            android:title="@string/ALERT_TIME"
+            android:title="@string/NOTIFICATION_TIME"
             app:summary="00:00" />
+        <Preference
+            android:defaultValue="true"
+            android:key="prefInfoNotifications"
+            android:title="@string/SETTINGS_INFO_NOTIFICATIONS" />
     </PreferenceCategory>
     <PreferenceCategory
         android:icon="@drawable/ic_dark_mode"
@@ -68,6 +72,6 @@
     <Preference
         android:defaultValue="00:00"
         android:key="prefVersion"
-        android:title="@string/VERSION"
-        android:summary="@string/HOLDER_APP_VERSION" />
+        android:summary="@string/HOLDER_APP_VERSION"
+        android:title="@string/VERSION" />
 </PreferenceScreen>

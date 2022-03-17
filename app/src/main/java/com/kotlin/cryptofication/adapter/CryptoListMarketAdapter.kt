@@ -19,18 +19,19 @@ import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.model.CryptoAlert
+import com.kotlin.cryptofication.data.repos.CryptoAlertRepository
 import com.kotlin.cryptofication.databinding.AdapterCryptoBinding
 import com.kotlin.cryptofication.databinding.AdapterLoadMoreBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManager
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
 import com.kotlin.cryptofication.utilities.*
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.lang.ClassCastException
+import javax.inject.Inject
 
-class CryptoListMarketAdapter :
+class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlertRepository) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     Filterable,
     ITHSwipe {
@@ -42,32 +43,16 @@ class CryptoListMarketAdapter :
     private val viewTypeBannerAd = 1
     private val viewTypeLoadMore = 2
 
-    private var onCryptoClickedListener: OnCryptoClickedListener? = null
-    private var onSnackbarCreatedListener: OnSnackbarCreatedListener? = null
-    private var onLoadMoreClickedListener: OnLoadMoreClickedListener? = null
+    private var onCryptoListMarketListener: OnCryptoListMarketListener? = null
 
-    interface OnCryptoClickedListener {
+    interface OnCryptoListMarketListener {
         fun onCryptoClicked(bundle: Bundle)
-    }
-
-    interface OnSnackbarCreatedListener {
         fun onSnackbarCreated(snackbar: Snackbar)
-    }
-
-    interface OnLoadMoreClickedListener {
         fun onLoadMoreClicked()
     }
 
-    fun setOnCryptoClickedListener(listener: OnCryptoClickedListener?) {
-        onCryptoClickedListener = listener
-    }
-
-    fun setOnSnackbarCreatedListener(listener: OnSnackbarCreatedListener?) {
-        onSnackbarCreatedListener = listener
-    }
-
-    fun setOnLoadMoreClickedListener(listener: OnLoadMoreClickedListener?) {
-        onLoadMoreClickedListener = listener
+    fun setOnCryptoListMarketListener(listener: OnCryptoListMarketListener?) {
+        onCryptoListMarketListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -104,7 +89,7 @@ class CryptoListMarketAdapter :
                     cryptoHolder.bind(selectedCrypto)
                     cryptoHolder.bindingCrypto.parentLayoutCrypto.setOnClickListener {
                         val bundle = bundleOf("selectedCrypto" to selectedCrypto)
-                        onCryptoClickedListener?.onCryptoClicked(bundle)
+                        onCryptoListMarketListener?.onCryptoClicked(bundle)
                     }
                 }
             }
@@ -130,7 +115,7 @@ class CryptoListMarketAdapter :
                 val loadMoreHolder = holder as LoadMoreListMarketViewHolder
                 Log.d("LoadMoreClicked", "viewTypeLoadMore")
                 loadMoreHolder.bindingLoadMore.btnLoadMore.setOnClickListener {
-                    onLoadMoreClickedListener?.onLoadMoreClicked()
+                    onCryptoListMarketListener?.onLoadMoreClicked()
                 }
 
             }
@@ -164,8 +149,8 @@ class CryptoListMarketAdapter :
                         continue
                     }
                     if (getItemViewType(i) == viewTypeCrypto && item is Crypto) {
-                        if (item.symbol!!.lowercase().contains(filterPattern) or
-                            item.name!!.lowercase().contains(filterPattern)
+                        if (item.symbol.lowercase().contains(filterPattern) or
+                            item.name.lowercase().contains(filterPattern)
                         ) filteredList.add(item)
                     }
                 }
@@ -196,13 +181,13 @@ class CryptoListMarketAdapter :
         if (getItemViewType(position) == viewTypeBannerAd) return
         val crypto = cryptoList[position] as Crypto
         val cryptoId = crypto.id
-        val cryptoSymbol = crypto.symbol?.uppercase()
+        val cryptoSymbol = crypto.symbol.uppercase()
         Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         MainScope().launch {
             val savedAlerts: Int
-            if (mRoom.getSingleAlert(cryptoId!!) == null) {
-                val cryptoSwiped = CryptoAlert(cryptoId)
+            if (mRoom.getSingleAlert(cryptoId) == null) {
+                val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
                 savedAlerts = mRoom.getAllAlerts().size
                 val resultInsert: Int = try {
                     mRoom.insertAlert(cryptoSwiped).toInt()
@@ -249,7 +234,7 @@ class CryptoListMarketAdapter :
                                         }
                                     }
                                 }.let { snackbar ->
-                                    onSnackbarCreatedListener?.onSnackbarCreated(snackbar)
+                                    onCryptoListMarketListener?.onSnackbarCreated(snackbar)
                                 }
 
                         }
@@ -267,7 +252,7 @@ class CryptoListMarketAdapter :
                         "$cryptoSymbol already in favorites",
                         Snackbar.LENGTH_SHORT
                     ).let { snackbar ->
-                        onSnackbarCreatedListener?.onSnackbarCreated(snackbar)
+                        onCryptoListMarketListener?.onSnackbarCreated(snackbar)
                     }
             }
         }
@@ -289,7 +274,7 @@ class CryptoListMarketAdapter :
                     DiskCacheStrategy.AUTOMATIC
                 ).placeholder(circularProgressDrawable).override(0, 35)
                     .into(ivAdapterCryptoIcon)
-                tvAdapterCryptoSymbol.text = crypto.symbol!!.uppercase()
+                tvAdapterCryptoSymbol.text = crypto.symbol.uppercase()
                 tvAdapterCryptoName.text = crypto.name
                 val currentPrice = crypto.current_price.customFormattedPrice(userCurrency)
                 tvAdapterCryptoPrice.text = currentPrice

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:ignore="RtlSymmetry">
 
     <TextView
@@ -45,8 +45,8 @@
         android:id="@+id/tvFragmentCryptoDetailPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="10dp"
         android:layout_marginTop="5dp"
+        android:paddingStart="10dp"
         android:text="@string/HOLDER_CRYPTO_NAME"
         android:textColor="@color/text"
         android:textSize="25sp"
@@ -63,8 +63,8 @@
         android:textColor="@color/text"
         android:textSize="18sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/tvFragmentCryptoDetailPrice"
-        app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailPrice"
-        app:layout_constraintEnd_toStartOf="@+id/tvFragmentCryptoDetailPriceChange24h" />
+        app:layout_constraintEnd_toStartOf="@+id/tvFragmentCryptoDetailPriceChange24h"
+        app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailPrice" />
 
     <TextView
         android:id="@+id/tvFragmentCryptoDetailPriceChange24h"
@@ -104,6 +104,20 @@
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_marginTop="7dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFragmentCryptoDetailPriceChangePercentage24h" />
+
+    <TextView
+        android:id="@+id/tvFragmentCryptoDetailNoData"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="7dp"
+        android:gravity="center"
+        android:text="@string/NO_DATA"
+        android:textColor="@color/text"
+        android:textSize="25sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvFragmentCryptoDetailPriceChangePercentage24h" />

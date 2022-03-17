@@ -1,25 +1,26 @@
 package com.kotlin.cryptofication.data.network
 
 import android.util.Log
-import com.kotlin.cryptofication.core.RetrofitHelper
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.data.model.Crypto
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mRoom
+import com.kotlin.cryptofication.data.repos.CryptoAlertRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.UnknownHostException
+import javax.inject.Inject
 
-class CryptoService {
-
-    private val retrofit = RetrofitHelper.getRetrofit()
+class CryptoService @Inject constructor(
+    private val api: CryptoAPIClient,
+    private val mRoom: CryptoAlertRepository
+) {
 
     suspend fun getMarketCrypto(page: Int): List<Crypto> {
         return withContext(Dispatchers.IO) {
             try {
                 val userCurrency = mPrefs.getCurrency()
                 val userItemsPage = mPrefs.getItemsPerPage()
-                val response = retrofit.create(CryptoAPIClient::class.java).getMarketCryptoList(
+                val response = api.getMarketCryptoList(
                     userCurrency, userItemsPage, "true", page
                 )
                 Log.d("CryptoService", "Response Service: $response")
@@ -48,7 +49,7 @@ class CryptoService {
                     }
                     ids = ids.substring(0, ids.length - 1)
                     Log.d("CryptoService", "ids: $ids")
-                    val response = retrofit.create(CryptoAPIClient::class.java).getAlertsCryptoList(
+                    val response = api.getAlertsCryptoList(
                         ids, userCurrency, "true"
                     )
                     Log.d("CryptoService", "Response: $response")

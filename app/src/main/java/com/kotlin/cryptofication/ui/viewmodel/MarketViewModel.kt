@@ -1,20 +1,32 @@
 package com.kotlin.cryptofication.ui.viewmodel
 
+import android.content.Context
 import android.text.TextUtils
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.*
+import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.domain.GetCryptoMarketOfflineUseCase
 import com.kotlin.cryptofication.domain.GetCryptoMarketOnlineUseCase
+import com.kotlin.cryptofication.utilities.Constants
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.SocketTimeoutException
+import javax.inject.Inject
 
-class MarketViewModel: ViewModel() {
+@HiltViewModel
+class MarketViewModel @Inject constructor(
+    private val getCryptoOnlineUseCase: GetCryptoMarketOnlineUseCase,
+    private val getCryptoOfflineUseCase: GetCryptoMarketOfflineUseCase,
+    @ApplicationContext private val context: Context
+) : ViewModel() {
     val cryptoLiveData = MutableLiveData<List<Any>>()
     val isLoading = MutableLiveData<Boolean>()
     val error = MutableLiveData<String>()
@@ -25,9 +37,6 @@ class MarketViewModel: ViewModel() {
     var lastSelectedFilterItem = 0
     var hasAlreadyData = false
     private var page = 1
-
-    var getCryptoOnlineUseCase = GetCryptoMarketOnlineUseCase()
-    var getCryptoOfflineUseCase = GetCryptoMarketOfflineUseCase()
 
     var cryptoList: ArrayList<Any> = arrayListOf()
 
@@ -167,6 +176,63 @@ class MarketViewModel: ViewModel() {
                 return cryptoList
             }
         }
+    }
+
+    fun addBanners() {
+        var i = 0
+        while (i <= cryptoList.size) {
+            val adView = AdView(context).apply {
+                adSize = AdSize.BANNER
+                adUnitId = resources.getString(R.string.ADMOB_BANNER_RECYCLERVIEW)
+            }
+            cryptoList.add(i, adView)
+            i += Constants.ITEMS_PER_AD
+        }
+        loadBannerAds()
+        cryptoList.add(Double)
+    }
+
+    private fun loadBannerAds() {
+        loadBannerAd(0)
+    }
+
+    private fun loadBannerAd(index: Int) {
+        if (index >= cryptoList.size) {
+            return
+        }
+
+        val item = cryptoList[index] as? AdView
+            ?: throw ClassCastException("Expected item at index $index to be a banner ad ad.")
+
+        // Set an AdListener on the AdView to wait for the previous banner ad to finish loading before loading the next ad in the items list.
+        item.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+                super.onAdLoaded()
+                // The previous banner ad loaded successfully, call this method again to
+                // load the next ad in the items list.
+                loadBannerAd(index + Constants.ITEMS_PER_AD)
+            }
+
+            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                // The previous banner ad failed to load. Call this method again to load
+                // the next ad in the items list.
+                val error = String.format(
+                    "domain: %s, code: %d, message: %s",
+                    loadAdError.domain, loadAdError.code, loadAdError.message
+                )
+                Log.e(
+                    "FragmentMarket",
+                    "The previous banner ad failed to load with error: "
+                            + error
+                            + ". Attempting to"
+                            + " load the next banner ad in the items list."
+                )
+                loadBannerAd(index + Constants.ITEMS_PER_AD)
+            }
+        }
+
+        // Load the banner ad.
+        item.loadAd(AdRequest.Builder().build())
     }
 
     fun isMiUi(): Boolean {

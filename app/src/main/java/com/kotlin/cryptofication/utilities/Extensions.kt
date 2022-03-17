@@ -52,6 +52,25 @@ fun Double.customFormattedPercentage(): String {
     return "$formattedPercentage%"
 }
 
+fun Double.formattedDouble(): String {
+    val currencySeparator = DecimalFormat().decimalFormatSymbols.decimalSeparator
+    var formattedDouble = when {
+        this >= 100 -> String.format("%.2f", this).replace("0+$".toRegex(), "")
+        this >= 1 -> String.format("%.3f", this).replace("0+$".toRegex(), "")
+        else -> {
+            val priceAfterSeparator =
+                this.toBigDecimal().toPlainString().split(currencySeparator)[1]
+            val leadingZeros =
+                priceAfterSeparator.length - priceAfterSeparator.replace("^0+".toRegex(), "").length
+            String.format("%.${leadingZeros + 4}f", this).replace("0+$".toRegex(), "")
+        }
+    }
+    if (formattedDouble.endsWith(currencySeparator)) {
+        formattedDouble = formattedDouble.substring(0, formattedDouble.length - 1)
+    }
+    return formattedDouble
+}
+
 fun ImageView.positivePrice() {
     setImageResource(R.drawable.ic_arrow_drop_up)
     setColorFilter(ContextCompat.getColor(this.context, R.color.green_high))
