@@ -2,7 +2,6 @@ package com.kotlin.cryptofication.adapter
 
 import android.graphics.Canvas
 import android.os.Build
-import android.util.Log
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.kotlin.cryptofication.R
@@ -97,13 +96,13 @@ class SimpleItemTouchHelperCallback(
             if (dX > 0) {
                 if (dX < itemView.width / 2) {
                     if (enteredMoreSwipe) {
-                        Log.d("onChildDraw", "left less")
+                        // -0% to -50%
                         enteredMoreSwipe = false
                     }
                     rwSwipeBackground!!.alpha = ((dX.roundToInt()) * 255) / (itemView.width / 2)
                 } else {
                     if (!enteredMoreSwipe) {
-                        Log.d("onChildDraw", "left more")
+                        // -50% to -100%
                         recyclerView.doHaptic()
                         enteredMoreSwipe = true
                     }
@@ -124,13 +123,13 @@ class SimpleItemTouchHelperCallback(
             } else {
                 if (dX > -itemView.width / 2) {
                     if (enteredMoreSwipe) {
-                        Log.d("onChildDraw", "right less")
+                        // +0% to +50%
                         enteredMoreSwipe = false
                     }
                     rwSwipeBackground!!.alpha = ((dX.roundToInt()) * 255) / (-itemView.width / 2)
                 } else {
                     if (!enteredMoreSwipe) {
-                        Log.d("onChildDraw", "right more")
+                        // +50% to +100%
                         recyclerView.doHaptic()
                         enteredMoreSwipe = true
                     }

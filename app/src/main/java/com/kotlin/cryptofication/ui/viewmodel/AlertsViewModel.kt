@@ -49,7 +49,6 @@ class AlertsViewModel @Inject constructor(
                 try {
                     // Get Cryptos from the API (online)
                     result = getCryptoOnlineUseCase()
-                    Log.d("onCreateViewModel", "Result: $result")
                 } catch (e: SocketTimeoutException) {
                     e.printStackTrace()
                 }
@@ -67,11 +66,7 @@ class AlertsViewModel @Inject constructor(
                             crypto.current_price,
                             cryptoListAlerts[index].quantity
                         )
-                        when (mRoom.modifyQuantityAlert(cryptoAlert)) {
-                            0 -> {
-                                Log.d("AlertsVMUpdate", "${cryptoAlert.id} couldn't be updated")
-                            }
-                        }
+                        mRoom.modifyQuantityAlert(cryptoAlert)
                     }
                     // Sort cryptoList with the desired filters and post the list
                     result = sortCryptoList(result)
@@ -151,9 +146,6 @@ class AlertsViewModel @Inject constructor(
 
     private fun sortCryptoList(cryptoList: List<Crypto>): List<Crypto> {
         // Reorder cryptoList
-        Log.d("changeSortRecyclerView", "cryptoList[0]: " + cryptoList[0].name)
-        Log.d("changeSortRecyclerView", "Type: $orderOption - Order: $orderFilter")
-        Log.d("changeSortRecyclerView", "cryptoList size: " + cryptoList.size)
         when (orderOption) {
             0 -> {
                 // Ordered by change percentage

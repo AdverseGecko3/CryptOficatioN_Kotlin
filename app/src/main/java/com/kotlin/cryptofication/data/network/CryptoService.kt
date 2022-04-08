@@ -23,7 +23,6 @@ class CryptoService @Inject constructor(
                 val response = api.getMarketCryptoList(
                     userCurrency, userItemsPage, "true", page
                 )
-                Log.d("CryptoService", "Response Service: $response")
                 response.body() ?: emptyList()
             } catch (e: UnknownHostException) {
                 e.printStackTrace()
@@ -48,11 +47,9 @@ class CryptoService @Inject constructor(
                         ids += "${cryptoId.id},"
                     }
                     ids = ids.substring(0, ids.length - 1)
-                    Log.d("CryptoService", "ids: $ids")
                     val response = api.getAlertsCryptoList(
                         ids, userCurrency, "true"
                     )
-                    Log.d("CryptoService", "Response: $response")
                     response.body() ?: emptyList()
                 } else {
                     emptyList()

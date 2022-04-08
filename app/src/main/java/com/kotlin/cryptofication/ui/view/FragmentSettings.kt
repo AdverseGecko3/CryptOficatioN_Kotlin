@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
@@ -22,7 +21,6 @@ import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.setCustomButtonStyle
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.Exception
 
 @AndroidEntryPoint
 class FragmentSettings : PreferenceFragmentCompat() {
@@ -54,18 +52,8 @@ class FragmentSettings : PreferenceFragmentCompat() {
         loadPreferences()
         preferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             when (key) {
-                Constants.PREF_CURRENCY -> {
-                    Log.d(
-                        "prefSelected",
-                        lpCurrency!!.title.toString() + " - " + lpCurrency!!.value
-                    )
-                    mPrefs.setCurrency(lpCurrency!!.value)
-                }
+                Constants.PREF_CURRENCY -> mPrefs.setCurrency(lpCurrency!!.value)
                 Constants.PREF_SCHEME -> {
-                    Log.d(
-                        "prefSelected",
-                        spScheme!!.title.toString() + " - " + spScheme!!.isChecked
-                    )
                     mPrefs.setScheme(spScheme!!.isChecked)
                     if (spScheme!!.isChecked) {
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -74,27 +62,9 @@ class FragmentSettings : PreferenceFragmentCompat() {
                     }
                     requireActivity().recreate()
                 }
-                Constants.PREF_FILTER_OPTION -> {
-                    Log.d(
-                        "prefSelected",
-                        lpFilterOption!!.title.toString() + " - " + lpFilterOption!!.value
-                    )
-                    mPrefs.setFilterOption(lpFilterOption!!.value)
-                }
-                Constants.PREF_FILTER_ORDER -> {
-                    Log.d(
-                        "prefSelected",
-                        lpFilterOrder!!.title.toString() + " - " + lpFilterOrder!!.value
-                    )
-                    mPrefs.setFilterOrder(lpFilterOrder!!.value)
-                }
-                Constants.PREF_ITEMS_PAGE -> {
-                    Log.d(
-                        "prefSelected",
-                        lpItemsPage!!.title.toString() + " - " + lpItemsPage!!.value
-                    )
-                    mPrefs.setItemsPerPage(lpItemsPage!!.value)
-                }
+                Constants.PREF_FILTER_OPTION -> mPrefs.setFilterOption(lpFilterOption!!.value)
+                Constants.PREF_FILTER_ORDER -> mPrefs.setFilterOrder(lpFilterOrder!!.value)
+                Constants.PREF_ITEMS_PAGE -> mPrefs.setItemsPerPage(lpItemsPage!!.value)
             }
         }
         pAlertTime!!.onPreferenceClickListener =
@@ -122,7 +92,6 @@ class FragmentSettings : PreferenceFragmentCompat() {
                             minute.toString()
                         }
                         val newTime = "$newHour:$newMinute"
-                        Log.d("itemSwipe", "Time selected: $newTime")
                         mPrefs.setAlertTime(newTime)
                         pAlertTime!!.summary = newTime
                     }, currentAlertTime[0].toInt(), currentAlertTime[1].toInt(), true

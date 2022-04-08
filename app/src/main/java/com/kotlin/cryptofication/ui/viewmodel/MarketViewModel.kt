@@ -49,7 +49,6 @@ class MarketViewModel @Inject constructor(
             try {
                 // Get Cryptos from the API (online)
                 result = getCryptoOnlineUseCase()
-                Log.d("onCreateViewModel", "Result: $result")
             } catch (e: SocketTimeoutException) {
                 e.printStackTrace()
             }
@@ -76,7 +75,6 @@ class MarketViewModel @Inject constructor(
             try {
                 // Get Cryptos from the API (online)
                 result = getCryptoOnlineUseCase(page)
-                Log.d("onCreateViewModel", "Result: $result")
             } catch (e: SocketTimeoutException) {
                 e.printStackTrace()
             }
@@ -118,9 +116,6 @@ class MarketViewModel @Inject constructor(
 
     private fun sortCryptoList(cryptoList: List<Crypto>): List<Crypto> {
         // Reorder cryptoList
-        Log.d("changeSortRecyclerView", "cryptoList[0]: " + cryptoList[0].name)
-        Log.d("changeSortRecyclerView", "Type: $orderOption - Order: $orderFilter")
-        Log.d("changeSortRecyclerView", "cryptoList size: " + cryptoList.size)
         when (orderOption) {
             0 -> {
                 // Ordered by change percentage
@@ -247,7 +242,6 @@ class MarketViewModel @Inject constructor(
             val p = Runtime.getRuntime().exec("getprop $propName")
             input = BufferedReader(InputStreamReader(p.inputStream), 1024)
             line = input.readLine()
-            Log.d("marketVM-Xiaomi", line)
             input.close()
         } catch (ex: IOException) {
             return null

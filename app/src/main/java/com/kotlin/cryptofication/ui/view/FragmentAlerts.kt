@@ -111,15 +111,11 @@ class FragmentAlerts :
         binding.srlAlertsReload.setColorSchemeResources(R.color.purple_app_accent)
 
         alertsViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            Log.d("FragmentAlerts", "isLoading changed to $isLoading")
-
             // Set refreshing depending isLoading boolean in ViewModel
             binding.srlAlertsReload.isRefreshing = isLoading
         }
 
         alertsViewModel.cryptoLiveData.observe(viewLifecycleOwner) { cryptoList ->
-            Log.d("FragmentAlerts", "Received cryptoList")
-
             alertsViewModel.cryptoList = ArrayList(cryptoList)
 
             // Set the cryptoList from API to the adapter
@@ -127,22 +123,17 @@ class FragmentAlerts :
         }
 
         alertsViewModel.alertsLiveData.observe(viewLifecycleOwner) { alertsList ->
-            Log.d("FragmentAlerts", "Received alertsList")
-
             // Set the cryptoList from API to the adapter
             setCryptoListAlertsPortfolioToAdapter(ArrayList(alertsList))
         }
 
         alertsViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            Log.d("FragmentAlerts", "Error message")
-
             // Show toast when result is empty/null on ViewModel
             requireContext().showToast(errorMessage)
         }
 
         // Load crypto data from API now
         binding.srlAlertsReload.post {
-            Log.d("FragmentAlerts", "Post SwipeRefresh")
             alertsViewModel.onCreate()
         }
 
@@ -157,10 +148,6 @@ class FragmentAlerts :
         // Find itemSearch and viewSearch in the toolbar
         itemSearch = menu.findItem(R.id.mnSearch)
         val viewSearch = itemSearch!!.actionView as SearchView
-        Log.d(
-            "onCreateOptionsMenu",
-            "orderOption:${alertsViewModel.orderOption} - orderFilter:${alertsViewModel.orderFilter}"
-        )
 
         // Check if it is the first run
         if (!alertsViewModel.alreadyLaunched) {
@@ -207,7 +194,6 @@ class FragmentAlerts :
 
             // Set alreadyLaunched to true in ViewModel
             alertsViewModel.alreadyLaunched = true
-            Log.d("firstLaunchFA", "First launch FA")
         } else {
             // See orderOption and orderFilter in ViewModel, and check the corresponding options
             when (alertsViewModel.orderOption) {
@@ -237,41 +223,38 @@ class FragmentAlerts :
                 1 -> itemDescending!!.isChecked = true
             }
         }
-        Log.d(
-            "onCreateOptionsMenu",
-            "orderOption:${alertsViewModel.orderOption} - orderFilter:${alertsViewModel.orderFilter}"
-        )
 
         // SearchView and itemSearch listeners
-        viewSearch.imeOptions = EditorInfo.IME_ACTION_DONE
-        viewSearch.isIconified = false
-        viewSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                return false
-            }
+        viewSearch.apply {
+            imeOptions = EditorInfo.IME_ACTION_DONE
+            isIconified = false
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    return false
+                }
 
-            override fun onQueryTextChange(query: String): Boolean {
-                // Apply the query as the user makes some change on the filter (writes something)
-                Log.d("QueryTextChanged", query)
-                rwCryptoAdapter.filter.filter(query)
-                return false
-            }
-        })
+                override fun onQueryTextChange(query: String): Boolean {
+                    // Apply the query as the user makes some change on the filter (writes something)
+                    rwCryptoAdapter.filter.filter(query)
+                    return false
+                }
+            })
+        }
         itemSearch!!.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 // Open the search
-                Log.d("itemSearch", "Opened search")
                 viewSearch.onActionViewExpanded()
                 return true // True to be able to open
             }
 
             override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
                 // Close the search, empty the field and clear the focus
-                Log.d("itemSearch", "Closed search")
                 rwCryptoAdapter.filter.filter("")
-                viewSearch.onActionViewCollapsed()
-                viewSearch.setQuery("", false)
-                viewSearch.clearFocus()
+                viewSearch.apply {
+                    onActionViewCollapsed()
+                    setQuery("", false)
+                    clearFocus()
+                }
                 return true // True as we want to be able to close it
             }
         })
@@ -286,10 +269,6 @@ class FragmentAlerts :
             itemId == R.id.mnFilterOptionPercentage || itemId == R.id.mnFilterOrderAscending ||
             itemId == R.id.mnFilterOrderDescending
         ) {
-            Log.d(
-                "onOptionsItemSelected",
-                "orderOption:${alertsViewModel.orderOption} - orderFilter:${alertsViewModel.orderFilter}"
-            )
             if (itemId == R.id.mnFilterOptionMarketCap || itemId == R.id.mnFilterOptionSymbol ||
                 itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionPrice ||
                 itemId == R.id.mnFilterOptionPercentage
@@ -348,10 +327,6 @@ class FragmentAlerts :
                     }
                 }
             }
-            Log.d(
-                "onOptionsItemSelected",
-                "orderOption:${alertsViewModel.orderOption} - orderFilter:${alertsViewModel.orderFilter}"
-            )
             alertsViewModel.onFilterChanged()
         }
         return true
@@ -431,13 +406,17 @@ class FragmentAlerts :
         // Initialize RecyclerViews layout managers, adapters and interfaces
         rwCryptoPortfolioAdapter = CryptoListAlertsPortfolioAdapter()
         binding.apply {
-            rwAlertsCryptoCryptoList.layoutManager = LinearLayoutManager(context)
-            rwAlertsCryptoCryptoList.adapter = rwCryptoAdapter
-            rwAlertsCryptoCryptoList.setHasFixedSize(true)
+            rwAlertsCryptoCryptoList.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = rwCryptoAdapter
+                setHasFixedSize(true)
+            }
 
-            rwAlertsCryptoPortfolioList.layoutManager = LinearLayoutManager(context)
-            rwAlertsCryptoPortfolioList.adapter = rwCryptoPortfolioAdapter
-            rwAlertsCryptoPortfolioList.setHasFixedSize(true)
+            rwAlertsCryptoPortfolioList.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = rwCryptoPortfolioAdapter
+                setHasFixedSize(true)
+            }
         }
 
         rwCryptoAdapter.setOnCryptoListAlertsListener(this)
@@ -495,7 +474,7 @@ class FragmentAlerts :
             rwCryptoAdapter.setCryptos(alertsViewModel.cryptoList)
 
             if (arguments?.getString("cryptoId") != null) {
-                Log.d("CryptoNotification", "Had cryptoId argument")
+                // If arguments has a cryptoId (coming from a notification)
                 rwCryptoAdapter.goToCrypto(arguments?.getString("cryptoId")!!)
                 arguments?.remove("cryptoId")
             }

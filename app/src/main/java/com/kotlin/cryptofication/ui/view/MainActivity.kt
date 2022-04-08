@@ -2,7 +2,6 @@ package com.kotlin.cryptofication.ui.view
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -46,22 +45,21 @@ class MainActivity : AppCompatActivity() {
             intent.getStringExtra("lastActivity")?.let {
                 when {
                     it == "settings" -> {
-                        Log.d("lastActivity", "Coming from Settings, returning to Settings")
+                        // Settings extra, coming from Settings, returning to Settings
                         navGraph.setStartDestination(R.id.navigationFragmentSettings)
                         bottomNavView.setupWithNavController(navController)
                         navController.navigate(R.id.navigationFragmentSettings)
                     }
                     it.contains("alerts") -> {
-                        Log.d("lastActivity", "Coming from Notification, going to Alerts")
+                        // Alerts extra, coming from Notification, going to Alerts
                         val cryptoId = it.substring(6, it.length)
-                        Log.d("lastActivity", "Bundle: $it - cryptoId: $cryptoId")
                         val cryptoBundle = bundleOf("cryptoId" to cryptoId)
                         navGraph.setStartDestination(R.id.navigationFragmentAlerts)
                         bottomNavView.setupWithNavController(navController)
                         navController.navigate(R.id.navigationFragmentAlerts, cryptoBundle)
                     }
                     else -> {
-                        Log.d("lastActivity", "lastActivity with unknown extra")
+                        // Unknown extra
                         navGraph.setStartDestination(R.id.navigationFragmentMarket)
                         bottomNavView.setupWithNavController(navController)
                     }
@@ -70,7 +68,7 @@ class MainActivity : AppCompatActivity() {
             }
 
         } else {
-            Log.d("lastActivity", "lastActivity had no extras")
+            // No extras
             navGraph.setStartDestination(R.id.navigationFragmentMarket)
             bottomNavView.setupWithNavController(navController)
         }
@@ -79,15 +77,16 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         // Create dialog to confirm the dismiss
         val builder = AlertDialog.Builder(this, R.style.CustomAlertDialog)
-        val titleExit = TextView(this)
-        titleExit.text = getString(R.string.EXIT)
-        titleExit.setTextColor(ResourcesCompat.getColor(resources, R.color.white, null))
-        titleExit.gravity = Gravity.CENTER
-        titleExit.textSize = 25f
-        titleExit.setPadding(
-            titleExit.lineHeight / 2, titleExit.lineHeight / 2,
-            titleExit.lineHeight / 2, titleExit.lineHeight / 2
-        )
+        val titleExit = TextView(this).apply {
+            text = getString(R.string.EXIT)
+            setTextColor(ResourcesCompat.getColor(resources, R.color.white, null))
+            gravity = Gravity.CENTER
+            textSize = 25f
+            setPadding(
+                lineHeight / 2, lineHeight / 2,
+                lineHeight / 2, lineHeight / 2
+            )
+        }
         builder.setCustomTitle(titleExit)
             .setMessage(getString(R.string.CONFIRMATION_EXIT))
             .setNegativeButton(
