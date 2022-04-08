@@ -20,6 +20,8 @@ But now, let me introduce you. I'm Eric Barrero, and this app is a sample of my 
 
 **- Coroutines:** To make Asynchronous processes such as doing tasks in the background, making an API call, or getting values in Room, coroutines are the way to go.
 
+**- Android Hilt:** It uses dependency injection to reduce manual dependency injection and a better performance and scalability.
+
 **- ViewBinding:** For a better code comprehension, and also a cleaner one, ViewBinding is used to get the views from the XML file.
 
 **- API communication:** This app uses CoinGecko Free API, and thanks to Retrofit, the API communicates to this app via JSON.
