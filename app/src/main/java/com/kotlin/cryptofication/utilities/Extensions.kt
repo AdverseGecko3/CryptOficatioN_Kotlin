@@ -22,11 +22,12 @@ fun Context.showToast(message: String, length: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, length).show()
 }
 
-fun Double.customFormattedPrice(userCurrency: String): String {
+fun Double.customFormattedPrice(userCurrency: String, twoDecimalFormat: Boolean = false): String {
     val currencySeparator = '.'
     val currencySeparatorLocale = DecimalFormat().decimalFormatSymbols.decimalSeparator
 
     var formattedPrice = when {
+        twoDecimalFormat -> String.format("%.2f", this).replace("0+$".toRegex(), "")
         this >= 100 -> String.format("%.2f", this).replace("0+$".toRegex(), "")
         this >= 1 -> String.format("%.3f", this).replace("0+$".toRegex(), "")
         else -> {
