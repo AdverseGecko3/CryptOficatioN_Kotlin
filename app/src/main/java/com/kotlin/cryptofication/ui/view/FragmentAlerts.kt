@@ -459,7 +459,7 @@ class FragmentAlerts :
 
     override fun onQuantityUpdatedTotal(total: Double) {
         binding.tvAlertsCryptoPortfolioTotalText.text =
-            total.customFormattedPrice(mPrefs.getCurrencySymbol())
+            total.customFormattedPrice(mPrefs.getCurrencySymbol(), true)
     }
 
     override fun onAlertChanged() {

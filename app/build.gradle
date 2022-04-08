@@ -13,8 +13,8 @@ android {
         applicationId "com.kotlin.cryptofication"
         minSdk 21
         targetSdk 31
-        versionCode 66
-        versionName "1.5.0"
+        versionCode 69
+        versionName "1.5.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

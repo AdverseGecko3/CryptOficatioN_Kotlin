@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
 import androidx.recyclerview.widget.RecyclerView
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.CryptoAlert
@@ -14,6 +13,7 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.customFormattedPrice
 import com.kotlin.cryptofication.utilities.formattedDouble
 import com.kotlin.cryptofication.utilities.showToast
+import java.lang.NumberFormatException
 import java.text.NumberFormat
 import java.util.*
 
@@ -49,19 +49,25 @@ class CryptoListAlertsPortfolioAdapter :
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val etText = cryptoHolder.bindingCrypto.etAdapterPortfolioQuantity
                 val format = NumberFormat.getInstance(Locale.getDefault())
+                val quantity = try {
+                    etText.text.toString().toDouble()
+                } catch (e: NumberFormatException) {
+                    format.parse(etText.text.toString())!!.toDouble()
+                }
                 when {
                     etText.text.isEmpty() -> {
                         etText.setText("0")
-                        updateQuantity(cryptoHolder, etText, selectedCrypto, position)
+                        updateQuantity(cryptoHolder, quantity, selectedCrypto, position)
                     }
-                    format.parse(etText.text.toString())!!.toDouble() < 0 -> {
+                    quantity < 0 -> {
                         v.context.showToast("Quantity must be greater than 0!")
                     }
                     else -> {
                         etText.setText(
-                            format.parse(etText.text.toString())!!.toDouble().formattedDouble()
+                            quantity.formattedDouble()
                         )
-                        updateQuantity(cryptoHolder, etText, selectedCrypto, position)
+                        updateQuantity(cryptoHolder, quantity, selectedCrypto, position)
+                        etText.clearFocus()
                     }
                 }
             }
@@ -74,17 +80,14 @@ class CryptoListAlertsPortfolioAdapter :
 
     private fun updateQuantity(
         cryptoHolder: CryptoListAlertsViewHolder,
-        etText: EditText,
+        newQuantity: Double,
         selectedCrypto: CryptoAlert,
         position: Int
     ) {
-        val format = NumberFormat.getInstance(Locale.getDefault())
-        val newQuantity = format.parse(etText.text.toString())!!.toDouble()
         val newCryptoPortfolioPrice = (newQuantity * selectedCrypto.current_price)
-        cryptoHolder.bindingCrypto.tvAdapterPortfolioTextPriceChange.text =
-            newCryptoPortfolioPrice.customFormattedPrice(cryptoHolder.userCurrency)
+        cryptoHolder.bindingCrypto.tvAdapterPortfolioPrice.text =
+            newCryptoPortfolioPrice.customFormattedPrice(cryptoHolder.userCurrency, true)
         updateTotal(selectedCrypto, newQuantity, position)
-        etText.clearFocus()
         selectedCrypto.quantity = newQuantity
         onCryptoListAlertsPortfolioListener?.onQuantityUpdatedCrypto(selectedCrypto)
         onCryptoListAlertsPortfolioListener?.onQuantityUpdatedTotal(getTotal())
@@ -125,8 +128,8 @@ class CryptoListAlertsPortfolioAdapter :
             bindingCrypto.apply {
                 tvAdapterPortfolioSymbol.text = crypto.symbol.uppercase()
                 etAdapterPortfolioQuantity.setText(crypto.quantity.formattedDouble())
-                tvAdapterPortfolioTextPriceChange.text =
-                    (crypto.quantity * crypto.current_price).customFormattedPrice(userCurrency)
+                tvAdapterPortfolioPrice.text =
+                    (crypto.quantity * crypto.current_price).customFormattedPrice(userCurrency, true)
 
             }
         }
