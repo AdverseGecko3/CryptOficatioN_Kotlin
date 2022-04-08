@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import java.util.*
@@ -31,24 +30,21 @@ class NotificationAlarmManager(context: Context) {
 
     @SuppressLint("SimpleDateFormat")
     fun launchAlarmManager() {
-        Log.d("NotifServ", "Launched Alarm Manager")
         //deleteAlarmManager()
         val userAlarm = mPrefs.getAlertTime()
         val userAlarmParts = userAlarm.split(":")
         val calendarNow = Calendar.getInstance()
         val calendarUser = Calendar.getInstance()
-        calendarUser.set(Calendar.HOUR_OF_DAY, userAlarmParts[0].toInt())
-        calendarUser.set(Calendar.MINUTE, userAlarmParts[1].toInt())
-        calendarUser.set(Calendar.SECOND, 0)
-        calendarUser.set(Calendar.MILLISECOND, 0)
+        calendarUser.apply {
+            set(Calendar.HOUR_OF_DAY, userAlarmParts[0].toInt())
+            set(Calendar.MINUTE, userAlarmParts[1].toInt())
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
 
-        if ((calendarUser.timeInMillis + 5000) < calendarNow.timeInMillis) {
+        if ((calendarUser.timeInMillis + 60000) < calendarNow.timeInMillis) {
+            // Add 1 day if it only remains 1 minute to the selected hour
             calendarUser.add(Calendar.DAY_OF_MONTH, 1)
-            Log.d("NotifServ", "Added 1 day")
-            Log.d(
-                "NotifServ",
-                "${calendarNow.timeInMillis} - ${calendarUser.timeInMillis}"
-            )
         }
 
         alarmManager.setRepeating(
@@ -61,23 +57,20 @@ class NotificationAlarmManager(context: Context) {
 
     @SuppressLint("SimpleDateFormat")
     fun modifyAlarmManager(newTime: String) {
-        Log.d("NotifServ", "Modified Alarm Manager")
         //deleteAlarmManager()
         val userAlarmParts = newTime.split(":")
         val calendarNow = Calendar.getInstance()
         val calendarUser = Calendar.getInstance()
-        calendarUser.set(Calendar.HOUR_OF_DAY, userAlarmParts[0].toInt())
-        calendarUser.set(Calendar.MINUTE, userAlarmParts[1].toInt())
-        calendarUser.set(Calendar.SECOND, 0)
-        calendarUser.set(Calendar.MILLISECOND, 0)
+        calendarUser.apply {
+            set(Calendar.HOUR_OF_DAY, userAlarmParts[0].toInt())
+            set(Calendar.MINUTE, userAlarmParts[1].toInt())
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
 
         if ((calendarUser.timeInMillis + 5000) < calendarNow.timeInMillis) {
+            // Add 1 day if it only remains 1 minute to the selected hour
             calendarUser.add(Calendar.DAY_OF_MONTH, 1)
-            Log.d("NotifServ", "Added 1 day")
-            Log.d(
-                "NotifServ",
-                "${calendarNow.timeInMillis} - ${calendarUser.timeInMillis}"
-            )
         }
 
         alarmManager.setRepeating(
@@ -89,7 +82,6 @@ class NotificationAlarmManager(context: Context) {
     }
 
     fun deleteAlarmManager() {
-        Log.d("NotifServ", "Deleted Alarm Manager")
         alarmManager.cancel(pendingIntent)
     }
 }

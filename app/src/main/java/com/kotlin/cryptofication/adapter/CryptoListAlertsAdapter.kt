@@ -3,7 +3,6 @@ package com.kotlin.cryptofication.adapter
 import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,13 +59,11 @@ class CryptoListAlertsAdapter @Inject constructor(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             viewTypeCrypto -> {
-                Log.d("onCreateViewHolder", "is viewTypeCrypto")
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.adapter_crypto, parent, false)
                 CryptoListAlertsViewHolder(view)
             }
             else -> {
-                Log.d("onCreateViewHolder", "is viewTypeBannerAd")
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.adapter_banner_ad, parent, false)
                 AdBannerListAlertsViewHolder(view)
@@ -80,7 +77,6 @@ class CryptoListAlertsAdapter @Inject constructor(
                 val cryptoHolder = holder as CryptoListAlertsViewHolder
                 if (cryptoList[position] is Crypto) {
                     val selectedCrypto = cryptoList[position] as Crypto
-                    Log.d("onBindViewHolder", "is viewTypeCrypto - ${selectedCrypto.symbol}")
                     cryptoHolder.bind(selectedCrypto)
                     cryptoHolder.bindingCrypto.parentLayoutCrypto.setOnClickListener {
                         val bundle = bundleOf("selectedCrypto" to selectedCrypto)
@@ -89,7 +85,6 @@ class CryptoListAlertsAdapter @Inject constructor(
                 }
             }
             else -> {
-                Log.d("onBindViewHolder", "is viewTypeBannerAd")
                 val bannerHolder = holder as AdBannerListAlertsViewHolder
                 if (cryptoList[position] is AdView) {
                     val adView = cryptoList[position] as AdView
@@ -103,7 +98,6 @@ class CryptoListAlertsAdapter @Inject constructor(
 
                     // Add the banner ad to the ad view.
                     adBannerView.addView(adView)
-                    Log.d("AdBannerListMarketVH", "Added view")
                 }
             }
         }
@@ -122,11 +116,9 @@ class CryptoListAlertsAdapter @Inject constructor(
             val query = charSequence.toString()
 
             if (query.isEmpty()) {
-                Log.d("performFilter", "Filter empty")
                 filteredList.addAll(cryptoListFull)
             } else {
                 val filterPattern = query.lowercase().trim { it <= ' ' }
-                Log.d("performFilter", "Filter not empty: $filterPattern")
                 for ((i, item) in cryptoListFull.withIndex()) {
                     if (i == 0) {
                         filteredList.add(item)
@@ -167,15 +159,12 @@ class CryptoListAlertsAdapter @Inject constructor(
         val crypto = cryptoList[position] as Crypto
         val cryptoId = crypto.id
         val cryptoSymbol = crypto.symbol.uppercase()
-        Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the current date)
         MainScope().launch {
             val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
             val savedAlerts = mRoom.getAllAlerts().size
-            Log.d("itemSwipe", "Alerts Size: $savedAlerts")
             val resultDelete: Int = mRoom.deleteAlert(cryptoSwiped)
-            Log.d("itemSwipe", "ResultDelete: $resultDelete")
 
             when (resultDelete) {
                 0 -> {
@@ -223,7 +212,6 @@ class CryptoListAlertsAdapter @Inject constructor(
                                     e.printStackTrace()
                                     0
                                 }
-                                Log.d("itemSwipe", "ResultInsert: $resultInsert")
 
                                 resultInsert.let {
                                     when {
@@ -233,7 +221,6 @@ class CryptoListAlertsAdapter @Inject constructor(
                                         it > 0 -> {
                                             // The item has been deleted successfully
                                             mAppContext.showToast("$cryptoSymbol added to favorites")
-                                            Log.d("itemSwipe", "Crypto: $crypto")
                                             cryptoList.add(position, crypto)
                                             notifyItemInserted(position)
                                             cryptoProvider.cryptosAlerts =

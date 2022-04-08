@@ -6,30 +6,31 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
-import com.kotlin.cryptofication.domain.GetCryptoMarketOnlineUseCase
+import com.kotlin.cryptofication.domain.GetCryptoAlertsOnlineUseCase
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.ui.view.MainActivity
 import com.kotlin.cryptofication.utilities.Constants.CHANNEL_ID
 import com.kotlin.cryptofication.utilities.customFormattedPercentage
 import com.kotlin.cryptofication.utilities.customFormattedPrice
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
-class NotificationReceiver @Inject constructor(
-    private val getCryptoOnlineUseCase: GetCryptoMarketOnlineUseCase
-) : BroadcastReceiver() {
+@AndroidEntryPoint
+class NotificationReceiver : BroadcastReceiver() {
+
+    @Inject
+    lateinit var getCryptoOnlineUseCase: GetCryptoAlertsOnlineUseCase
 
     private val groupKey = "com.kotlin.CryptOficatioN"
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("NotifServ", "Received!")
         MainScope().launch {
             val cryptoAlerts = loadData()
             showNotification(cryptoAlerts, context)
@@ -41,7 +42,6 @@ class NotificationReceiver @Inject constructor(
         val i = Intent(context, MainActivity::class.java)
         for ((index, crypto: Crypto) in cryptoList.withIndex()) {
             val cryptoSymbol = crypto.symbol.uppercase()
-            Log.d("NotifServ", "Crypto Symbol: $cryptoSymbol")
             val cryptoPrice = crypto.current_price.customFormattedPrice(mPrefs.getCurrencySymbol())
             val cryptoPriceChange =
                 crypto.price_change_24h.customFormattedPrice(mPrefs.getCurrencySymbol())
@@ -54,7 +54,6 @@ class NotificationReceiver @Inject constructor(
                     "$cryptoSymbol is $cryptoPercentageChange down ($cryptoPriceChange), currently at $cryptoPrice"
                 }
 
-            Log.d("NotifServ", "alerts${crypto.id}")
             i.putExtra("lastActivity", "alerts${crypto.id}")
             val pi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 PendingIntent.getActivity(
@@ -102,7 +101,6 @@ class NotificationReceiver @Inject constructor(
             try {
                 // Get Cryptos from the API (online)
                 result = getCryptoOnlineUseCase()
-                Log.d("NotifServ", "Result: $result")
             } catch (e: SocketTimeoutException) {
                 e.printStackTrace()
             }

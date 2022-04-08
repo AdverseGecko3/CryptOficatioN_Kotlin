@@ -3,7 +3,6 @@ package com.kotlin.cryptofication.adapter
 import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +27,6 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.*
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import java.lang.ClassCastException
 import javax.inject.Inject
 
 class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlertRepository) :
@@ -58,19 +56,16 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             viewTypeCrypto -> {
-                Log.d("onCreateViewHolder", "is viewTypeCrypto")
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.adapter_crypto, parent, false)
                 CryptoListMarketViewHolder(view)
             }
             viewTypeBannerAd -> {
-                Log.d("onCreateViewHolder", "is viewTypeBannerAd")
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.adapter_banner_ad, parent, false)
                 AdBannerListMarketViewHolder(view)
             }
             viewTypeLoadMore -> {
-                Log.d("onCreateViewHolder", "is viewTypeLoadMore")
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.adapter_load_more, parent, false)
                 LoadMoreListMarketViewHolder(view)
@@ -85,7 +80,6 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
                 val cryptoHolder = holder as CryptoListMarketViewHolder
                 if (cryptoList[position] is Crypto) {
                     val selectedCrypto = cryptoList[position] as Crypto
-                    Log.d("onBindViewHolder", "is viewTypeCrypto - ${selectedCrypto.symbol}")
                     cryptoHolder.bind(selectedCrypto)
                     cryptoHolder.bindingCrypto.parentLayoutCrypto.setOnClickListener {
                         val bundle = bundleOf("selectedCrypto" to selectedCrypto)
@@ -94,7 +88,6 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
                 }
             }
             viewTypeBannerAd -> {
-                Log.d("onBindViewHolder", "is viewTypeBannerAd")
                 val bannerHolder = holder as AdBannerListMarketViewHolder
                 if (cryptoList[position] is AdView) {
                     val adView = cryptoList[position] as AdView
@@ -108,12 +101,10 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
 
                     // Add the banner ad to the ad view.
                     adBannerView.addView(adView)
-                    Log.d("AdBannerListMarketVH", "Added View")
                 }
             }
             viewTypeLoadMore -> {
                 val loadMoreHolder = holder as LoadMoreListMarketViewHolder
-                Log.d("LoadMoreClicked", "viewTypeLoadMore")
                 loadMoreHolder.bindingLoadMore.btnLoadMore.setOnClickListener {
                     onCryptoListMarketListener?.onLoadMoreClicked()
                 }
@@ -137,11 +128,9 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
             val query = charSequence.toString()
 
             if (query.isEmpty()) {
-                Log.d("performFilter", "Filter empty")
                 filteredList.addAll(cryptoListFull)
             } else {
                 val filterPattern = query.lowercase().trim { it <= ' ' }
-                Log.d("performFilter", "Filter not empty: $filterPattern")
                 for ((i, item) in cryptoListFull.withIndex()) {
                     if (getItemViewType(i) == viewTypeLoadMore) continue
                     if (i == 0) {
@@ -182,7 +171,6 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
         val crypto = cryptoList[position] as Crypto
         val cryptoId = crypto.id
         val cryptoSymbol = crypto.symbol.uppercase()
-        Log.d("itemSwipe", "Item position: $position - Item symbol: $cryptoSymbol")
 
         MainScope().launch {
             val savedAlerts: Int
@@ -195,10 +183,8 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
                     e.printStackTrace()
                     0
                 }
-                Log.d("itemSwipe", "ResultInsert: $resultInsert")
 
                 resultInsert.let {
-                    Log.d("itemSwipe", "it: $it")
                     when {
                         it > 0 -> {
                             // The item has been added to the database successfully. Add the action to undo the action

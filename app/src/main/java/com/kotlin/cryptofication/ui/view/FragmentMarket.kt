@@ -16,7 +16,7 @@ import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.ads.*
+import com.google.android.gms.ads.AdView
 import com.google.android.material.snackbar.Snackbar
 import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.adapter.CryptoListMarketAdapter
@@ -100,7 +100,6 @@ class FragmentMarket :
 
             // Set first run (onCreateView) to false
             mPrefs.setFirstRun(false)
-            Log.d("firstRun", "App first run")
         }
 
         // SwipeRefreshLayout refresh listener
@@ -131,15 +130,11 @@ class FragmentMarket :
         binding.srlMarketReload.setColorSchemeResources(R.color.purple_app_accent)
 
         marketViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            Log.d("FragmentMarket", "isLoading changed to $isLoading")
-
             // Set refreshing depending isLoading boolean in ViewModel
             binding.srlMarketReload.isRefreshing = isLoading
         }
 
         marketViewModel.cryptoLiveData.observe(viewLifecycleOwner) { cryptoList ->
-            Log.d("FragmentMarket", "Received cryptoList")
-
             marketViewModel.cryptoList = ArrayList(cryptoList)
 
             // Set the cryptoList from API to the adapter
@@ -150,8 +145,6 @@ class FragmentMarket :
         }
 
         marketViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            Log.d("FragmentMarket", "Error message")
-
             // Show toast when result is empty/null on ViewModel
             requireContext().showToast(errorMessage)
 
@@ -160,7 +153,6 @@ class FragmentMarket :
 
         // Load crypto data from API now
         binding.srlMarketReload.post {
-            Log.d("FragmentMarket", "Post SwipeRefresh")
             marketViewModel.onCreate()
         }
 
@@ -175,10 +167,6 @@ class FragmentMarket :
         // Find itemSearch and viewSearch in the toolbar
         itemSearch = menu.findItem(R.id.mnSearch)
         val viewSearch = itemSearch!!.actionView as SearchView
-        Log.d(
-            "onCreateOptionsMenu",
-            "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}"
-        )
 
         // Check if it is the first run
         if (!marketViewModel.alreadyLaunched) {
@@ -225,7 +213,6 @@ class FragmentMarket :
 
             // Set alreadyLaunched to true in ViewModel
             marketViewModel.alreadyLaunched = true
-            Log.d("firstLaunchFM", "First launch FM")
         } else {
             // See orderOption and orderFilter in ViewModel, and check the corresponding options
             when (marketViewModel.orderOption) {
@@ -255,41 +242,38 @@ class FragmentMarket :
                 1 -> itemDescending!!.isChecked = true
             }
         }
-        Log.d(
-            "onCreateOptionsMenu",
-            "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}"
-        )
 
         // SearchView and itemSearch listeners
-        viewSearch.imeOptions = EditorInfo.IME_ACTION_DONE
-        viewSearch.isIconified = false
-        viewSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                return false
-            }
+        viewSearch.apply {
+            imeOptions = EditorInfo.IME_ACTION_DONE
+            isIconified = false
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    return false
+                }
 
-            override fun onQueryTextChange(query: String): Boolean {
-                // Apply the query as the user makes some change on the filter (writes something)
-                Log.d("QueryTextChanged", query)
-                rwCryptoAdapter.filter.filter(query)
-                return false
-            }
-        })
+                override fun onQueryTextChange(query: String): Boolean {
+                    // Apply the query as the user makes some change on the filter (writes something)
+                    rwCryptoAdapter.filter.filter(query)
+                    return false
+                }
+            })
+        }
         itemSearch!!.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 // Open the search
-                Log.d("itemSearch", "Opened search")
                 viewSearch.onActionViewExpanded()
                 return true // True to be able to open
             }
 
             override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
                 // Close the search, empty the field and clear the focus
-                Log.d("itemSearch", "Closed search")
                 rwCryptoAdapter.filter.filter("")
-                viewSearch.onActionViewCollapsed()
-                viewSearch.setQuery("", false)
-                viewSearch.clearFocus()
+                viewSearch.apply {
+                    onActionViewCollapsed()
+                    setQuery("", false)
+                    clearFocus()
+                }
                 return true // True as we want to be able to close it
             }
         })
@@ -304,10 +288,6 @@ class FragmentMarket :
             itemId == R.id.mnFilterOptionPercentage || itemId == R.id.mnFilterOrderAscending ||
             itemId == R.id.mnFilterOrderDescending
         ) {
-            Log.d(
-                "onOptionsItemSelected",
-                "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}"
-            )
             if (itemId == R.id.mnFilterOptionMarketCap || itemId == R.id.mnFilterOptionSymbol ||
                 itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionPrice ||
                 itemId == R.id.mnFilterOptionPercentage
@@ -366,10 +346,6 @@ class FragmentMarket :
                     }
                 }
             }
-            Log.d(
-                "onOptionsItemSelected",
-                "orderOption:${marketViewModel.orderOption} - orderFilter:${marketViewModel.orderFilter}"
-            )
             marketViewModel.onFilterChanged()
         }
         return true

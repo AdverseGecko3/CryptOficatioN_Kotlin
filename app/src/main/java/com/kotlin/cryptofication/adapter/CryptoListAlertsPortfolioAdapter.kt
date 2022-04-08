@@ -14,6 +14,8 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.customFormattedPrice
 import com.kotlin.cryptofication.utilities.formattedDouble
 import com.kotlin.cryptofication.utilities.showToast
+import java.text.NumberFormat
+import java.util.*
 
 class CryptoListAlertsPortfolioAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -46,16 +48,19 @@ class CryptoListAlertsPortfolioAdapter :
         cryptoHolder.bindingCrypto.etAdapterPortfolioQuantity.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val etText = cryptoHolder.bindingCrypto.etAdapterPortfolioQuantity
+                val format = NumberFormat.getInstance(Locale.getDefault())
                 when {
                     etText.text.isEmpty() -> {
                         etText.setText("0")
                         updateQuantity(cryptoHolder, etText, selectedCrypto, position)
                     }
-                    etText.text.toString().toDouble() < 0 -> {
+                    format.parse(etText.text.toString())!!.toDouble() < 0 -> {
                         v.context.showToast("Quantity must be greater than 0!")
                     }
                     else -> {
-                        etText.setText(etText.text.toString().toDouble().formattedDouble())
+                        etText.setText(
+                            format.parse(etText.text.toString())!!.toDouble().formattedDouble()
+                        )
                         updateQuantity(cryptoHolder, etText, selectedCrypto, position)
                     }
                 }
@@ -73,7 +78,8 @@ class CryptoListAlertsPortfolioAdapter :
         selectedCrypto: CryptoAlert,
         position: Int
     ) {
-        val newQuantity = etText.text.toString().toDouble()
+        val format = NumberFormat.getInstance(Locale.getDefault())
+        val newQuantity = format.parse(etText.text.toString())!!.toDouble()
         val newCryptoPortfolioPrice = (newQuantity * selectedCrypto.current_price)
         cryptoHolder.bindingCrypto.tvAdapterPortfolioTextPriceChange.text =
             newCryptoPortfolioPrice.customFormattedPrice(cryptoHolder.userCurrency)

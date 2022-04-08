@@ -5,7 +5,6 @@ import androidx.appcompat.app.AlertDialog
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.ImageView
@@ -24,7 +23,9 @@ fun Context.showToast(message: String, length: Int = Toast.LENGTH_SHORT) {
 }
 
 fun Double.customFormattedPrice(userCurrency: String): String {
-    val currencySeparator = DecimalFormat().decimalFormatSymbols.decimalSeparator
+    val currencySeparator = '.'
+    val currencySeparatorLocale = DecimalFormat().decimalFormatSymbols.decimalSeparator
+
     var formattedPrice = when {
         this >= 100 -> String.format("%.2f", this).replace("0+$".toRegex(), "")
         this >= 1 -> String.format("%.3f", this).replace("0+$".toRegex(), "")
@@ -36,7 +37,7 @@ fun Double.customFormattedPrice(userCurrency: String): String {
             String.format("%.${leadingZeros + 4}f", this).replace("0+$".toRegex(), "")
         }
     }
-    if (formattedPrice.endsWith(currencySeparator)) {
+    if (formattedPrice.endsWith(currencySeparatorLocale)) {
         formattedPrice = formattedPrice.substring(0, formattedPrice.length - 1)
     }
     return "$formattedPrice$userCurrency"
@@ -53,7 +54,9 @@ fun Double.customFormattedPercentage(): String {
 }
 
 fun Double.formattedDouble(): String {
-    val currencySeparator = DecimalFormat().decimalFormatSymbols.decimalSeparator
+    val currencySeparator = '.'
+    val currencySeparatorLocale = DecimalFormat().decimalFormatSymbols.decimalSeparator
+
     var formattedDouble = when {
         this >= 100 -> String.format("%.2f", this).replace("0+$".toRegex(), "")
         this >= 1 -> String.format("%.3f", this).replace("0+$".toRegex(), "")
@@ -65,7 +68,7 @@ fun Double.formattedDouble(): String {
             String.format("%.${leadingZeros + 4}f", this).replace("0+$".toRegex(), "")
         }
     }
-    if (formattedDouble.endsWith(currencySeparator)) {
+    if (formattedDouble.endsWith(currencySeparatorLocale)) {
         formattedDouble = formattedDouble.substring(0, formattedDouble.length - 1)
     }
     return formattedDouble
@@ -92,7 +95,6 @@ fun TextView.negativePrice() {
 fun RecyclerView.doHaptic() {
     val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     if (vibrator.hasVibrator()) {
-        Log.d("doHaptic", "hasVibrator -> SDK: ${Build.VERSION.SDK_INT}")
         when {
             Build.VERSION.SDK_INT >= 30 -> {
                 performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -109,8 +111,6 @@ fun RecyclerView.doHaptic() {
                 vibrator.vibrate(5)
             }
         }
-    } else {
-        Log.d("doHaptic", "!hasVibrator")
     }
 }
 
