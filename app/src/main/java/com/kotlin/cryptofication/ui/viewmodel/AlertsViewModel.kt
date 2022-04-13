@@ -15,7 +15,9 @@ import com.kotlin.cryptofication.domain.GetCryptoAlertsOnlineUseCase
 import com.kotlin.cryptofication.utilities.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
@@ -43,7 +45,7 @@ class AlertsViewModel @Inject constructor(
             // Start refreshing
             isLoading.postValue(true)
 
-            var cryptoListAlerts: List<Any> = mRoom.getAllAlerts()
+            var cryptoListAlerts: List<Any> = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }
             if (cryptoListAlerts.isNotEmpty()) {
                 var result: List<Any> = emptyList()
                 try {
@@ -90,7 +92,7 @@ class AlertsViewModel @Inject constructor(
             // Start refreshing
             isLoading.postValue(true)
 
-            var cryptoListAlerts: List<Any> = mRoom.getAllAlerts()
+            var cryptoListAlerts: List<Any> = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }
             if (cryptoListAlerts.isNotEmpty()) {
                 // Sort API and DB crypto to match IDs
                 var result = quickSortCrypto(getCryptoOfflineUseCase())
@@ -113,7 +115,7 @@ class AlertsViewModel @Inject constructor(
             // Start refreshing
             isLoading.postValue(true)
 
-            var cryptoListAlerts = mRoom.getAllAlerts()
+            var cryptoListAlerts = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }
             if (cryptoListAlerts.isNotEmpty()) {
                 // Get Cryptos from the provider (online)
                 var result = getCryptoOfflineUseCase()
@@ -221,7 +223,7 @@ class AlertsViewModel @Inject constructor(
 
     fun updateCryptoAlert(cryptoAlert: CryptoAlert) {
         viewModelScope.launch {
-            mRoom.modifyQuantityAlert(cryptoAlert)
+            withContext(Dispatchers.IO){ mRoom.modifyQuantityAlert(cryptoAlert) }
         }
     }
 

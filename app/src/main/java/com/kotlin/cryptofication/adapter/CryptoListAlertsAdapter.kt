@@ -25,8 +25,7 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManag
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.*
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 class CryptoListAlertsAdapter @Inject constructor(
@@ -161,12 +160,11 @@ class CryptoListAlertsAdapter @Inject constructor(
         val cryptoSymbol = crypto.symbol.uppercase()
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the current date)
-        MainScope().launch {
+        CoroutineScope(Dispatchers.Default).launch {
             val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
-            val savedAlerts = mRoom.getAllAlerts().size
-            val resultDelete: Int = mRoom.deleteAlert(cryptoSwiped)
+            val savedAlerts = withContext(Dispatchers.IO){ mRoom.getAllAlerts()}.size
 
-            when (resultDelete) {
+            when (withContext(Dispatchers.IO){ mRoom.deleteAlert(cryptoSwiped) }) {
                 0 -> {
                     // The item wasn't in the database
                     cryptoList.removeAt(position)
@@ -204,10 +202,10 @@ class CryptoListAlertsAdapter @Inject constructor(
                             Snackbar.LENGTH_SHORT
                         )
                         .setAction("UNDO") {
-                            MainScope().launch {
+                            CoroutineScope(Dispatchers.Default).launch {
                                 // When undo is clicked, delete the item from table Favorites
                                 val resultInsert: Int = try {
-                                    mRoom.insertAlert(cryptoSwiped).toInt()
+                                    withContext(Dispatchers.IO){ mRoom.insertAlert(cryptoSwiped)}.toInt()
                                 } catch (e: SQLiteConstraintException) {
                                     e.printStackTrace()
                                     0
@@ -217,10 +215,10 @@ class CryptoListAlertsAdapter @Inject constructor(
                                     when {
                                         it == 0 ->
                                             // The item couldn't be deleted
-                                            mAppContext.showToast("$cryptoSymbol already in favorites")
+                                            withContext(Dispatchers.Main){ mAppContext.showToast("$cryptoSymbol already in favorites") }
                                         it > 0 -> {
                                             // The item has been deleted successfully
-                                            mAppContext.showToast("$cryptoSymbol added to favorites")
+                                            withContext(Dispatchers.Main){ mAppContext.showToast("$cryptoSymbol added to favorites") }
                                             cryptoList.add(position, crypto)
                                             notifyItemInserted(position)
                                             cryptoProvider.cryptosAlerts =
