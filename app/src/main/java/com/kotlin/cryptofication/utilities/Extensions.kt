@@ -27,8 +27,9 @@ fun Double.customFormattedPrice(userCurrency: String, twoDecimalFormat: Boolean 
     val currencySeparatorLocale = DecimalFormat().decimalFormatSymbols.decimalSeparator
 
     var formattedPrice = when {
-        twoDecimalFormat -> String.format("%.2f", this).replace("0+$".toRegex(), "")
-        this >= 100 -> String.format("%.2f", this).replace("0+$".toRegex(), "")
+        twoDecimalFormat || this >= 100 -> {
+            String.format("%.2f", this).replace("0+$".toRegex(), "")
+        }
         this >= 1 -> String.format("%.3f", this).replace("0+$".toRegex(), "")
         else -> {
             val priceAfterSeparator =

@@ -457,9 +457,19 @@ class FragmentAlerts :
         alertsViewModel.updateCryptoAlert(cryptoAlert)
     }
 
-    override fun onQuantityUpdatedTotal(total: Double) {
-        binding.tvAlertsCryptoPortfolioTotalText.text =
-            total.customFormattedPrice(mPrefs.getCurrencySymbol(), true)
+    override fun onQuantityUpdatedTotal(total: Double, bitcoinPrice: Double) {
+        binding.tvAlertsCryptoPortfolioTotalText.text = totalText(total, bitcoinPrice)
+    }
+
+    private fun totalText(total: Double, bitcoinPrice: Double): String {
+        val priceInBitcoin =
+            (total / bitcoinPrice).customFormattedPrice(mPrefs.getCurrencySymbol()).dropLast(1)
+        return "${
+            total.customFormattedPrice(
+                mPrefs.getCurrencySymbol(),
+                true
+            )
+        } - $priceInBitcoin BTC"
     }
 
     override fun onAlertChanged() {
@@ -488,17 +498,19 @@ class FragmentAlerts :
     }
 
     private fun changeItemsVisibility(isEmpty: Boolean) {
-        binding.apply {
-            if (isEmpty) {
-                rwAlertsCryptoCryptoList.visibility = View.GONE
-                rwAlertsCryptoPortfolioList.visibility = View.GONE
-                bsAlertsPortfolio.visibility = View.GONE
-                tvAlertsCryptoListEmpty.visibility = View.VISIBLE
-            } else {
-                rwAlertsCryptoCryptoList.visibility = View.VISIBLE
-                rwAlertsCryptoPortfolioList.visibility = View.VISIBLE
-                bsAlertsPortfolio.visibility = View.VISIBLE
-                tvAlertsCryptoListEmpty.visibility = View.GONE
+        activity?.runOnUiThread {
+            binding.apply {
+                if (isEmpty) {
+                    rwAlertsCryptoCryptoList.visibility = View.GONE
+                    rwAlertsCryptoPortfolioList.visibility = View.GONE
+                    bsAlertsPortfolio.visibility = View.GONE
+                    tvAlertsCryptoListEmpty.visibility = View.VISIBLE
+                } else {
+                    rwAlertsCryptoCryptoList.visibility = View.VISIBLE
+                    rwAlertsCryptoPortfolioList.visibility = View.VISIBLE
+                    bsAlertsPortfolio.visibility = View.VISIBLE
+                    tvAlertsCryptoListEmpty.visibility = View.GONE
+                }
             }
         }
     }

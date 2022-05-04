@@ -3,6 +3,7 @@ package com.kotlin.cryptofication.adapter
 import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -157,14 +158,15 @@ class CryptoListAlertsAdapter @Inject constructor(
         if (getItemViewType(position) == viewTypeBannerAd) return
         val crypto = cryptoList[position] as Crypto
         val cryptoId = crypto.id
-        val cryptoSymbol = crypto.symbol.uppercase()
+        val cryptoSymbol = crypto.symbol
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the current date)
         CoroutineScope(Dispatchers.Default).launch {
+            val cryptoAlert = withContext(Dispatchers.IO) { mRoom.getSingleAlert(cryptoId) }
             val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
-            val savedAlerts = withContext(Dispatchers.IO){ mRoom.getAllAlerts()}.size
+            val savedAlerts = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }.size
 
-            when (withContext(Dispatchers.IO){ mRoom.deleteAlert(cryptoSwiped) }) {
+            when (withContext(Dispatchers.IO) { mRoom.deleteAlert(cryptoAlert ?: cryptoSwiped) }) {
                 0 -> {
                     // The item wasn't in the database
                     cryptoList.removeAt(position)
@@ -195,47 +197,65 @@ class CryptoListAlertsAdapter @Inject constructor(
                         mPrefs.setDBHasItems(false)
                     }
 
-                    Snackbar
-                        .make(
-                            viewHolder.itemView,
-                            "$cryptoSymbol removed from favorites",
-                            Snackbar.LENGTH_SHORT
-                        )
-                        .setAction("UNDO") {
-                            CoroutineScope(Dispatchers.Default).launch {
-                                // When undo is clicked, delete the item from table Favorites
-                                val resultInsert: Int = try {
-                                    withContext(Dispatchers.IO){ mRoom.insertAlert(cryptoSwiped)}.toInt()
-                                } catch (e: SQLiteConstraintException) {
-                                    e.printStackTrace()
-                                    0
-                                }
+                    try {
+                        Snackbar
+                            .make(
+                                viewHolder.itemView,
+                                "${cryptoSymbol.uppercase()} removed from favorites",
+                                Snackbar.LENGTH_SHORT
+                            )
+                            .setAction("UNDO") {
+                                CoroutineScope(Dispatchers.Default).launch {
+                                    // When undo is clicked, delete the item from table Favorites
+                                    val resultInsert: Int = try {
+                                        withContext(Dispatchers.IO) {
+                                            mRoom.insertAlert(
+                                                cryptoAlert ?: cryptoSwiped
+                                            )
+                                        }.toInt()
+                                    } catch (e: SQLiteConstraintException) {
+                                        e.printStackTrace()
+                                        0
+                                    }
 
-                                resultInsert.let {
-                                    when {
-                                        it == 0 ->
-                                            // The item couldn't be deleted
-                                            withContext(Dispatchers.Main){ mAppContext.showToast("$cryptoSymbol already in favorites") }
-                                        it > 0 -> {
-                                            // The item has been deleted successfully
-                                            withContext(Dispatchers.Main){ mAppContext.showToast("$cryptoSymbol added to favorites") }
-                                            cryptoList.add(position, crypto)
-                                            notifyItemInserted(position)
-                                            cryptoProvider.cryptosAlerts =
-                                                cleanAdsCryptoList(cryptoList)
-                                            onCryptoListAlertsListener?.onAlertChanged()
-                                            if (savedAlerts == 1) {
-                                                mAlarmManager.launchAlarmManager()
-                                                onCryptoListAlertsListener?.onCryptoEmptied(false)
-                                                mPrefs.setDBHasItems(true)
+                                    resultInsert.let {
+                                        when {
+                                            it == 0 ->
+                                                // The item couldn't be deleted
+                                                withContext(Dispatchers.Main) {
+                                                    mAppContext.showToast(
+                                                        "${cryptoSymbol.uppercase()} already in favorites"
+                                                    )
+                                                }
+                                            it > 0 -> {
+                                                // The item has been deleted successfully
+                                                withContext(Dispatchers.Main) {
+                                                    mAppContext.showToast(
+                                                        "${cryptoSymbol.uppercase()} added to favorites"
+                                                    )
+                                                }
+                                                cryptoList.add(position, crypto)
+                                                notifyItemInserted(position)
+                                                cryptoProvider.cryptosAlerts =
+                                                    cleanAdsCryptoList(cryptoList)
+                                                onCryptoListAlertsListener?.onAlertChanged()
+                                                if (savedAlerts == 1) {
+                                                    mAlarmManager.launchAlarmManager()
+                                                    onCryptoListAlertsListener?.onCryptoEmptied(
+                                                        false
+                                                    )
+                                                    mPrefs.setDBHasItems(true)
+                                                }
                                             }
                                         }
                                     }
                                 }
+                            }.let { snackbar ->
+                                onCryptoListAlertsListener?.onSnackbarCreated(snackbar)
                             }
-                        }.let { snackbar ->
-                            onCryptoListAlertsListener?.onSnackbarCreated(snackbar)
-                        }
+                    } catch (e: IllegalArgumentException) {
+                        Log.e("IllegalArgumentExc", e.message.toString())
+                    }
                 }
             }
         }

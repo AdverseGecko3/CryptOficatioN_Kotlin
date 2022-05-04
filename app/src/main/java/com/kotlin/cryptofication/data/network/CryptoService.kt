@@ -40,13 +40,15 @@ class CryptoService @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val userCurrency = mPrefs.getCurrency()
-                val idsList = mRoom.getAllAlerts()
-                val listAlert: List<Crypto> = if (idsList.isNotEmpty()) {
+                val cryptoAlertsList = mRoom.getAllAlerts()
+                val listAlert: List<Crypto> = if (cryptoAlertsList.isNotEmpty()) {
                     var ids = ""
-                    for (cryptoId in idsList) {
-                        ids += "${cryptoId.id},"
+                    for (crypto in cryptoAlertsList) {
+                        if (crypto.symbol.uppercase() != "BTC") {
+                            ids += "${crypto.id},"
+                        }
                     }
-                    ids = ids.substring(0, ids.length - 1)
+                    ids += "bitcoin"
                     val response = api.getAlertsCryptoList(
                         ids, userCurrency, "true"
                     )

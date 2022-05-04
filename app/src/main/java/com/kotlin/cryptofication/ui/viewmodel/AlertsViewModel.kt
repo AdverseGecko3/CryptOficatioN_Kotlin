@@ -10,6 +10,7 @@ import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.model.CryptoAlert
 import com.kotlin.cryptofication.data.repos.CryptoAlertRepository
+import com.kotlin.cryptofication.domain.GetCryptoAlertsBitcoinUseCase
 import com.kotlin.cryptofication.domain.GetCryptoAlertsOfflineUseCase
 import com.kotlin.cryptofication.domain.GetCryptoAlertsOnlineUseCase
 import com.kotlin.cryptofication.utilities.Constants
@@ -24,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AlertsViewModel @Inject constructor(
     private val getCryptoOnlineUseCase: GetCryptoAlertsOnlineUseCase,
+    private val getBitcoinUseCase: GetCryptoAlertsBitcoinUseCase,
     private val getCryptoOfflineUseCase: GetCryptoAlertsOfflineUseCase,
     private val mRoom: CryptoAlertRepository,
     @ApplicationContext private val context: Context
@@ -45,36 +47,34 @@ class AlertsViewModel @Inject constructor(
             // Start refreshing
             isLoading.postValue(true)
 
-            var cryptoListAlerts: List<Any> = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }
+            var cryptoListAlerts = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }
             if (cryptoListAlerts.isNotEmpty()) {
                 var result: List<Any> = emptyList()
+                var bitcoin: Crypto? = null
                 try {
                     // Get Cryptos from the API (online)
                     result = getCryptoOnlineUseCase()
+                    bitcoin = getBitcoinUseCase()
                 } catch (e: SocketTimeoutException) {
                     e.printStackTrace()
                 }
                 if (!result.isNullOrEmpty()) {
                     // Sort API and DB crypto to match IDs
-                    result = quickSortCrypto(result)
-                    cryptoListAlerts = quickSortCrypto(cryptoListAlerts)
-                    result = result.map { it as Crypto }
-                    cryptoListAlerts = cryptoListAlerts.map { it as CryptoAlert }
-                    // Update DB values
-                    for ((index, crypto) in result.withIndex()) {
-                        val cryptoAlert = CryptoAlert(
-                            crypto.id,
-                            crypto.symbol,
-                            crypto.current_price,
-                            cryptoListAlerts[index].quantity
-                        )
-                        mRoom.modifyQuantityAlert(cryptoAlert)
-                    }
+                    result = quickSortCrypto(result).map { it as Crypto }
+                    cryptoListAlerts = quickSortCrypto(cryptoListAlerts).map { it as CryptoAlert }
+                    cryptoListAlerts =
+                        updateCryptoListAlertsValues(cryptoListAlerts.toMutableList(), result)
+
                     // Sort cryptoList with the desired filters and post the list
                     result = sortCryptoList(result)
                     cryptoListAlerts = sortCryptoPortfolio(result, cryptoListAlerts)
                     cryptoLiveData.postValue(result as List<Any>)
-                    alertsLiveData.postValue(cryptoListAlerts)
+                    alertsLiveData.postValue(
+                        addBitcoinToLast(
+                            cryptoListAlerts.toMutableList(),
+                            bitcoin
+                        )
+                    )
                 } else {
                     // Send error to show a toast
                     error.postValue("Error while getting cryptos Online!")
@@ -87,6 +87,42 @@ class AlertsViewModel @Inject constructor(
         }
     }
 
+    private suspend fun updateCryptoListAlertsValues(
+        cryptoListAlerts: MutableList<CryptoAlert>,
+        result: List<Crypto>
+    ): List<CryptoAlert> {
+        // Update DB values
+        for ((index, crypto) in result.withIndex()) {
+            val cryptoAlert = CryptoAlert(
+                crypto.id,
+                crypto.symbol,
+                crypto.current_price,
+                cryptoListAlerts[index].quantity
+            )
+            mRoom.modifyQuantityAlert(cryptoAlert)
+            cryptoListAlerts[index] = cryptoAlert
+        }
+        return cryptoListAlerts
+    }
+
+    private fun addBitcoinToLast(
+        cryptoList: MutableList<CryptoAlert>,
+        bitcoin: Crypto?
+    ): List<CryptoAlert> {
+        return cryptoList
+            .apply {
+                add(
+                    CryptoAlert(
+                        bitcoin!!.id,
+                        bitcoin.symbol,
+                        bitcoin.current_price,
+                        0.0
+                    )
+                )
+                toList()
+            }
+    }
+
     fun onAlertsUpdated() {
         viewModelScope.launch {
             // Start refreshing
@@ -95,15 +131,19 @@ class AlertsViewModel @Inject constructor(
             var cryptoListAlerts: List<Any> = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }
             if (cryptoListAlerts.isNotEmpty()) {
                 // Sort API and DB crypto to match IDs
-                var result = quickSortCrypto(getCryptoOfflineUseCase())
-                cryptoListAlerts = quickSortCrypto(cryptoListAlerts)
-                result = result.map { it as Crypto }
-                cryptoListAlerts = cryptoListAlerts.map { it as CryptoAlert }
+                var result = quickSortCrypto(getCryptoOfflineUseCase()).map { it as Crypto }
+                val bitcoin = getBitcoinUseCase()
+                cryptoListAlerts = quickSortCrypto(cryptoListAlerts).map { it as CryptoAlert }
 
                 // Sort cryptoList with the desired filters and post the list
                 result = sortCryptoList(result)
                 cryptoListAlerts = sortCryptoPortfolio(result, cryptoListAlerts)
-                alertsLiveData.postValue(cryptoListAlerts)
+                alertsLiveData.postValue(
+                    addBitcoinToLast(
+                        cryptoListAlerts.toMutableList(),
+                        bitcoin
+                    )
+                )
             }
             // Stop refreshing
             isLoading.postValue(false)
@@ -119,12 +159,18 @@ class AlertsViewModel @Inject constructor(
             if (cryptoListAlerts.isNotEmpty()) {
                 // Get Cryptos from the provider (online)
                 var result = getCryptoOfflineUseCase()
+                val bitcoin = getBitcoinUseCase()
                 if (!result.isNullOrEmpty()) {
                     // Sort cryptoList with the desired filters and post the list
                     result = sortCryptoList(result)
                     cryptoListAlerts = sortCryptoPortfolio(result, cryptoListAlerts)
                     cryptoLiveData.postValue(result as List<Any>)
-                    alertsLiveData.postValue(cryptoListAlerts)
+                    alertsLiveData.postValue(
+                        addBitcoinToLast(
+                            cryptoListAlerts.toMutableList(),
+                            bitcoin
+                        )
+                    )
                     // Stop refreshing
                     isLoading.postValue(false)
                 } else {
@@ -223,7 +269,7 @@ class AlertsViewModel @Inject constructor(
 
     fun updateCryptoAlert(cryptoAlert: CryptoAlert) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){ mRoom.modifyQuantityAlert(cryptoAlert) }
+            withContext(Dispatchers.IO) { mRoom.modifyQuantityAlert(cryptoAlert) }
         }
     }
 
