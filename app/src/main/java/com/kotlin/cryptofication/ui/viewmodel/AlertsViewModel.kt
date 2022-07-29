@@ -58,7 +58,7 @@ class AlertsViewModel @Inject constructor(
                 } catch (e: SocketTimeoutException) {
                     e.printStackTrace()
                 }
-                if (!result.isNullOrEmpty()) {
+                if (result.isNotEmpty()) {
                     // Sort API and DB crypto to match IDs
                     result = quickSortCrypto(result).map { it as Crypto }
                     cryptoListAlerts = quickSortCrypto(cryptoListAlerts).map { it as CryptoAlert }
@@ -160,7 +160,7 @@ class AlertsViewModel @Inject constructor(
                 // Get Cryptos from the provider (online)
                 var result = getCryptoOfflineUseCase()
                 val bitcoin = getBitcoinUseCase()
-                if (!result.isNullOrEmpty()) {
+                if (result.isNotEmpty()) {
                     // Sort cryptoList with the desired filters and post the list
                     result = sortCryptoList(result)
                     cryptoListAlerts = sortCryptoPortfolio(result, cryptoListAlerts)
@@ -277,7 +277,7 @@ class AlertsViewModel @Inject constructor(
         var i = 0
         while (i <= cryptoList.size) {
             val adView = AdView(context).apply {
-                adSize = AdSize.BANNER
+                setAdSize(AdSize.BANNER)
                 adUnitId = resources.getString(R.string.ADMOB_BANNER_RECYCLERVIEW)
             }
             cryptoList.add(i, adView)
