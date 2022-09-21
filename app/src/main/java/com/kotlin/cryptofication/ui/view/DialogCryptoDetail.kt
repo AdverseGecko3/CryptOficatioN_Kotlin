@@ -2,6 +2,7 @@ package com.kotlin.cryptofication.ui.view
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,11 +20,7 @@ import com.kotlin.cryptofication.R
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.databinding.DialogCryptoDetailBinding
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mResources
-import com.kotlin.cryptofication.utilities.customFormattedPercentage
-import com.kotlin.cryptofication.utilities.customFormattedPrice
-import com.kotlin.cryptofication.utilities.negativePrice
-import com.kotlin.cryptofication.utilities.positivePrice
+import com.kotlin.cryptofication.utilities.*
 
 class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedListener {
     private var _binding: DialogCryptoDetailBinding? = null
@@ -38,7 +35,7 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
     ): View {
         _binding = DialogCryptoDetailBinding.inflate(layoutInflater, container, false)
 
-        val selectedCrypto: Crypto? = arguments?.getParcelable("selectedCrypto")
+        val selectedCrypto: Crypto? = arguments?.parcelable("selectedCrypto")
 
         binding.apply {
             // Set the data to TextViews
@@ -71,7 +68,7 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
             lineData.add(Entry(i.toFloat(), selectedCrypto.sparkline_in_7d!!.price[i].toFloat()))
         }
 
-        if (lineData.isNullOrEmpty()) {
+        if (lineData.isEmpty()) {
             binding.apply {
                 bcFragmentCryptoDetailLine.visibility = View.GONE
                 tvFragmentCryptoDetailPriceHigh7d.visibility = View.GONE
@@ -80,10 +77,11 @@ class DialogCryptoDetail : BottomSheetDialogFragment(), OnChartValueSelectedList
             }
         } else {
             val lds = LineDataSet(lineData, "LineData").apply {
-                color = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    mResources.getColor(R.color.purple_app_accent, null)
+                color = if (SDK_INT >= Build.VERSION_CODES.M) {
+                    resources.getColor(R.color.purple_app_accent, null)
                 } else {
-                    mResources.getColor(R.color.purple_app_accent)
+                    @Suppress("DEPRECATION")
+                    resources.getColor(R.color.purple_app_accent)
                 }
                 // Change chart line width
                 lineWidth = 2F

@@ -52,7 +52,7 @@ class MarketViewModel @Inject constructor(
             } catch (e: SocketTimeoutException) {
                 e.printStackTrace()
             }
-            if (!result.isNullOrEmpty()) {
+            if (result.isNotEmpty()) {
                 // Sort cryptoList with the desired filters and post the list
                 result = sortCryptoList(result)
                 cryptoLiveData.postValue(result as List<Any>)
@@ -78,7 +78,7 @@ class MarketViewModel @Inject constructor(
             } catch (e: SocketTimeoutException) {
                 e.printStackTrace()
             }
-            if (!result.isNullOrEmpty()) {
+            if (result.isNotEmpty()) {
                 // Sort cryptoList with the desired filters and post the list
                 result = sortCryptoList(result)
                 cryptoLiveData.postValue(result as List<Any>)
@@ -98,7 +98,7 @@ class MarketViewModel @Inject constructor(
 
         // Get Cryptos from the provider (online)
         var result = getCryptoOfflineUseCase()
-        if (!result.isNullOrEmpty()) {
+        if (result.isNotEmpty()) {
             // Sort cryptoList with the desired filters and post the list
             result = sortCryptoList(result)
             cryptoLiveData.postValue(result as List<Any>)
@@ -177,7 +177,7 @@ class MarketViewModel @Inject constructor(
         var i = 0
         while (i <= cryptoList.size) {
             val adView = AdView(context).apply {
-                adSize = AdSize.BANNER
+                setAdSize(AdSize.BANNER)
                 adUnitId = resources.getString(R.string.ADMOB_BANNER_RECYCLERVIEW)
             }
             cryptoList.add(i, adView)

@@ -1,6 +1,5 @@
 package com.kotlin.cryptofication.ui.view
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -10,8 +9,10 @@ import android.widget.SearchView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,7 +37,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class FragmentAlerts :
-    Fragment(), SelectedChangeListener, OnCryptoListAlertsListener,
+    Fragment(), MenuProvider, SelectedChangeListener, OnCryptoListAlertsListener,
     OnCryptoListAlertsPortfolioListener {
 
     @Inject
@@ -64,7 +65,8 @@ class FragmentAlerts :
         _binding = FragmentAlertsBinding.inflate(inflater, container, false)
 
         // Enable options menu in fragment
-        setHasOptionsMenu(true)
+        val menuHost = requireActivity()
+        menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         // Insert custom toolbar
         (activity as AppCompatActivity).supportActionBar?.apply {
@@ -140,9 +142,9 @@ class FragmentAlerts :
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         // Inflate menu and find items on it
-        inflater.inflate(R.menu.menu_market_alerts, menu)
+        menuInflater.inflate(R.menu.menu_market_alerts, menu)
         referencesOptionsMenu(menu)
 
         // Find itemSearch and viewSearch in the toolbar
@@ -260,10 +262,9 @@ class FragmentAlerts :
         })
     }
 
-    @SuppressLint("NonConstantResourceId", "UseCompatLoadingForDrawables")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         // Get the ID of the selected item
-        val itemId = item.itemId
+        val itemId = menuItem.itemId
         if (itemId == R.id.mnFilterOptionMarketCap || itemId == R.id.mnFilterOptionSymbol ||
             itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionPrice ||
             itemId == R.id.mnFilterOptionPercentage || itemId == R.id.mnFilterOrderAscending ||
@@ -457,9 +458,19 @@ class FragmentAlerts :
         alertsViewModel.updateCryptoAlert(cryptoAlert)
     }
 
-    override fun onQuantityUpdatedTotal(total: Double) {
-        binding.tvAlertsCryptoPortfolioTotalText.text =
-            total.customFormattedPrice(mPrefs.getCurrencySymbol(), true)
+    override fun onQuantityUpdatedTotal(total: Double, bitcoinPrice: Double) {
+        binding.tvAlertsCryptoPortfolioTotalText.text = totalText(total, bitcoinPrice)
+    }
+
+    private fun totalText(total: Double, bitcoinPrice: Double): String {
+        val priceInBitcoin =
+            (total / bitcoinPrice).customFormattedPrice(mPrefs.getCurrencySymbol()).dropLast(1)
+        return "${
+            total.customFormattedPrice(
+                mPrefs.getCurrencySymbol(),
+                true
+            )
+        } - $priceInBitcoin BTC"
     }
 
     override fun onAlertChanged() {
@@ -488,17 +499,19 @@ class FragmentAlerts :
     }
 
     private fun changeItemsVisibility(isEmpty: Boolean) {
-        binding.apply {
-            if (isEmpty) {
-                rwAlertsCryptoCryptoList.visibility = View.GONE
-                rwAlertsCryptoPortfolioList.visibility = View.GONE
-                bsAlertsPortfolio.visibility = View.GONE
-                tvAlertsCryptoListEmpty.visibility = View.VISIBLE
-            } else {
-                rwAlertsCryptoCryptoList.visibility = View.VISIBLE
-                rwAlertsCryptoPortfolioList.visibility = View.VISIBLE
-                bsAlertsPortfolio.visibility = View.VISIBLE
-                tvAlertsCryptoListEmpty.visibility = View.GONE
+        activity?.runOnUiThread {
+            binding.apply {
+                if (isEmpty) {
+                    rwAlertsCryptoCryptoList.visibility = View.GONE
+                    rwAlertsCryptoPortfolioList.visibility = View.GONE
+                    bsAlertsPortfolio.visibility = View.GONE
+                    tvAlertsCryptoListEmpty.visibility = View.VISIBLE
+                } else {
+                    rwAlertsCryptoCryptoList.visibility = View.VISIBLE
+                    rwAlertsCryptoPortfolioList.visibility = View.VISIBLE
+                    bsAlertsPortfolio.visibility = View.VISIBLE
+                    tvAlertsCryptoListEmpty.visibility = View.GONE
+                }
             }
         }
     }

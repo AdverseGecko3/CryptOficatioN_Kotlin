@@ -20,7 +20,7 @@ class BootUpReceiver : BroadcastReceiver() {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             MainScope().launch {
                 mRoom.getAllAlerts().let {
-                    if (!it.isNullOrEmpty()) {
+                    if (it.isNotEmpty()) {
                         mAlarmManager.launchAlarmManager()
                     }
                 }

@@ -8,4 +8,5 @@ import javax.inject.Singleton
 class CryptoProvider @Inject constructor() {
     var cryptosMarket: List<Crypto> = emptyList()
     var cryptosAlerts: List<Crypto> = emptyList()
+    var cryptoBitcoin: Crypto? = null
 }

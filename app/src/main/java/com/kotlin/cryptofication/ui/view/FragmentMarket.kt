@@ -1,6 +1,5 @@
 package com.kotlin.cryptofication.ui.view
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -11,8 +10,10 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,7 +35,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class FragmentMarket :
-    Fragment(), SelectedChangeListener,
+    Fragment(), MenuProvider, SelectedChangeListener,
     OnCryptoListMarketListener {
 
     @Inject
@@ -61,7 +62,8 @@ class FragmentMarket :
         _binding = FragmentMarketBinding.inflate(inflater, container, false)
 
         // Enable options menu in fragment
-        setHasOptionsMenu(true)
+        val menuHost = requireActivity()
+        menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         // Insert custom toolbar
         (activity as AppCompatActivity).supportActionBar?.apply {
@@ -159,9 +161,9 @@ class FragmentMarket :
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         // Inflate menu and find items on it
-        inflater.inflate(R.menu.menu_market_alerts, menu)
+        menuInflater.inflate(R.menu.menu_market_alerts, menu)
         referencesOptionsMenu(menu)
 
         // Find itemSearch and viewSearch in the toolbar
@@ -279,10 +281,9 @@ class FragmentMarket :
         })
     }
 
-    @SuppressLint("NonConstantResourceId", "UseCompatLoadingForDrawables")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         // Get the ID of the selected item
-        val itemId = item.itemId
+        val itemId = menuItem.itemId
         if (itemId == R.id.mnFilterOptionMarketCap || itemId == R.id.mnFilterOptionSymbol ||
             itemId == R.id.mnFilterOptionName || itemId == R.id.mnFilterOptionPrice ||
             itemId == R.id.mnFilterOptionPercentage || itemId == R.id.mnFilterOrderAscending ||

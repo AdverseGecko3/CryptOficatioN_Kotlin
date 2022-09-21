@@ -17,9 +17,10 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import com.kotlin.cryptofication.BuildConfig
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
+import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.utilities.setCustomButtonStyle
+import com.kotlin.cryptofication.utilities.showToast
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -93,6 +94,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
                         }
                         val newTime = "$newHour:$newMinute"
                         mPrefs.setAlertTime(newTime)
+                        context?.showToast("Alert time set at $newTime")
                         pAlertTime!!.summary = newTime
                     }, currentAlertTime[0].toInt(), currentAlertTime[1].toInt(), true
                 )

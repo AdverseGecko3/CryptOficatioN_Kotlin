@@ -1,6 +1,7 @@
 package com.kotlin.cryptofication.adapter
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,9 +14,6 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.customFormattedPrice
 import com.kotlin.cryptofication.utilities.formattedDouble
 import com.kotlin.cryptofication.utilities.showToast
-import java.lang.NumberFormatException
-import java.text.NumberFormat
-import java.util.*
 
 class CryptoListAlertsPortfolioAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -27,7 +25,7 @@ class CryptoListAlertsPortfolioAdapter :
 
     interface OnCryptoListAlertsPortfolioListener {
         fun onQuantityUpdatedCrypto(cryptoAlert: CryptoAlert)
-        fun onQuantityUpdatedTotal(total: Double)
+        fun onQuantityUpdatedTotal(total: Double, bitcoinPrice: Double)
     }
 
     fun setOnCryptoListAlertsPortfolioListener(listener: OnCryptoListAlertsPortfolioListener?) {
@@ -48,11 +46,11 @@ class CryptoListAlertsPortfolioAdapter :
         cryptoHolder.bindingCrypto.etAdapterPortfolioQuantity.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val etText = cryptoHolder.bindingCrypto.etAdapterPortfolioQuantity
-                val format = NumberFormat.getInstance(Locale.getDefault())
                 val quantity = try {
                     etText.text.toString().toDouble()
                 } catch (e: NumberFormatException) {
-                    format.parse(etText.text.toString())!!.toDouble()
+                    Log.e("NumberFormatExc", e.message.toString())
+                    0.0
                 }
                 when {
                     etText.text.isEmpty() -> {
@@ -63,20 +61,23 @@ class CryptoListAlertsPortfolioAdapter :
                         v.context.showToast("Quantity must be greater than 0!")
                     }
                     else -> {
-                        etText.setText(
-                            quantity.formattedDouble()
-                        )
+                        etText.setText(quantity.formattedDouble())
                         updateQuantity(cryptoHolder, quantity, selectedCrypto, position)
-                        etText.clearFocus()
                     }
                 }
+                etText.clearFocus()
             }
             false
         }
         if (position + 1 == itemCount) {
-            onCryptoListAlertsPortfolioListener?.onQuantityUpdatedTotal(getTotal())
+            onCryptoListAlertsPortfolioListener?.onQuantityUpdatedTotal(
+                getTotal(),
+                alertsList[itemCount].current_price
+            )
         }
     }
+
+    override fun getItemCount() = (alertsList.size - 1)
 
     private fun updateQuantity(
         cryptoHolder: CryptoListAlertsViewHolder,
@@ -90,10 +91,11 @@ class CryptoListAlertsPortfolioAdapter :
         updateTotal(selectedCrypto, newQuantity, position)
         selectedCrypto.quantity = newQuantity
         onCryptoListAlertsPortfolioListener?.onQuantityUpdatedCrypto(selectedCrypto)
-        onCryptoListAlertsPortfolioListener?.onQuantityUpdatedTotal(getTotal())
+        onCryptoListAlertsPortfolioListener?.onQuantityUpdatedTotal(
+            getTotal(),
+            alertsList[itemCount].current_price
+        )
     }
-
-    override fun getItemCount() = alertsList.size
 
     @SuppressLint("NotifyDataSetChanged")
     fun setCryptos(alertsList: ArrayList<CryptoAlert>) {
@@ -129,7 +131,10 @@ class CryptoListAlertsPortfolioAdapter :
                 tvAdapterPortfolioSymbol.text = crypto.symbol.uppercase()
                 etAdapterPortfolioQuantity.setText(crypto.quantity.formattedDouble())
                 tvAdapterPortfolioPrice.text =
-                    (crypto.quantity * crypto.current_price).customFormattedPrice(userCurrency, true)
+                    (crypto.quantity * crypto.current_price).customFormattedPrice(
+                        userCurrency,
+                        true
+                    )
 
             }
         }

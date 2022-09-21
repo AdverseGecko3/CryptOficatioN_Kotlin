@@ -3,6 +3,7 @@ package com.kotlin.cryptofication.adapter
 import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,8 +26,10 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManag
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.*
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlertRepository) :
@@ -172,13 +175,13 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
         val cryptoId = crypto.id
         val cryptoSymbol = crypto.symbol.uppercase()
 
-        MainScope().launch {
+        CoroutineScope(Dispatchers.Default).launch {
             val savedAlerts: Int
-            if (mRoom.getSingleAlert(cryptoId) == null) {
+            if (withContext(Dispatchers.IO) { mRoom.getSingleAlert(cryptoId) } == null) {
                 val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
-                savedAlerts = mRoom.getAllAlerts().size
+                savedAlerts = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }.size
                 val resultInsert: Int = try {
-                    mRoom.insertAlert(cryptoSwiped).toInt()
+                    withContext(Dispatchers.IO) { mRoom.insertAlert(cryptoSwiped) }.toInt()
                 } catch (e: SQLiteConstraintException) {
                     e.printStackTrace()
                     0
@@ -195,34 +198,45 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
                                 mAlarmManager.launchAlarmManager()
                             }
 
-                            Snackbar
-                                .make(
-                                    viewHolder.itemView,
-                                    "$cryptoSymbol added to favorites",
-                                    Snackbar.LENGTH_LONG
-                                )
-                                .setAction("UNDO") {
-                                    MainScope().launch {
-                                        // When undo is clicked, delete the item from table Favorites
-                                        when (mRoom.deleteAlert(cryptoSwiped)) {
-                                            0 ->
-                                                // The item couldn't be deleted
-                                                mAppContext.showToast("$cryptoSymbol couldn't be removed")
-                                            1 -> {
-                                                // The item has been deleted successfully
-                                                mAppContext.showToast("$cryptoSymbol removed from Alerts")
+                            try {
+                                Snackbar
+                                    .make(
+                                        viewHolder.itemView,
+                                        "$cryptoSymbol added to favorites",
+                                        Snackbar.LENGTH_LONG
+                                    )
+                                    .setAction("UNDO") {
+                                        CoroutineScope(Dispatchers.Default).launch {
+                                            // When undo is clicked, delete the item from table Favorites
+                                            when (mRoom.deleteAlert(cryptoSwiped)) {
+                                                0 ->
+                                                    // The item couldn't be deleted
+                                                    withContext(Dispatchers.Main) {
+                                                        mAppContext.showToast(
+                                                            "$cryptoSymbol couldn't be removed"
+                                                        )
+                                                    }
+                                                1 -> {
+                                                    // The item has been deleted successfully
+                                                    withContext(Dispatchers.Main) {
+                                                        mAppContext.showToast(
+                                                            "$cryptoSymbol removed from Alerts"
+                                                        )
+                                                    }
 
-                                                if (savedAlerts == 0) {
-                                                    mPrefs.setDBHasItems(false)
-                                                    mAlarmManager.deleteAlarmManager()
+                                                    if (savedAlerts == 0) {
+                                                        mPrefs.setDBHasItems(false)
+                                                        mAlarmManager.deleteAlarmManager()
+                                                    }
                                                 }
                                             }
                                         }
+                                    }.let { snackbar ->
+                                        onCryptoListMarketListener?.onSnackbarCreated(snackbar)
                                     }
-                                }.let { snackbar ->
-                                    onCryptoListMarketListener?.onSnackbarCreated(snackbar)
-                                }
-
+                            } catch (e: IllegalArgumentException) {
+                                Log.e("IllegalArgumentExc", e.message.toString())
+                            }
                         }
                         else -> {
                             // The item was already in the database

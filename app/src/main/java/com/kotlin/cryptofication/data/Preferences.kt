@@ -101,13 +101,13 @@ class Preferences(context: Context) {
     }
 
     fun setAlertTime(alertTime: String?) {
-        if (getDBHasItems()) {
-            mAlarmManager.modifyAlarmManager(alertTime!!)
-        }
         userPrefs
             .edit()
             .putString(Constants.PREF_ALERT_TIME, alertTime)
             .apply()
+        if (getDBHasItems()) {
+            mAlarmManager.modifyAlarmManager(alertTime!!)
+        }
     }
 
     fun setFirstRun(firstRun: Boolean) {

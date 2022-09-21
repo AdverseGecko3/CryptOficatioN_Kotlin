@@ -1,16 +1,14 @@
 package com.kotlin.cryptofication.utilities
 
 import android.content.Context
-import androidx.appcompat.app.AlertDialog
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
+import android.os.*
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -27,8 +25,9 @@ fun Double.customFormattedPrice(userCurrency: String, twoDecimalFormat: Boolean 
     val currencySeparatorLocale = DecimalFormat().decimalFormatSymbols.decimalSeparator
 
     var formattedPrice = when {
-        twoDecimalFormat -> String.format("%.2f", this).replace("0+$".toRegex(), "")
-        this >= 100 -> String.format("%.2f", this).replace("0+$".toRegex(), "")
+        twoDecimalFormat || this >= 100 -> {
+            String.format("%.2f", this).replace("0+$".toRegex(), "")
+        }
         this >= 1 -> String.format("%.3f", this).replace("0+$".toRegex(), "")
         else -> {
             val priceAfterSeparator =
@@ -94,7 +93,15 @@ fun TextView.negativePrice() {
 }
 
 fun RecyclerView.doHaptic() {
-    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibratorManager =
+            context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        vibratorManager.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
+
     if (vibrator.hasVibrator()) {
         when {
             Build.VERSION.SDK_INT >= 30 -> {
@@ -109,6 +116,7 @@ fun RecyclerView.doHaptic() {
                 )
             }
             else -> {
+                @Suppress("DEPRECATION")
                 vibrator.vibrate(5)
             }
         }
@@ -151,4 +159,9 @@ fun AlertDialog.setCustomButtonStyle(type: Int = 0) {
 
 fun View.below(view: View) {
     (this.layoutParams as? RelativeLayout.LayoutParams)?.addRule(RelativeLayout.BELOW, view.id)
+}
+
+inline fun <reified T : Parcelable> Bundle.parcelable(key: String): T? = when {
+    Build.VERSION.SDK_INT >= 33 -> getParcelable(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelable(key) as? T
 }
