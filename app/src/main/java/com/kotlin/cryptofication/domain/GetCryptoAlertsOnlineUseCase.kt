@@ -18,7 +18,7 @@ class GetCryptoAlertsOnlineUseCase @Inject constructor(
     suspend operator fun invoke(): List<Crypto> {
         var response = repository.getAllCryptoAlerts()
         Log.d("CryptoServiceA", "Response: $response")
-        if (!response.isNullOrEmpty()) {
+        if (response.isNotEmpty()) {
             // Save Bitcoin crypto
             response.forEach {
                 if (it.symbol.uppercase() == "BTC") {

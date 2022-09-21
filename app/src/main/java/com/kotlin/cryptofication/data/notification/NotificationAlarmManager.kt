@@ -18,6 +18,7 @@ class NotificationAlarmManager(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.getBroadcast(mAppContext, requestCode, i, PendingIntent.FLAG_IMMUTABLE)
         } else {
+            @Suppress("UnspecifiedImmutableFlag")
             PendingIntent.getBroadcast(
                 mAppContext,
                 requestCode,

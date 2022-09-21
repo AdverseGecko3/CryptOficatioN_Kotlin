@@ -50,13 +50,15 @@ class NotificationReceiver : BroadcastReceiver() {
                 crypto.price_change_percentage_24h.customFormattedPercentage()
             var title: String
             var body: String
-                if (crypto.price_change_percentage_24h >= 0) {
-                    title = "\uD83D\uDCC8 $cryptoSymbol \uD83D\uDCC8"
-                    body = "${crypto.name} is up by $cryptoPercentageChange ($cryptoPriceChange), currently at $cryptoPrice"
-                } else {
-                    title = "\uD83D\uDCC9 $cryptoSymbol \uD83D\uDCC9"
-                    body = "${crypto.name} is down by $cryptoPercentageChange ($cryptoPriceChange), currently at $cryptoPrice"
-                }
+            if (crypto.price_change_percentage_24h >= 0) {
+                title = "\uD83D\uDCC8 $cryptoSymbol \uD83D\uDCC8"
+                body =
+                    "${crypto.name} is up by $cryptoPercentageChange ($cryptoPriceChange), currently at $cryptoPrice"
+            } else {
+                title = "\uD83D\uDCC9 $cryptoSymbol \uD83D\uDCC9"
+                body =
+                    "${crypto.name} is down by $cryptoPercentageChange ($cryptoPriceChange), currently at $cryptoPrice"
+            }
 
             i.putExtra("lastActivity", "alerts${crypto.id}")
             val pi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -67,6 +69,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 )
             } else {
+                @Suppress("UnspecifiedImmutableFlag")
                 PendingIntent.getActivity(context, index + 1, i, PendingIntent.FLAG_UPDATE_CURRENT)
             }
 

@@ -7,4 +7,3 @@ import kotlinx.parcelize.Parcelize
 data class CryptoSparkline(
     val price: List<Double>
 ) : Parcelable
-

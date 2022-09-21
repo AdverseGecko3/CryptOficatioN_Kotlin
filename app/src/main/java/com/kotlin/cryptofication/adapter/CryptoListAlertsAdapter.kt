@@ -26,7 +26,10 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManag
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CryptoListAlertsAdapter @Inject constructor(
@@ -209,9 +212,7 @@ class CryptoListAlertsAdapter @Inject constructor(
                                     // When undo is clicked, delete the item from table Favorites
                                     val resultInsert: Int = try {
                                         withContext(Dispatchers.IO) {
-                                            mRoom.insertAlert(
-                                                cryptoAlert ?: cryptoSwiped
-                                            )
+                                            mRoom.insertAlert(cryptoAlert ?: cryptoSwiped)
                                         }.toInt()
                                     } catch (e: SQLiteConstraintException) {
                                         e.printStackTrace()

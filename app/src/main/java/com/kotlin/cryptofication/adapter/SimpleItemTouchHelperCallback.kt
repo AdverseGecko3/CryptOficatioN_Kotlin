@@ -1,13 +1,13 @@
 package com.kotlin.cryptofication.adapter
 
 import android.graphics.Canvas
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.kotlin.cryptofication.R
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
-import androidx.core.content.ContextCompat
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mResources
 import com.kotlin.cryptofication.utilities.doHaptic
@@ -59,31 +59,21 @@ class SimpleItemTouchHelperCallback(
         when (fragment) {
             "market" -> {
                 rwSwipeBackground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    ColorDrawable(
-                        mAppContext.getColor(R.color.yellow_favorite)
-                    )
+                    ColorDrawable(mAppContext.getColor(R.color.yellow_favorite))
                 } else {
-                    ColorDrawable(
-                        mResources.getColor(R.color.yellow_favorite)
-                    )
+                    @Suppress("DEPRECATION")
+                    ColorDrawable(mResources.getColor(R.color.yellow_favorite))
                 }
-                rwSwipeIcon = ContextCompat.getDrawable(
-                    mAppContext, R.drawable.ic_star
-                )!!
+                rwSwipeIcon = ContextCompat.getDrawable(mAppContext, R.drawable.ic_star)!!
             }
             "alerts" -> {
                 rwSwipeBackground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    ColorDrawable(
-                        mAppContext.getColor(R.color.red_delete)
-                    )
+                    ColorDrawable(mAppContext.getColor(R.color.red_delete))
                 } else {
-                    ColorDrawable(
-                        mResources.getColor(R.color.red_delete)
-                    )
+                    @Suppress("DEPRECATION")
+                    ColorDrawable(mResources.getColor(R.color.red_delete))
                 }
-                rwSwipeIcon = ContextCompat.getDrawable(
-                    mAppContext, R.drawable.ic_delete
-                )!!
+                rwSwipeIcon = ContextCompat.getDrawable(mAppContext, R.drawable.ic_delete)!!
             }
         }
 

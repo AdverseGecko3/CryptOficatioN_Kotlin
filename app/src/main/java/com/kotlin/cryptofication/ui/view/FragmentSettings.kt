@@ -17,8 +17,8 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import com.kotlin.cryptofication.BuildConfig
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
+import com.kotlin.cryptofication.utilities.Constants
 import com.kotlin.cryptofication.utilities.setCustomButtonStyle
 import com.kotlin.cryptofication.utilities.showToast
 import dagger.hilt.android.AndroidEntryPoint

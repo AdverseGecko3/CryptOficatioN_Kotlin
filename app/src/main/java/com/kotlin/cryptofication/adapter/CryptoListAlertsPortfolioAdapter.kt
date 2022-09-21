@@ -14,9 +14,6 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.customFormattedPrice
 import com.kotlin.cryptofication.utilities.formattedDouble
 import com.kotlin.cryptofication.utilities.showToast
-import java.lang.NumberFormatException
-import java.text.NumberFormat
-import java.util.*
 
 class CryptoListAlertsPortfolioAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -64,9 +61,7 @@ class CryptoListAlertsPortfolioAdapter :
                         v.context.showToast("Quantity must be greater than 0!")
                     }
                     else -> {
-                        etText.setText(
-                            quantity.formattedDouble()
-                        )
+                        etText.setText(quantity.formattedDouble())
                         updateQuantity(cryptoHolder, quantity, selectedCrypto, position)
                     }
                 }

@@ -8,8 +8,8 @@ import android.content.res.Resources
 import android.os.Build
 import com.google.android.gms.ads.MobileAds
 import com.kotlin.cryptofication.R
-import com.kotlin.cryptofication.data.notification.NotificationAlarmManager
 import com.kotlin.cryptofication.data.Preferences
+import com.kotlin.cryptofication.data.notification.NotificationAlarmManager
 import com.kotlin.cryptofication.utilities.Constants.CHANNEL_ID
 import dagger.hilt.android.HiltAndroidApp
 

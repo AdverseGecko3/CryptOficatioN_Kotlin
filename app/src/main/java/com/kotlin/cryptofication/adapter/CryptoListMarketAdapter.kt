@@ -26,7 +26,10 @@ import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManag
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.utilities.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlertRepository) :

@@ -1,9 +1,9 @@
 package com.kotlin.cryptofication.data.network
 
 import android.util.Log
-import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import com.kotlin.cryptofication.data.model.Crypto
 import com.kotlin.cryptofication.data.repos.CryptoAlertRepository
+import com.kotlin.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
