@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "301752107289",
+    "project_id": "cryptofication-22f43",
+    "storage_bucket": "cryptofication-22f43.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:301752107289:android:ecd2ec9e480439346c0588",
+        "android_client_info": {
+          "package_name": "com.adversegecko3.cryptofication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "301752107289-0ratq3cc4egvdm8l6u82c9u57fsv1pvg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4luJ1dCkVeTKqP6ezWD9RQZAUTdMNM2A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "301752107289-0ratq3cc4egvdm8l6u82c9u57fsv1pvg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

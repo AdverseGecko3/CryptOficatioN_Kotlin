@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -42,6 +43,9 @@ class MainActivity : AppCompatActivity() {
         val navGraph = navController.navInflater.inflate(R.navigation.my_nav)
         navController.graph = navGraph
 
+        // Add onBackPressed callback
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+
         if (intent.getStringExtra("lastActivity") != null) {
             intent.getStringExtra("lastActivity")?.let {
                 when {
@@ -75,48 +79,50 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        // Create dialog to confirm the dismiss
-        val builder = AlertDialog.Builder(this, R.style.CustomAlertDialog)
-        val titleExit = TextView(this).apply {
-            text = getString(R.string.EXIT)
-            setTextColor(ResourcesCompat.getColor(resources, R.color.white, null))
-            gravity = Gravity.CENTER
-            textSize = 25f
-            setPadding(
-                lineHeight / 2, lineHeight / 2,
-                lineHeight / 2, lineHeight / 2
+    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // Create dialog to confirm the dismiss
+            val builder = AlertDialog.Builder(this@MainActivity, R.style.CustomAlertDialog)
+            val titleExit = TextView(this@MainActivity).apply {
+                text = getString(R.string.EXIT)
+                setTextColor(ResourcesCompat.getColor(resources, R.color.white, null))
+                gravity = Gravity.CENTER
+                textSize = 25f
+                setPadding(
+                    lineHeight / 2, lineHeight / 2,
+                    lineHeight / 2, lineHeight / 2
+                )
+            }
+            builder.setCustomTitle(titleExit)
+                .setMessage(getString(R.string.CONFIRMATION_EXIT))
+                .setNegativeButton(
+                    getString(R.string.NO)
+                ) { dialog, _ -> dialog.cancel() }
+                .setPositiveButton(
+                    getString(R.string.YES)
+                ) { _, _ -> finish() }
+                .create()
+            val dialog = builder.show()
+
+            // Change the buttons color and weight
+            val btnYes = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val btnNo = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            btnYes.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.purple_app_accent,
+                    null
+                )
             )
+            btnNo.setTextColor(ResourcesCompat.getColor(resources, R.color.purple_app_accent, null))
+            val layoutParams = btnYes.layoutParams as LinearLayout.LayoutParams
+            layoutParams.weight = 10f
+            btnYes.layoutParams = layoutParams
+            btnNo.layoutParams = layoutParams
+
+            // Show the dialog
+            dialog.show()
         }
-        builder.setCustomTitle(titleExit)
-            .setMessage(getString(R.string.CONFIRMATION_EXIT))
-            .setNegativeButton(
-                getString(R.string.NO)
-            ) { dialog, _ -> dialog.cancel() }
-            .setPositiveButton(
-                getString(R.string.YES)
-            ) { _, _ -> super.onBackPressed() }
-            .create()
-        val dialog = builder.show()
-
-        // Change the buttons color and weight
-        val btnYes = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        val btnNo = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-        btnYes.setTextColor(
-            ResourcesCompat.getColor(
-                resources,
-                R.color.purple_app_accent,
-                null
-            )
-        )
-        btnNo.setTextColor(ResourcesCompat.getColor(resources, R.color.purple_app_accent, null))
-        val layoutParams = btnYes.layoutParams as LinearLayout.LayoutParams
-        layoutParams.weight = 10f
-        btnYes.layoutParams = layoutParams
-        btnNo.layoutParams = layoutParams
-
-        // Show the dialog
-        dialog.show()
     }
 
     override fun recreate() {
