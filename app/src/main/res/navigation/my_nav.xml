@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/navigationFragmentMarket"
-        android:name="com.kotlin.cryptofication.ui.view.FragmentMarket"
+        android:name="com.adversegecko3.cryptofication.ui.view.FragmentMarket"
         android:label="FragmentMarket">
         <action
             android:id="@+id/action_fragmentMarket_to_dialogCryptoDetail"
@@ -15,7 +15,7 @@
     </fragment>
     <fragment
         android:id="@+id/navigationFragmentAlerts"
-        android:name="com.kotlin.cryptofication.ui.view.FragmentAlerts"
+        android:name="com.adversegecko3.cryptofication.ui.view.FragmentAlerts"
         android:label="FragmentAlerts">
         <action
             android:id="@+id/action_fragmentAlerts_to_dialogCryptoDetail"
@@ -24,10 +24,10 @@
     </fragment>
     <fragment
         android:id="@+id/navigationFragmentSettings"
-        android:name="com.kotlin.cryptofication.ui.view.FragmentSettings"
+        android:name="com.adversegecko3.cryptofication.ui.view.FragmentSettings"
         android:label="FragmentSettings" />
     <dialog
         android:id="@+id/dialogCryptoDetail"
-        android:name="com.kotlin.cryptofication.ui.view.DialogCryptoDetail"
+        android:name="com.adversegecko3.cryptofication.ui.view.DialogCryptoDetail"
         android:label="DialogCryptoDetail" />
 </navigation>

@@ -10,11 +10,11 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.kotlin.cryptofication"
+        applicationId "com.adversegecko3.cryptofication"
         minSdk 21
         targetSdk 33
-        versionCode 83
-        versionName "1.5.17"
+        versionCode 84
+        versionName "1.6.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
