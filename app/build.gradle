@@ -15,8 +15,8 @@ android {
         applicationId "com.adversegecko3.cryptofication"
         minSdk 21
         targetSdk 33
-        versionCode 86
-        versionName "1.6.2"
+        versionCode 92
+        versionName "1.6.8"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,12 +45,12 @@ android {
 dependencies {
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.2'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.2'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
     // LiveData and ViewModel
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
@@ -72,7 +72,7 @@ dependencies {
     // Graphs
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     // AdMob
-    implementation 'com.google.android.gms:play-services-ads:21.2.0'
+    implementation 'com.google.android.gms:play-services-ads:21.3.0'
     // Dagger Hilt
     implementation 'com.google.dagger:hilt-android:2.43'
     annotationProcessor 'com.google.dagger:hilt-compiler:2.43'
@@ -82,7 +82,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:30.4.1')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     // Crashlytics
-    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.2.13'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.3.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

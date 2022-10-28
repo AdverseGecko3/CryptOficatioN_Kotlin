@@ -1,28 +1,36 @@
 package com.adversegecko3.cryptofication.ui.view
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adversegecko3.cryptofication.R
 import com.adversegecko3.cryptofication.adapter.CryptoListMarketAdapter
 import com.adversegecko3.cryptofication.adapter.CryptoListMarketAdapter.OnCryptoListMarketListener
+import com.adversegecko3.cryptofication.adapter.CryptoSearchListMarketAdapter
+import com.adversegecko3.cryptofication.adapter.CryptoSearchListMarketAdapter.OnCryptoSearchListMarketListener
 import com.adversegecko3.cryptofication.adapter.SimpleItemTouchHelperCallback
 import com.adversegecko3.cryptofication.adapter.SimpleItemTouchHelperCallback.SelectedChangeListener
 import com.adversegecko3.cryptofication.data.model.Crypto
+import com.adversegecko3.cryptofication.data.model.CryptoSearch
 import com.adversegecko3.cryptofication.databinding.FragmentMarketBinding
 import com.adversegecko3.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
 import com.adversegecko3.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
@@ -36,10 +44,13 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class FragmentMarket :
     Fragment(), MenuProvider, SelectedChangeListener,
-    OnCryptoListMarketListener {
+    OnCryptoListMarketListener, OnCryptoSearchListMarketListener {
 
     @Inject
     lateinit var rwCryptoAdapter: CryptoListMarketAdapter
+
+    @Inject
+    lateinit var rwCryptoSearchAdapter: CryptoSearchListMarketAdapter
 
     private var _binding: FragmentMarketBinding? = null
     private val binding get() = _binding!!
@@ -136,26 +147,79 @@ class FragmentMarket :
             binding.srlMarketReload.isRefreshing = isLoading
         }
 
-        marketViewModel.cryptoLiveData.observe(viewLifecycleOwner) { cryptoList ->
+        marketViewModel.cryptoMarketList.observe(viewLifecycleOwner) { cryptoList ->
             marketViewModel.cryptoList = ArrayList(cryptoList)
-
             // Set the cryptoList from API to the adapter
             setListToAdapter()
+
+            if (mPrefs.getScrollOnPageChanged()) {
+                if (marketViewModel.loadType == 0) {
+                    val extraItems = mPrefs.getItemsPerPage().toInt() / Constants.ITEMS_PER_AD
+                    binding.rwMarketCryptoList.smoothScrollToPosition(cryptoList.lastIndex + extraItems)
+                } else {
+                    binding.rwMarketCryptoList.smoothScrollToPosition(0)
+                }
+            }
 
             // Start ViewFlipper
             initViewFlipper(cryptoList.map { it as Crypto })
         }
 
-        marketViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            // Show toast when result is empty/null on ViewModel
-            requireContext().showToast(errorMessage)
-
-            initViewFlipper(arrayListOf())
+        lifecycleScope.launchWhenCreated {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                marketViewModel.cryptoSearchData.collect { cryptoSearchData ->
+                    val bundle = bundleOf("selectedCrypto" to cryptoSearchData)
+                    try {
+                        findNavController()
+                            .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
+                        marketViewModel.comingFromDetail = true
+                    } catch (e: IllegalArgumentException) {
+                        e.printStackTrace()
+                        e.message?.let { message -> Log.e("onCryptoClicked", message) }
+                    }
+                }
+            }
         }
 
-        // Load crypto data from API now
-        binding.srlMarketReload.post {
-            marketViewModel.onCreate()
+        lifecycleScope.launchWhenCreated {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                marketViewModel.cryptoSearchQuery.collect { cryptoSearchQuery ->
+                    // Set the cryptoSearchList from API to the adapter
+                    if (cryptoSearchQuery[0] is String) {
+                        binding.tvMarketSearchMessage.apply {
+                            text =
+                                getString(R.string.MARKET_NO_COINS_FOUND, cryptoSearchQuery[0])
+                            visibility = View.VISIBLE
+                            marketViewModel.cryptoListSearch = emptyList()
+                        }
+                        binding.rwMarketSearchCryptoList.visibility = View.GONE
+                    } else {
+                        if (binding.tvMarketSearchMessage.isVisible) {
+                            binding.tvMarketSearchMessage.visibility = View.GONE
+                            binding.rwMarketSearchCryptoList.visibility = View.VISIBLE
+                        }
+                        setListToSearchAdapter()
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launchWhenCreated {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                marketViewModel.error.collect { errorMessage ->
+                    // Show toast when result is empty/null on ViewModel
+                    requireContext().showToast(errorMessage)
+
+                    initViewFlipper(arrayListOf())
+                }
+            }
+        }
+
+        if (!marketViewModel.hasAlreadyData) {
+            // Load crypto data from API now
+            binding.srlMarketReload.post {
+                marketViewModel.onCreate()
+            }
         }
 
         return binding.root
@@ -249,6 +313,7 @@ class FragmentMarket :
         viewSearch.apply {
             imeOptions = EditorInfo.IME_ACTION_DONE
             isIconified = false
+            queryHint = "Search coins"
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     return false
@@ -256,7 +321,19 @@ class FragmentMarket :
 
                 override fun onQueryTextChange(query: String): Boolean {
                     // Apply the query as the user makes some change on the filter (writes something)
-                    rwCryptoAdapter.filter.filter(query)
+
+                    if (marketViewModel.comingFromDetail) {
+                        marketViewModel.comingFromDetail = false
+                        return false
+                    }
+
+                    if (query.isNotEmpty()) {
+                        marketViewModel.onSearchQueryChange(query)
+                    } else {
+                        marketViewModel.cryptoListSearch = listOf()
+                        rwCryptoSearchAdapter.setCryptos(marketViewModel.cryptoListSearch.map { it as CryptoSearch })
+
+                    }
                     return false
                 }
             })
@@ -264,13 +341,28 @@ class FragmentMarket :
         itemSearch!!.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 // Open the search
-                viewSearch.onActionViewExpanded()
+                if (viewSearch.query.isEmpty()) {
+                    viewSearch.onActionViewExpanded()
+                    marketViewModel.isSearchOpen = true
+                    binding.apply {
+                        rwMarketSearchCryptoList.visibility = View.VISIBLE
+                        rlMarketScreen.visibility = View.GONE
+                        srlMarketReload.isEnabled = false
+                    }
+                } else {
+                    viewSearch.clearFocus()
+                }
                 return true // True to be able to open
             }
 
             override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
                 // Close the search, empty the field and clear the focus
-                rwCryptoAdapter.filter.filter("")
+                binding.apply {
+                    rlMarketScreen.visibility = View.VISIBLE
+                    rwMarketSearchCryptoList.visibility = View.GONE
+                    srlMarketReload.isEnabled = true
+                }
+                marketViewModel.isSearchOpen = false
                 viewSearch.apply {
                     onActionViewCollapsed()
                     setQuery("", false)
@@ -354,18 +446,24 @@ class FragmentMarket :
 
     private fun initRecyclerView() {
         // Initialize RecyclerView layout manager and adapter
-        binding.apply {
-            rwMarketCryptoList.layoutManager = LinearLayoutManager(context)
-            rwMarketCryptoList.adapter = rwCryptoAdapter
-            rwMarketCryptoList.setHasFixedSize(true)
+        binding.rwMarketCryptoList.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = rwCryptoAdapter
+            setHasFixedSize(true)
         }
-
         rwCryptoAdapter.setOnCryptoListMarketListener(this)
 
         // Attach ItemTouchHelper (swipe items to favorite)
         val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "market")
         mItemTouchHelper = ItemTouchHelper(callback)
         mItemTouchHelper.attachToRecyclerView(binding.rwMarketCryptoList)
+
+        binding.rwMarketSearchCryptoList.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = rwCryptoSearchAdapter
+            setHasFixedSize(true)
+        }
+        rwCryptoSearchAdapter.setOnCryptoSearchListMarketListener(this)
     }
 
     override fun onSelectedChange(swipingState: Boolean) {
@@ -389,13 +487,21 @@ class FragmentMarket :
         }
     }
 
-    override fun onLoadMoreClicked() {
-        marketViewModel.onLoadMorePages()
+    override fun onLoadMoreClicked(loadType: Int) {
+        marketViewModel.onLoadNewPages(loadType)
     }
 
     private fun setListToAdapter() {
         marketViewModel.addBanners()
         rwCryptoAdapter.setCryptos(marketViewModel.cryptoList)
+    }
+
+    private fun setListToSearchAdapter() {
+        rwCryptoSearchAdapter.setCryptos(marketViewModel.cryptoListSearch.map { it as CryptoSearch })
+    }
+
+    override fun onCryptoSearchClicked(selectedCrypto: CryptoSearch) {
+        marketViewModel.fetchCryptoSearchClick(selectedCrypto)
     }
 
     private fun initViewFlipper(cryptoList: List<Crypto>) {
@@ -510,6 +616,18 @@ class FragmentMarket :
         for (item in marketViewModel.cryptoList) {
             if (item is AdView) {
                 item.pause()
+            }
+        }
+        if (marketViewModel.isSearchOpen) {
+            try {
+                val imm =
+                    requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(requireActivity().currentFocus!!.windowToken, 0)
+            } catch (e: NullPointerException) {
+                Log.e(
+                    "NullPointerException",
+                    e.message ?: "NullPointerException: InputMethodManager"
+                )
             }
         }
         super.onPause()

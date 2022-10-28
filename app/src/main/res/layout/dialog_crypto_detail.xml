@@ -16,67 +16,98 @@
         android:textColor="@color/text"
         android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/llFragmentCryptoDetailLL1" />
 
-    <TextView
-        android:id="@+id/tvFragmentCryptoDetailSymbol"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/llFragmentCryptoDetailLL1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:paddingStart="10dp"
-        android:text="@string/HOLDER_CRYPTO_NAME"
-        android:textColor="@color/text"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFragmentCryptoDetailName" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/llFragmentCryptoDetailLL2"
+        app:layout_constraintTop_toBottomOf="@+id/tvFragmentCryptoDetailName">
 
-    <TextView
-        android:id="@+id/tvFragmentCryptoDetailRank"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:text="@string/HOLDER_CRYPTO_NAME"
-        android:textColor="@color/gray"
-        android:textSize="16sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/tvFragmentCryptoDetailSymbol"
-        app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailSymbol" />
+        <TextView
+            android:id="@+id/tvFragmentCryptoDetailSymbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="@string/HOLDER_CRYPTO_NAME"
+            android:textColor="@color/text"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/tvFragmentCryptoDetailPrice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:paddingStart="10dp"
-        android:text="@string/HOLDER_CRYPTO_NAME"
-        android:textColor="@color/text"
-        android:textSize="25sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFragmentCryptoDetailSymbol" />
+        <TextView
+            android:id="@+id/tvFragmentCryptoDetailRank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="@string/HOLDER_CRYPTO_NAME"
+            android:textColor="@color/gray"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailSymbol" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2" />
 
-    <TextView
-        android:id="@+id/tvFragmentCryptoDetailPriceChangePercentage24h"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:padding="5dp"
-        android:text="@string/HOLDER_CRYPTO_NAME"
-        android:textColor="@color/text"
-        android:textSize="18sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/tvFragmentCryptoDetailPrice"
-        app:layout_constraintEnd_toStartOf="@+id/tvFragmentCryptoDetailPriceChange24h"
-        app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailPrice" />
+        <ImageView
+            android:id="@+id/ivFragmentCryptoDetailFavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_gravity="end"
+            android:src="@drawable/ic_star_outlined"
+            android:contentDescription="@string/CONTENT_CRYPTO_DETAIL_FAV_ICON" />
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/tvFragmentCryptoDetailPriceChange24h"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/llFragmentCryptoDetailLL2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:padding="5dp"
-        android:text="@string/HOLDER_CRYPTO_PRICE_CHANGE_24H"
-        android:textColor="@color/text"
-        android:textSize="12sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/tvFragmentCryptoDetailPrice"
-        app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailPriceChangePercentage24h" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="5dp"
+        app:layout_constraintTop_toBottomOf="@+id/llFragmentCryptoDetailLL1"
+        app:layout_constraintBottom_toTopOf="@+id/bcFragmentCryptoDetailCandle">
+
+        <TextView
+            android:id="@+id/tvFragmentCryptoDetailPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="@string/HOLDER_CRYPTO_NAME"
+            android:textColor="@color/text"
+            android:textSize="25sp"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvFragmentCryptoDetailPriceChangePercentage24h"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:padding="5dp"
+            android:text="@string/HOLDER_CRYPTO_NAME"
+            android:textColor="@color/text"
+            android:textSize="18sp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/tvFragmentCryptoDetailPrice"
+            app:layout_constraintEnd_toStartOf="@+id/tvFragmentCryptoDetailPriceChange24h"
+            app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailPrice" />
+
+        <TextView
+            android:id="@+id/tvFragmentCryptoDetailPriceChange24h"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:padding="5dp"
+            android:text="@string/HOLDER_CRYPTO_PRICE_CHANGE_24H"
+            android:textColor="@color/text"
+            android:textSize="12sp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/tvFragmentCryptoDetailPrice"
+            app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailPriceChangePercentage24h" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvFragmentCryptoDetailPriceHigh7d"
@@ -97,7 +128,7 @@
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFragmentCryptoDetailPriceChangePercentage24h" />
+        app:layout_constraintTop_toBottomOf="@+id/llFragmentCryptoDetailLL2" />
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/bcFragmentCryptoDetailLine"
@@ -106,7 +137,7 @@
         android:layout_marginTop="7dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFragmentCryptoDetailPriceChangePercentage24h" />
+        app:layout_constraintTop_toBottomOf="@+id/llFragmentCryptoDetailLL2" />
 
     <TextView
         android:id="@+id/tvFragmentCryptoDetailNoData"
@@ -120,7 +151,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFragmentCryptoDetailPriceChangePercentage24h" />
+        app:layout_constraintTop_toBottomOf="@+id/llFragmentCryptoDetailLL2" />
 
     <TextView
         android:id="@+id/tvFragmentCryptoDetailPriceLow7d"

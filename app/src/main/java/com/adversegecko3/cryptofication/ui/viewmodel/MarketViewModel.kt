@@ -8,12 +8,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adversegecko3.cryptofication.R
 import com.adversegecko3.cryptofication.data.model.Crypto
+import com.adversegecko3.cryptofication.data.model.CryptoSearch
+import com.adversegecko3.cryptofication.domain.GetCryptoDataMarketOnlineUseCase
 import com.adversegecko3.cryptofication.domain.GetCryptoMarketOfflineUseCase
 import com.adversegecko3.cryptofication.domain.GetCryptoMarketOnlineUseCase
+import com.adversegecko3.cryptofication.domain.GetCryptoSearchMarketOnlineUseCase
 import com.adversegecko3.cryptofication.utilities.Constants
 import com.google.android.gms.ads.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.IOException
@@ -24,12 +28,16 @@ import javax.inject.Inject
 @HiltViewModel
 class MarketViewModel @Inject constructor(
     private val getCryptoOnlineUseCase: GetCryptoMarketOnlineUseCase,
+    private val getCryptoSearchOnlineUseCase: GetCryptoSearchMarketOnlineUseCase,
+    private val getCryptoDataMarketOnlineUseCase: GetCryptoDataMarketOnlineUseCase,
     private val getCryptoOfflineUseCase: GetCryptoMarketOfflineUseCase,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
-    val cryptoLiveData = MutableLiveData<List<Any>>()
+    val cryptoMarketList = MutableLiveData<List<Any>>()
+    val cryptoSearchQuery = MutableSharedFlow<List<Any>>()
+    val cryptoSearchData = MutableSharedFlow<Crypto>()
     val isLoading = MutableLiveData<Boolean>()
-    val error = MutableLiveData<String>()
+    val error = MutableSharedFlow<String>()
 
     var alreadyLaunched = false
     var orderOption = 0
@@ -37,8 +45,12 @@ class MarketViewModel @Inject constructor(
     var lastSelectedFilterItem = 0
     var hasAlreadyData = false
     private var page = 1
+    var isSearchOpen = false
+    var comingFromDetail = false
+    var loadType = 1
 
     var cryptoList: ArrayList<Any> = arrayListOf()
+    var cryptoListSearch: List<Any> = arrayListOf()
 
     fun onCreate() {
         viewModelScope.launch {
@@ -55,22 +67,29 @@ class MarketViewModel @Inject constructor(
             if (result.isNotEmpty()) {
                 // Sort cryptoList with the desired filters and post the list
                 result = sortCryptoList(result)
-                cryptoLiveData.postValue(result as List<Any>)
+                cryptoList = ArrayList(result)
+                cryptoMarketList.postValue(result as List<Any>)
                 hasAlreadyData = true
             } else {
                 // Send error to show a toast
-                error.postValue("Error while getting cryptos Online!")
+                error.emit("Error while getting cryptos Online!")
             }
             // Stop refreshing
             isLoading.postValue(false)
         }
     }
 
-    fun onLoadMorePages() {
+    fun onLoadNewPages(loadType: Int) {
         viewModelScope.launch {
             // Start refreshing
             isLoading.postValue(true)
-            page++
+            if (loadType == 0) {
+                this@MarketViewModel.loadType = loadType
+                page--
+            } else {
+                this@MarketViewModel.loadType = loadType
+                page++
+            }
             var result: List<Crypto> = emptyList()
             try {
                 // Get Cryptos from the API (online)
@@ -81,11 +100,12 @@ class MarketViewModel @Inject constructor(
             if (result.isNotEmpty()) {
                 // Sort cryptoList with the desired filters and post the list
                 result = sortCryptoList(result)
-                cryptoLiveData.postValue(result as List<Any>)
+                cryptoList = ArrayList(result)
+                cryptoMarketList.postValue(result as List<Any>)
                 hasAlreadyData = true
             } else {
                 // Send error to show a toast
-                error.postValue("Error while getting cryptos Online!")
+                error.emit("Error while getting cryptos Online!")
             }
             // Stop refreshing
             isLoading.postValue(false)
@@ -93,22 +113,73 @@ class MarketViewModel @Inject constructor(
     }
 
     fun onFilterChanged() {
-        // Start refreshing
-        isLoading.postValue(true)
+        viewModelScope.launch {
+            // Start refreshing
+            isLoading.postValue(true)
 
-        // Get Cryptos from the provider (online)
-        var result = getCryptoOfflineUseCase()
-        if (result.isNotEmpty()) {
-            // Sort cryptoList with the desired filters and post the list
-            result = sortCryptoList(result)
-            cryptoLiveData.postValue(result as List<Any>)
-
+            // Get Cryptos from the provider (online)
+            var result = getCryptoOfflineUseCase()
+            if (result.isNotEmpty()) {
+                // Sort cryptoList with the desired filters and post the list
+                result = sortCryptoList(result)
+                cryptoList = ArrayList(result)
+                cryptoMarketList.postValue(result as List<Any>)
+            } else {
+                // Send error to show a toast
+                error.emit("Error while getting cryptos Offline!")
+            }
             // Stop refreshing
             isLoading.postValue(false)
-        } else {
-            // Send error to show a toast
-            error.postValue("Error while getting cryptos Offline!")
+        }
+    }
 
+    fun onSearchQueryChange(query: String) {
+        viewModelScope.launch {
+            // Start refreshing
+            isLoading.postValue(true)
+            var result: List<Any> = emptyList()
+            try {
+                // Get Cryptos from the API (online)
+                result = getCryptoSearchOnlineUseCase(query)
+            } catch (e: SocketTimeoutException) {
+                e.printStackTrace()
+            }
+            // Stop refreshing
+            if (result.isNotEmpty()) {
+                // Sort cryptoList with the desired filters and post the list
+                cryptoListSearch = if (result[0] !is String) {
+                    ArrayList(result.map { it as CryptoSearch })
+                } else {
+                    ArrayList(result)
+                }
+                cryptoSearchQuery.emit(cryptoListSearch)
+            } else {
+                // Send error to show a toast
+                error.emit("Error while searching data!")
+            }
+            // Stop refreshing
+            isLoading.postValue(false)
+        }
+    }
+
+    fun fetchCryptoSearchClick(selectedCrypto: CryptoSearch) {
+        viewModelScope.launch {
+            // Start refreshing
+            isLoading.postValue(true)
+            var result: List<Crypto> = emptyList()
+            try {
+                // Get Cryptos from the API (online)
+                result = getCryptoDataMarketOnlineUseCase(selectedCrypto.id)
+            } catch (e: SocketTimeoutException) {
+                e.printStackTrace()
+            }
+            // Stop refreshing
+            if (result.isNotEmpty()) {
+                cryptoSearchData.emit(result[0])
+            } else {
+                // Send error to show a toast
+                error.emit("Error while getting ${selectedCrypto.name} data!")
+            }
             // Stop refreshing
             isLoading.postValue(false)
         }
@@ -174,7 +245,13 @@ class MarketViewModel @Inject constructor(
     }
 
     fun addBanners() {
-        var i = 0
+        var str = ""
+        cryptoList.forEachIndexed { index, item ->
+            str += "$index - ${item::class.java.simpleName}\n"
+        }
+
+        if (page != 1) cryptoList.add(0, 2.0)
+        var i = Constants.ITEMS_PER_AD
         while (i <= cryptoList.size) {
             val adView = AdView(context).apply {
                 setAdSize(AdSize.BANNER)
@@ -184,11 +261,16 @@ class MarketViewModel @Inject constructor(
             i += Constants.ITEMS_PER_AD
         }
         loadBannerAds()
-        cryptoList.add(Double)
+        cryptoList.add(2.0)
+
+        str = ""
+        cryptoList.forEachIndexed { index, item ->
+            str += "$index - ${item::class.java.simpleName}\n"
+        }
     }
 
     private fun loadBannerAds() {
-        loadBannerAd(0)
+        loadBannerAd(Constants.ITEMS_PER_AD)
     }
 
     private fun loadBannerAd(index: Int) {

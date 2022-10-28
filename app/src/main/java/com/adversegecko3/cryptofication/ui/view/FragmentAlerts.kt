@@ -235,6 +235,7 @@ class FragmentAlerts :
         viewSearch.apply {
             imeOptions = EditorInfo.IME_ACTION_DONE
             isIconified = false
+            queryHint = "Filter alerts coins"
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     return false
@@ -553,9 +554,16 @@ class FragmentAlerts :
             }
         }
         if (alertsViewModel.isSearchOpen) {
-            val imm =
-                requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(requireActivity().currentFocus!!.windowToken, 0)
+            try {
+                val imm =
+                    requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(requireActivity().currentFocus!!.windowToken, 0)
+            } catch (e: NullPointerException) {
+                Log.e(
+                    "NullPointerException",
+                    e.message ?: "NullPointerException: InputMethodManager"
+                )
+            }
         }
         super.onDestroy()
     }

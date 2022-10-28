@@ -20,266 +20,288 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ViewFlipper
-                android:id="@+id/vfLoadedFragmentMarket"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:flipInterval="5000">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/clViewFlipperOneLoadedFragmentMarket"
-                    android:layout_width="match_parent"
-                    android:layout_height="70sp"
-                    android:padding="5dp">
-
-                    <TextView
-                        android:id="@+id/tvVFOneLoadedCryptoSymbol"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="2dp"
-                        android:gravity="center"
-                        android:textColor="@color/text"
-                        android:textSize="17sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/tvVFOneLoadedCryptoCurrentPrice"
-                        app:layout_constraintHorizontal_weight="10"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/clViewFlipperOneLoadedFragmentMarket"
-                        tools:text="@string/HOLDER_CRYPTO_NAME" />
-
-                    <TextView
-                        android:id="@+id/tvVFOneLoadedCryptoCurrentPrice"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginEnd="2dp"
-                        android:gravity="center"
-                        android:textColor="@color/text"
-                        android:textSize="20sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/llVFOneLoadedCryptoPercentage"
-                        app:layout_constraintHorizontal_weight="15"
-                        app:layout_constraintStart_toEndOf="@id/tvVFOneLoadedCryptoSymbol"
-                        app:layout_constraintTop_toTopOf="@id/clViewFlipperOneLoadedFragmentMarket"
-                        tools:text="@string/HOLDER_CRYPTO_NAME" />
-
-                    <LinearLayout
-                        android:id="@+id/llVFOneLoadedCryptoPercentage"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="2dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/clViewFlipperOneLoadedFragmentMarket"
-                        app:layout_constraintHorizontal_weight="10"
-                        app:layout_constraintStart_toEndOf="@id/tvVFOneLoadedCryptoCurrentPrice"
-                        app:layout_constraintTop_toTopOf="@id/clViewFlipperOneLoadedFragmentMarket">
-
-                        <ImageView
-                            android:id="@+id/ivVFOneLoadedCryptoPriceChange"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="5"
-                            android:contentDescription="@string/CONTENT_CRYPTO_STATUS"
-                            tools:src="@drawable/ic_arrow_drop_up" />
-
-                        <TextView
-                            android:id="@+id/tvVFOneLoadedCryptoPriceChange"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="2dp"
-                            android:layout_weight="2"
-                            android:gravity="center_vertical"
-                            android:textColor="@color/text"
-                            android:textSize="17sp"
-                            tools:text="@string/HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H" />
-                    </LinearLayout>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/clViewFlipperTwoLoadedFragmentMarket"
-                    android:layout_width="match_parent"
-                    android:layout_height="70sp"
-                    android:padding="5dp">
-
-                    <TextView
-                        android:id="@+id/tvVFTwoLoadedCryptoSymbol"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="2dp"
-                        android:gravity="center"
-                        android:textColor="@color/text"
-                        android:textSize="17sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/tvVFTwoLoadedCryptoCurrentPrice"
-                        app:layout_constraintHorizontal_weight="10"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/clViewFlipperTwoLoadedFragmentMarket"
-                        tools:text="@string/HOLDER_CRYPTO_NAME" />
-
-                    <TextView
-                        android:id="@+id/tvVFTwoLoadedCryptoCurrentPrice"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginEnd="2dp"
-                        android:gravity="center"
-                        android:textColor="@color/text"
-                        android:textSize="20sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/llVFTwoLoadedCryptoPercentage"
-                        app:layout_constraintHorizontal_weight="15"
-                        app:layout_constraintStart_toEndOf="@id/tvVFTwoLoadedCryptoSymbol"
-                        app:layout_constraintTop_toTopOf="@id/clViewFlipperTwoLoadedFragmentMarket"
-                        tools:text="@string/HOLDER_CRYPTO_NAME" />
-
-                    <LinearLayout
-                        android:id="@+id/llVFTwoLoadedCryptoPercentage"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="2dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/clViewFlipperTwoLoadedFragmentMarket"
-                        app:layout_constraintHorizontal_weight="10"
-                        app:layout_constraintStart_toEndOf="@id/tvVFTwoLoadedCryptoCurrentPrice"
-                        app:layout_constraintTop_toTopOf="@id/clViewFlipperTwoLoadedFragmentMarket">
-
-                        <ImageView
-                            android:id="@+id/ivVFTwoLoadedCryptoPriceChange"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="5"
-                            android:contentDescription="@string/CONTENT_CRYPTO_STATUS"
-                            tools:src="@drawable/ic_arrow_drop_up" />
-
-                        <TextView
-                            android:id="@+id/tvVFTwoLoadedCryptoPriceChange"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="2dp"
-                            android:layout_weight="2"
-                            android:gravity="center_vertical"
-                            android:textColor="@color/text"
-                            android:textSize="17sp"
-                            tools:text="@string/HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H" />
-                    </LinearLayout>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/clViewFlipperThreeLoadedFragmentMarket"
-                    android:layout_width="match_parent"
-                    android:layout_height="70sp"
-                    android:padding="5dp">
-
-                    <TextView
-                        android:id="@+id/tvVFThreeLoadedCryptoSymbol"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="2dp"
-                        android:gravity="center"
-                        android:textColor="@color/text"
-                        android:textSize="17sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/tvVFThreeLoadedCryptoCurrentPrice"
-                        app:layout_constraintHorizontal_weight="10"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/clViewFlipperThreeLoadedFragmentMarket"
-                        tools:text="@string/HOLDER_CRYPTO_NAME" />
-
-                    <TextView
-                        android:id="@+id/tvVFThreeLoadedCryptoCurrentPrice"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginEnd="2dp"
-                        android:gravity="center"
-                        android:textColor="@color/text"
-                        android:textSize="20sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/llVFThreeLoadedCryptoPercentage"
-                        app:layout_constraintHorizontal_weight="15"
-                        app:layout_constraintStart_toEndOf="@id/tvVFThreeLoadedCryptoSymbol"
-                        app:layout_constraintTop_toTopOf="@id/clViewFlipperThreeLoadedFragmentMarket"
-                        tools:text="@string/HOLDER_CRYPTO_NAME" />
-
-                    <LinearLayout
-                        android:id="@+id/llVFThreeLoadedCryptoPercentage"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="2dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/clViewFlipperThreeLoadedFragmentMarket"
-                        app:layout_constraintHorizontal_weight="10"
-                        app:layout_constraintStart_toEndOf="@id/tvVFThreeLoadedCryptoCurrentPrice"
-                        app:layout_constraintTop_toTopOf="@id/clViewFlipperThreeLoadedFragmentMarket">
-
-                        <ImageView
-                            android:id="@+id/ivVFThreeLoadedCryptoPriceChange"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="5"
-                            android:contentDescription="@string/CONTENT_CRYPTO_STATUS"
-                            tools:src="@drawable/ic_arrow_drop_up" />
-
-                        <TextView
-                            android:id="@+id/tvVFThreeLoadedCryptoPriceChange"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="2dp"
-                            android:layout_weight="2"
-                            android:gravity="center_vertical"
-                            android:textColor="@color/text"
-                            android:textSize="17sp"
-                            tools:text="@string/HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H" />
-                    </LinearLayout>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </ViewFlipper>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/clErrorFragmentMarket"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:padding="5dp">
-
-                <TextView
-                    android:id="@+id/tvViewFlipperError"
-                    android:layout_width="match_parent"
-                    android:layout_height="70sp"
-                    android:layout_marginStart="2dp"
-                    android:gravity="center"
-                    android:text="@string/LOADING_DATA"
-                    android:textColor="@color/text"
-                    android:textSize="17sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@id/clErrorFragmentMarket"
-                    app:layout_constraintHorizontal_weight="10"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/clErrorFragmentMarket"
-                    tools:text="@string/HOLDER_CRYPTO_NAME" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <View
-                android:id="@+id/vSeparator"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/vfLoadedFragmentMarket"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="3dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="3dp"
-                android:background="@color/purple_app_accent" />
-
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rwMarketCryptoList"
+                android:id="@+id/rwMarketSearchCryptoList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/vSeparator"
                 android:scrollbarThumbVertical="@color/purple_app_accent"
-                android:scrollbars="vertical" />
+                android:scrollbars="vertical"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/tvMarketSearchMessage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                tools:text="@string/MARKET_NO_COINS_FOUND" />
+
+            <RelativeLayout
+                android:id="@+id/rlMarketScreen"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ViewFlipper
+                    android:id="@+id/vfLoadedFragmentMarket"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:flipInterval="5000">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/clViewFlipperOneLoadedFragmentMarket"
+                        android:layout_width="match_parent"
+                        android:layout_height="70sp"
+                        android:padding="5dp">
+
+                        <TextView
+                            android:id="@+id/tvVFOneLoadedCryptoSymbol"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="2dp"
+                            android:gravity="center"
+                            android:textColor="@color/text"
+                            android:textSize="17sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/tvVFOneLoadedCryptoCurrentPrice"
+                            app:layout_constraintHorizontal_weight="10"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/clViewFlipperOneLoadedFragmentMarket"
+                            tools:text="@string/HOLDER_CRYPTO_NAME" />
+
+                        <TextView
+                            android:id="@+id/tvVFOneLoadedCryptoCurrentPrice"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="2dp"
+                            android:gravity="center"
+                            android:textColor="@color/text"
+                            android:textSize="20sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/llVFOneLoadedCryptoPercentage"
+                            app:layout_constraintHorizontal_weight="15"
+                            app:layout_constraintStart_toEndOf="@id/tvVFOneLoadedCryptoSymbol"
+                            app:layout_constraintTop_toTopOf="@id/clViewFlipperOneLoadedFragmentMarket"
+                            tools:text="@string/HOLDER_CRYPTO_NAME" />
+
+                        <LinearLayout
+                            android:id="@+id/llVFOneLoadedCryptoPercentage"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="2dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@id/clViewFlipperOneLoadedFragmentMarket"
+                            app:layout_constraintHorizontal_weight="10"
+                            app:layout_constraintStart_toEndOf="@id/tvVFOneLoadedCryptoCurrentPrice"
+                            app:layout_constraintTop_toTopOf="@id/clViewFlipperOneLoadedFragmentMarket">
+
+                            <ImageView
+                                android:id="@+id/ivVFOneLoadedCryptoPriceChange"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="5"
+                                android:contentDescription="@string/CONTENT_CRYPTO_STATUS"
+                                tools:src="@drawable/ic_arrow_drop_up" />
+
+                            <TextView
+                                android:id="@+id/tvVFOneLoadedCryptoPriceChange"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="2dp"
+                                android:layout_weight="2"
+                                android:gravity="center_vertical"
+                                android:textColor="@color/text"
+                                android:textSize="17sp"
+                                tools:text="@string/HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H" />
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/clViewFlipperTwoLoadedFragmentMarket"
+                        android:layout_width="match_parent"
+                        android:layout_height="70sp"
+                        android:padding="5dp">
+
+                        <TextView
+                            android:id="@+id/tvVFTwoLoadedCryptoSymbol"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="2dp"
+                            android:gravity="center"
+                            android:textColor="@color/text"
+                            android:textSize="17sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/tvVFTwoLoadedCryptoCurrentPrice"
+                            app:layout_constraintHorizontal_weight="10"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/clViewFlipperTwoLoadedFragmentMarket"
+                            tools:text="@string/HOLDER_CRYPTO_NAME" />
+
+                        <TextView
+                            android:id="@+id/tvVFTwoLoadedCryptoCurrentPrice"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="2dp"
+                            android:gravity="center"
+                            android:textColor="@color/text"
+                            android:textSize="20sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/llVFTwoLoadedCryptoPercentage"
+                            app:layout_constraintHorizontal_weight="15"
+                            app:layout_constraintStart_toEndOf="@id/tvVFTwoLoadedCryptoSymbol"
+                            app:layout_constraintTop_toTopOf="@id/clViewFlipperTwoLoadedFragmentMarket"
+                            tools:text="@string/HOLDER_CRYPTO_NAME" />
+
+                        <LinearLayout
+                            android:id="@+id/llVFTwoLoadedCryptoPercentage"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="2dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@id/clViewFlipperTwoLoadedFragmentMarket"
+                            app:layout_constraintHorizontal_weight="10"
+                            app:layout_constraintStart_toEndOf="@id/tvVFTwoLoadedCryptoCurrentPrice"
+                            app:layout_constraintTop_toTopOf="@id/clViewFlipperTwoLoadedFragmentMarket">
+
+                            <ImageView
+                                android:id="@+id/ivVFTwoLoadedCryptoPriceChange"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="5"
+                                android:contentDescription="@string/CONTENT_CRYPTO_STATUS"
+                                tools:src="@drawable/ic_arrow_drop_up" />
+
+                            <TextView
+                                android:id="@+id/tvVFTwoLoadedCryptoPriceChange"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="2dp"
+                                android:layout_weight="2"
+                                android:gravity="center_vertical"
+                                android:textColor="@color/text"
+                                android:textSize="17sp"
+                                tools:text="@string/HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H" />
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/clViewFlipperThreeLoadedFragmentMarket"
+                        android:layout_width="match_parent"
+                        android:layout_height="70sp"
+                        android:padding="5dp">
+
+                        <TextView
+                            android:id="@+id/tvVFThreeLoadedCryptoSymbol"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="2dp"
+                            android:gravity="center"
+                            android:textColor="@color/text"
+                            android:textSize="17sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/tvVFThreeLoadedCryptoCurrentPrice"
+                            app:layout_constraintHorizontal_weight="10"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/clViewFlipperThreeLoadedFragmentMarket"
+                            tools:text="@string/HOLDER_CRYPTO_NAME" />
+
+                        <TextView
+                            android:id="@+id/tvVFThreeLoadedCryptoCurrentPrice"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="2dp"
+                            android:gravity="center"
+                            android:textColor="@color/text"
+                            android:textSize="20sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@id/llVFThreeLoadedCryptoPercentage"
+                            app:layout_constraintHorizontal_weight="15"
+                            app:layout_constraintStart_toEndOf="@id/tvVFThreeLoadedCryptoSymbol"
+                            app:layout_constraintTop_toTopOf="@id/clViewFlipperThreeLoadedFragmentMarket"
+                            tools:text="@string/HOLDER_CRYPTO_NAME" />
+
+                        <LinearLayout
+                            android:id="@+id/llVFThreeLoadedCryptoPercentage"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="2dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@id/clViewFlipperThreeLoadedFragmentMarket"
+                            app:layout_constraintHorizontal_weight="10"
+                            app:layout_constraintStart_toEndOf="@id/tvVFThreeLoadedCryptoCurrentPrice"
+                            app:layout_constraintTop_toTopOf="@id/clViewFlipperThreeLoadedFragmentMarket">
+
+                            <ImageView
+                                android:id="@+id/ivVFThreeLoadedCryptoPriceChange"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="5"
+                                android:contentDescription="@string/CONTENT_CRYPTO_STATUS"
+                                tools:src="@drawable/ic_arrow_drop_up" />
+
+                            <TextView
+                                android:id="@+id/tvVFThreeLoadedCryptoPriceChange"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="2dp"
+                                android:layout_weight="2"
+                                android:gravity="center_vertical"
+                                android:textColor="@color/text"
+                                android:textSize="17sp"
+                                tools:text="@string/HOLDER_CRYPTO_PRICE_CHANGE_PERCENTAGE_24H" />
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </ViewFlipper>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clErrorFragmentMarket"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:padding="5dp">
+
+                    <TextView
+                        android:id="@+id/tvViewFlipperError"
+                        android:layout_width="match_parent"
+                        android:layout_height="70sp"
+                        android:layout_marginStart="2dp"
+                        android:gravity="center"
+                        android:text="@string/LOADING_DATA"
+                        android:textColor="@color/text"
+                        android:textSize="17sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="@id/clErrorFragmentMarket"
+                        app:layout_constraintHorizontal_weight="10"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/clErrorFragmentMarket"
+                        tools:text="@string/HOLDER_CRYPTO_NAME" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <View
+                    android:id="@+id/vSeparator"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/vfLoadedFragmentMarket"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="@color/purple_app_accent" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rwMarketCryptoList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/vSeparator"
+                    android:scrollbarThumbVertical="@color/purple_app_accent"
+                    android:scrollbars="vertical" />
+
+            </RelativeLayout>
 
         </RelativeLayout>
 

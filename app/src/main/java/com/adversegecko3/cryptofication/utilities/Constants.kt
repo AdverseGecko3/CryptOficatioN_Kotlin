@@ -6,6 +6,7 @@ object Constants {
     const val PREF_FILTER_OPTION = "prefDefaultFilterOption"
     const val PREF_FILTER_ORDER = "prefDefaultFilterOrder"
     const val PREF_ITEMS_PAGE = "prefDefaultItemsPage"
+    const val PREF_SCROLL_ON_PAGE_CHANGED = "prefScrollOnPageChanged"
     const val PREF_ALERT_TIME = "prefAlertTime"
     const val PREF_INFO_NOTIFICATIONS = "prefInfoNotifications"
     const val PREF_ABOUT = "prefAbout"

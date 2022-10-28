@@ -11,15 +11,9 @@ class GetCryptoMarketOnlineUseCase @Inject constructor(
     private val cryptoProvider: CryptoProvider
 ) {
     suspend operator fun invoke(page: Int = 1): List<Crypto> {
-        var response = repository.getAllCryptoMarket(page)
+        val response = repository.getAllCryptoMarket(page)
         Log.d("CryptoServiceM", "Response Repository: $response")
-        if (response.isNotEmpty())
-            if (page == 1) {
-                cryptoProvider.cryptosMarket = response
-            } else {
-                cryptoProvider.cryptosMarket = cryptoProvider.cryptosMarket + response
-                response = cryptoProvider.cryptosMarket
-            }
+        if (response.isNotEmpty()) cryptoProvider.cryptosMarket = response
         return response
     }
 }
