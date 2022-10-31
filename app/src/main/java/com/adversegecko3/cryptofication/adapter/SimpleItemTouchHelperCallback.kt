@@ -53,7 +53,7 @@ class SimpleItemTouchHelperCallback(
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
-        if (viewHolder.itemViewType == 1) return
+        if (viewHolder.itemViewType == 1 || viewHolder.itemViewType == 2) return
         var rwSwipeBackground: ColorDrawable? = null
         var rwSwipeIcon: Drawable? = null
         when (fragment) {

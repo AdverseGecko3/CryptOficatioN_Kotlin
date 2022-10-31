@@ -137,7 +137,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
     override fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder) {
         // Get the position and the crypto symbol of the item
         val position = viewHolder.bindingAdapterPosition
-        if (getItemViewType(position) == viewTypeBannerAd) return
+        if (getItemViewType(position) == (viewTypeBannerAd or viewTypeLoadMore)) return
         val crypto = cryptoList[position] as Crypto
         val cryptoId = crypto.id
         val cryptoSymbol = crypto.symbol.uppercase()
