@@ -145,7 +145,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
         CoroutineScope(Dispatchers.Default).launch {
             val savedAlerts: Int
             if (withContext(Dispatchers.IO) { mRoom.getSingleAlert(cryptoId) } == null) {
-                val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
+                val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol)
                 savedAlerts = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }.size
                 val resultInsert: Int = try {
                     withContext(Dispatchers.IO) { mRoom.insertAlert(cryptoSwiped) }.toInt()

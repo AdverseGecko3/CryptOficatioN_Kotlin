@@ -15,8 +15,8 @@ android {
         applicationId "com.adversegecko3.cryptofication"
         minSdk 21
         targetSdk 33
-        versionCode 92
-        versionName "1.6.8"
+        versionCode 94
+        versionName "1.6.10"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

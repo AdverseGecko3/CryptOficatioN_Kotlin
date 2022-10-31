@@ -15,9 +15,10 @@
         android:text="@string/HOLDER_CRYPTO_NAME"
         android:textColor="@color/text"
         android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/llFragmentCryptoDetailLL1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/llFragmentCryptoDetailLL1" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/llFragmentCryptoDetailLL1"
@@ -27,6 +28,8 @@
         android:orientation="horizontal"
         android:paddingVertical="5dp"
         app:layout_constraintBottom_toTopOf="@+id/llFragmentCryptoDetailLL2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvFragmentCryptoDetailName">
 
         <TextView
@@ -36,7 +39,7 @@
             android:layout_marginStart="10dp"
             android:text="@string/HOLDER_CRYPTO_NAME"
             android:textColor="@color/text"
-            android:textSize="18sp"
+            android:textSize="20sp"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
@@ -46,21 +49,8 @@
             android:layout_marginStart="10dp"
             android:text="@string/HOLDER_CRYPTO_NAME"
             android:textColor="@color/gray"
-            android:textSize="16sp"
+            android:textSize="14sp"
             app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailSymbol" />
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2" />
-
-        <ImageView
-            android:id="@+id/ivFragmentCryptoDetailFavorite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:layout_gravity="end"
-            android:src="@drawable/ic_star_outlined"
-            android:contentDescription="@string/CONTENT_CRYPTO_DETAIL_FAV_ICON" />
     </LinearLayout>
 
     <LinearLayout
@@ -70,8 +60,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingVertical="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/llFragmentCryptoDetailLL1"
-        app:layout_constraintBottom_toTopOf="@+id/bcFragmentCryptoDetailCandle">
+        app:layout_constraintBottom_toTopOf="@+id/bcFragmentCryptoDetailCandle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/llFragmentCryptoDetailLL1">
 
         <TextView
             android:id="@+id/tvFragmentCryptoDetailPrice"
@@ -80,7 +72,7 @@
             android:layout_marginStart="10dp"
             android:text="@string/HOLDER_CRYPTO_NAME"
             android:textColor="@color/text"
-            android:textSize="25sp"
+            android:textSize="22sp"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
@@ -88,7 +80,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:padding="5dp"
             android:text="@string/HOLDER_CRYPTO_NAME"
             android:textColor="@color/text"
             android:textSize="18sp"
@@ -101,10 +92,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:padding="5dp"
             android:text="@string/HOLDER_CRYPTO_PRICE_CHANGE_24H"
             android:textColor="@color/text"
-            android:textSize="12sp"
+            android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@+id/tvFragmentCryptoDetailPrice"
             app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailPriceChangePercentage24h" />
     </LinearLayout>

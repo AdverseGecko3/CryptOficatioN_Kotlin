@@ -1,27 +1,41 @@
 package com.adversegecko3.cryptofication.adapter
 
 import android.annotation.SuppressLint
+import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.adversegecko3.cryptofication.R
+import com.adversegecko3.cryptofication.data.model.CryptoAlert
 import com.adversegecko3.cryptofication.data.model.CryptoSearch
+import com.adversegecko3.cryptofication.data.repos.CryptoAlertRepository
 import com.adversegecko3.cryptofication.databinding.AdapterCryptoSearchBinding
+import com.adversegecko3.cryptofication.ui.view.CryptOficatioNApp.Companion.mAlarmManager
+import com.adversegecko3.cryptofication.ui.view.CryptOficatioNApp.Companion.mAppContext
+import com.adversegecko3.cryptofication.ui.view.CryptOficatioNApp.Companion.mPrefs
+import com.adversegecko3.cryptofication.utilities.showToast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class CryptoSearchListMarketAdapter @Inject constructor(/*private val mRoom: CryptoAlertRepository*/) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CryptoSearchListMarketAdapter @Inject constructor(private val mRoom: CryptoAlertRepository) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), ITHSwipe {
 
-    private var cryptoList: ArrayList<CryptoSearch> = ArrayList()
+    private var cryptoSearchList: ArrayList<CryptoSearch> = ArrayList()
 
     private var onCryptoSearchListMarketListener: OnCryptoSearchListMarketListener? = null
 
     interface OnCryptoSearchListMarketListener {
         fun onCryptoSearchClicked(selectedCrypto: CryptoSearch)
+        fun onSnackbarCreated(snackbar: Snackbar)
     }
 
     fun setOnCryptoSearchListMarketListener(listener: OnCryptoSearchListMarketListener?) {
@@ -37,33 +51,32 @@ class CryptoSearchListMarketAdapter @Inject constructor(/*private val mRoom: Cry
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val cryptoHolder = holder as CryptoListMarketViewHolder
-        val selectedCrypto = cryptoList[position]
+        val selectedCrypto = cryptoSearchList[position]
         cryptoHolder.bind(selectedCrypto)
         cryptoHolder.bindingCrypto.parentLayoutCrypto.setOnClickListener {
             onCryptoSearchListMarketListener?.onCryptoSearchClicked(selectedCrypto)
         }
     }
 
-    override fun getItemCount() = cryptoList.size
+    override fun getItemCount() = cryptoSearchList.size
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setCryptos(cryptoList: List<CryptoSearch>) {
-        this.cryptoList = ArrayList(cryptoList)
+    fun setCryptos(cryptoSearchList: List<CryptoSearch>) {
+        this.cryptoSearchList = ArrayList(cryptoSearchList)
         notifyDataSetChanged()
     }
 
-    /*override fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder) {
+    override fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder) {
         // Get the position and the crypto symbol of the item
         val position = viewHolder.bindingAdapterPosition
-        if (getItemViewType(position) == viewTypeBannerAd) return
-        val crypto = cryptoList[position] as Crypto
+        val crypto = cryptoSearchList[position]
         val cryptoId = crypto.id
         val cryptoSymbol = crypto.symbol.uppercase()
 
         CoroutineScope(Dispatchers.Default).launch {
             val savedAlerts: Int
             if (withContext(Dispatchers.IO) { mRoom.getSingleAlert(cryptoId) } == null) {
-                val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
+                val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol)
                 savedAlerts = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }.size
                 val resultInsert: Int = try {
                     withContext(Dispatchers.IO) { mRoom.insertAlert(cryptoSwiped) }.toInt()
@@ -117,7 +130,7 @@ class CryptoSearchListMarketAdapter @Inject constructor(/*private val mRoom: Cry
                                             }
                                         }
                                     }.let { snackbar ->
-                                        onCryptoListMarketListener?.onSnackbarCreated(snackbar)
+                                        onCryptoSearchListMarketListener?.onSnackbarCreated(snackbar)
                                     }
                             } catch (e: IllegalArgumentException) {
                                 Log.e("IllegalArgumentExc", e.message.toString())
@@ -137,11 +150,11 @@ class CryptoSearchListMarketAdapter @Inject constructor(/*private val mRoom: Cry
                         "$cryptoSymbol already in favorites",
                         Snackbar.LENGTH_SHORT
                     ).let { snackbar ->
-                        onCryptoListMarketListener?.onSnackbarCreated(snackbar)
+                        onCryptoSearchListMarketListener?.onSnackbarCreated(snackbar)
                     }
             }
         }
-    }*/
+    }
 
     class CryptoListMarketViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val bindingCrypto = AdapterCryptoSearchBinding.bind(itemView)

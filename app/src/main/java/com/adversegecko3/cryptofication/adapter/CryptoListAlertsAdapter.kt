@@ -160,12 +160,12 @@ class CryptoListAlertsAdapter @Inject constructor(
         if (getItemViewType(position) == viewTypeBannerAd) return
         val crypto = cryptoList[position] as Crypto
         val cryptoId = crypto.id
-        val cryptoSymbol = crypto.symbol
+        val cryptoSymbol = crypto.symbol.uppercase()
 
         // Add the item to the database, at the Favorites table (cryptoSymbol and the current date)
         CoroutineScope(Dispatchers.Default).launch {
             val cryptoAlert = withContext(Dispatchers.IO) { mRoom.getSingleAlert(cryptoId) }
-            val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
+            val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol)
             val savedAlerts = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }.size
 
             when (withContext(Dispatchers.IO) { mRoom.deleteAlert(cryptoAlert ?: cryptoSwiped) }) {

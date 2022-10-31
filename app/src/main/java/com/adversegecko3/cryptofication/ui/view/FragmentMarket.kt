@@ -452,10 +452,9 @@ class FragmentMarket :
             setHasFixedSize(true)
         }
         rwCryptoAdapter.setOnCryptoListMarketListener(this)
-
         // Attach ItemTouchHelper (swipe items to favorite)
-        val callback = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "market")
-        mItemTouchHelper = ItemTouchHelper(callback)
+        val callbackMarketCryptoList = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "market")
+        mItemTouchHelper = ItemTouchHelper(callbackMarketCryptoList)
         mItemTouchHelper.attachToRecyclerView(binding.rwMarketCryptoList)
 
         binding.rwMarketSearchCryptoList.apply {
@@ -464,6 +463,10 @@ class FragmentMarket :
             setHasFixedSize(true)
         }
         rwCryptoSearchAdapter.setOnCryptoSearchListMarketListener(this)
+        // Attach ItemTouchHelper (swipe items to favorite)
+        val callbackMarketSearchCryptoList = SimpleItemTouchHelperCallback(rwCryptoSearchAdapter, this, "market")
+        mItemTouchHelper = ItemTouchHelper(callbackMarketSearchCryptoList)
+        mItemTouchHelper.attachToRecyclerView(binding.rwMarketSearchCryptoList)
     }
 
     override fun onSelectedChange(swipingState: Boolean) {
