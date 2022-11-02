@@ -36,6 +36,11 @@
             android:key="prefDefaultItemsPage"
             android:title="@string/SETTINGS_ITEMS_PAGE"
             app:useSimpleSummaryProvider="true" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="prefScrollOnPageChanged"
+            android:summary="@string/SETTINGS_SCROLL_ON_PAGE_CHANGED_SUMMARY"
+            android:title="@string/SETTINGS_SCROLL_ON_PAGE_CHANGED" />
     </PreferenceCategory>
     <PreferenceCategory
         android:icon="@drawable/ic_notifications"

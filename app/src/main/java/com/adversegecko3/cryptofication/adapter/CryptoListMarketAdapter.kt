@@ -7,8 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
@@ -34,7 +33,6 @@ import javax.inject.Inject
 
 class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlertRepository) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
-    Filterable,
     ITHSwipe {
 
     private var cryptoList: ArrayList<Any> = ArrayList()
@@ -49,7 +47,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
     interface OnCryptoListMarketListener {
         fun onCryptoClicked(bundle: Bundle)
         fun onSnackbarCreated(snackbar: Snackbar)
-        fun onLoadMoreClicked()
+        fun onLoadMoreClicked(loadType: Int)
     }
 
     fun setOnCryptoListMarketListener(listener: OnCryptoListMarketListener?) {
@@ -108,10 +106,11 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
             }
             viewTypeLoadMore -> {
                 val loadMoreHolder = holder as LoadMoreListMarketViewHolder
+                val loadType = if (position == 0) 0 else 1
+                loadMoreHolder.bind(loadType)
                 loadMoreHolder.bindingLoadMore.btnLoadMore.setOnClickListener {
-                    onCryptoListMarketListener?.onLoadMoreClicked()
+                    onCryptoListMarketListener?.onLoadMoreClicked(loadType)
                 }
-
             }
         }
     }
@@ -119,44 +118,12 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
     override fun getItemCount() = cryptoList.size
 
     override fun getItemViewType(position: Int): Int {
-        if (position == (cryptoListFull.lastIndex)) return viewTypeLoadMore
-        return if (position % Constants.ITEMS_PER_AD == 0 || position == 0) viewTypeBannerAd else viewTypeCrypto
-    }
-
-    override fun getFilter() = filter
-
-    private val filter = object : Filter() {
-        override fun performFiltering(charSequence: CharSequence): FilterResults {
-            val filteredList = ArrayList<Any>()
-            val query = charSequence.toString()
-
-            if (query.isEmpty()) {
-                filteredList.addAll(cryptoListFull)
-            } else {
-                val filterPattern = query.lowercase().trim { it <= ' ' }
-                for ((i, item) in cryptoListFull.withIndex()) {
-                    if (getItemViewType(i) == viewTypeLoadMore) continue
-                    if (i == 0) {
-                        filteredList.add(item)
-                        continue
-                    }
-                    if (getItemViewType(i) == viewTypeCrypto && item is Crypto) {
-                        if (item.symbol.lowercase().contains(filterPattern) or
-                            item.name.lowercase().contains(filterPattern)
-                        ) filteredList.add(item)
-                    }
-                }
-            }
-            val results = FilterResults()
-            results.values = filteredList
-            return results
-        }
-
-        @SuppressLint("NotifyDataSetChanged")
-        override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
-            cryptoList.clear()
-            cryptoList.addAll(filterResults.values as ArrayList<*>)
-            notifyDataSetChanged()
+        if (cryptoListFull[0] is Double) {
+            if (position == cryptoListFull.lastIndex || position == 0) return viewTypeLoadMore
+            return if (position % Constants.ITEMS_PER_AD == 0) viewTypeBannerAd else viewTypeCrypto
+        } else {
+            if (position == cryptoListFull.lastIndex) return viewTypeLoadMore
+            return if (position % Constants.ITEMS_PER_AD == 0 && position != 0) viewTypeBannerAd else viewTypeCrypto
         }
     }
 
@@ -170,7 +137,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
     override fun onItemSwiped(direction: Int, viewHolder: RecyclerView.ViewHolder) {
         // Get the position and the crypto symbol of the item
         val position = viewHolder.bindingAdapterPosition
-        if (getItemViewType(position) == viewTypeBannerAd) return
+        if (getItemViewType(position) == (viewTypeBannerAd or viewTypeLoadMore)) return
         val crypto = cryptoList[position] as Crypto
         val cryptoId = crypto.id
         val cryptoSymbol = crypto.symbol.uppercase()
@@ -178,7 +145,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
         CoroutineScope(Dispatchers.Default).launch {
             val savedAlerts: Int
             if (withContext(Dispatchers.IO) { mRoom.getSingleAlert(cryptoId) } == null) {
-                val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol, crypto.current_price, 0.0)
+                val cryptoSwiped = CryptoAlert(cryptoId, cryptoSymbol)
                 savedAlerts = withContext(Dispatchers.IO) { mRoom.getAllAlerts() }.size
                 val resultInsert: Int = try {
                     withContext(Dispatchers.IO) { mRoom.insertAlert(cryptoSwiped) }.toInt()
@@ -295,5 +262,21 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
 
     class LoadMoreListMarketViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val bindingLoadMore = AdapterLoadMoreBinding.bind(itemView)
+
+        fun bind(loadType: Int) {
+            if (loadType == 0) {
+                bindingLoadMore.btnLoadMore.apply {
+                    text = resources.getString(R.string.PREVIOUS_PAGE)
+                    icon =
+                        ResourcesCompat.getDrawable(resources, R.drawable.ic_arrow_back, null)
+                }
+            } else {
+                bindingLoadMore.btnLoadMore.apply {
+                    text = resources.getString(R.string.NEXT_PAGE)
+                    icon =
+                        ResourcesCompat.getDrawable(resources, R.drawable.ic_arrow_forward, null)
+                }
+            }
+        }
     }
 }

@@ -53,7 +53,7 @@ class SimpleItemTouchHelperCallback(
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
-        if (viewHolder.itemViewType == 1) return
+        if (viewHolder.itemViewType == 1 || viewHolder.itemViewType == 2) return
         var rwSwipeBackground: ColorDrawable? = null
         var rwSwipeIcon: Drawable? = null
         when (fragment) {
@@ -64,7 +64,7 @@ class SimpleItemTouchHelperCallback(
                     @Suppress("DEPRECATION")
                     ColorDrawable(mResources.getColor(R.color.yellow_favorite))
                 }
-                rwSwipeIcon = ContextCompat.getDrawable(mAppContext, R.drawable.ic_star)!!
+                rwSwipeIcon = ContextCompat.getDrawable(mAppContext, R.drawable.ic_star_outlined)!!
             }
             "alerts" -> {
                 rwSwipeBackground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

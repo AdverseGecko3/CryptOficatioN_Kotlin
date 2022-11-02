@@ -39,6 +39,7 @@ class AlertsViewModel @Inject constructor(
     var orderOption = 0
     var orderFilter = 0
     var lastSelectedFilterItem = 0
+    var isSearchOpen = false
 
     var cryptoList: ArrayList<Any> = arrayListOf()
 

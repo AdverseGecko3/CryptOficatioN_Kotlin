@@ -28,8 +28,10 @@ abstract class CryptoAlertDB : RoomDatabase() {
                     CryptoAlertDB::class.java,
                     "cryptofication_database"
                 )
-                    .addMigrations(migration_7_8)
-                    .addMigrations(migration_8_9)
+                    .addMigrations(
+                        migration_7_8,
+                        migration_8_9
+                    )
                     .build()
                 INSTANCE = instance
                 return instance

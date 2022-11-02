@@ -36,6 +36,43 @@ class CryptoService @Inject constructor(
         }
     }
 
+    suspend fun getSearchMarketCrypto(query: String): List<Any> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = api.getMarketSearchCryptoList(query)
+                (response.body()?.coins)?.ifEmpty { listOf(query) } ?: emptyList()
+            } catch (e: UnknownHostException) {
+                e.printStackTrace()
+                e.message?.let { Log.e("CryptoService", it) }
+                emptyList()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                e.message?.let { Log.e("CryptoService", it) }
+                emptyList()
+            }
+        }
+    }
+
+    suspend fun getCryptoData(query: String): List<Crypto> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val userCurrency = mPrefs.getCurrency()
+                val response = api.getCryptoListByIds(
+                    query, userCurrency, "true"
+                )
+                response.body() ?: emptyList()
+            } catch (e: UnknownHostException) {
+                e.printStackTrace()
+                e.message?.let { Log.e("CryptoService", it) }
+                emptyList()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                e.message?.let { Log.e("CryptoService", it) }
+                emptyList()
+            }
+        }
+    }
+
     suspend fun getAlertCrypto(): List<Crypto> {
         return withContext(Dispatchers.IO) {
             try {
@@ -49,7 +86,7 @@ class CryptoService @Inject constructor(
                         }
                     }
                     ids += "bitcoin"
-                    val response = api.getAlertsCryptoList(
+                    val response = api.getCryptoListByIds(
                         ids, userCurrency, "true"
                     )
                     response.body() ?: emptyList()
@@ -58,6 +95,10 @@ class CryptoService @Inject constructor(
                 }
                 listAlert
             } catch (e: UnknownHostException) {
+                e.printStackTrace()
+                e.message?.let { Log.e("CryptoService", it) }
+                emptyList()
+            } catch (e: IOException) {
                 e.printStackTrace()
                 e.message?.let { Log.e("CryptoService", it) }
                 emptyList()

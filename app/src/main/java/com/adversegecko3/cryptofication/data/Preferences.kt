@@ -32,6 +32,10 @@ class Preferences(context: Context) {
         return userPrefs.getString(Constants.PREF_ITEMS_PAGE, "100")!!
     }
 
+    fun getScrollOnPageChanged(): Boolean {
+        return userPrefs.getBoolean(Constants.PREF_SCROLL_ON_PAGE_CHANGED, true)
+    }
+
     fun getAlertTime(): String {
         return userPrefs.getString(Constants.PREF_ALERT_TIME, "00:00")!!
     }
@@ -53,6 +57,7 @@ class Preferences(context: Context) {
             add(userPrefs.getString(Constants.PREF_FILTER_OPTION, "0")!!)
             add(userPrefs.getString(Constants.PREF_FILTER_ORDER, "0")!!)
             add(userPrefs.getString(Constants.PREF_ITEMS_PAGE, "100")!!)
+            add(userPrefs.getBoolean(Constants.PREF_SCROLL_ON_PAGE_CHANGED, true))
             add(userPrefs.getString(Constants.PREF_ALERT_TIME, "00:00")!!)
         }
     }
@@ -97,6 +102,13 @@ class Preferences(context: Context) {
         userPrefs
             .edit()
             .putString(Constants.PREF_ITEMS_PAGE, itemsPage)
+            .apply()
+    }
+
+    fun setScrollOnPageChanged(scrollOnPageChanged: Boolean) {
+        userPrefs
+            .edit()
+            .putBoolean(Constants.PREF_SCROLL_ON_PAGE_CHANGED, scrollOnPageChanged)
             .apply()
     }
 

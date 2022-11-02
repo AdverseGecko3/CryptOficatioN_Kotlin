@@ -1,9 +1,11 @@
 package com.adversegecko3.cryptofication.ui.view
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.SearchView
 import androidx.appcompat.app.ActionBar
@@ -17,6 +19,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adversegecko3.cryptofication.R
+import com.adversegecko3.cryptofication.adapter.CryptoListAlertsAdapter
 import com.adversegecko3.cryptofication.adapter.CryptoListAlertsAdapter.OnCryptoListAlertsListener
 import com.adversegecko3.cryptofication.adapter.CryptoListAlertsPortfolioAdapter
 import com.adversegecko3.cryptofication.adapter.CryptoListAlertsPortfolioAdapter.OnCryptoListAlertsPortfolioListener
@@ -40,7 +43,7 @@ class FragmentAlerts :
     OnCryptoListAlertsPortfolioListener {
 
     @Inject
-    lateinit var rwCryptoAdapter: com.adversegecko3.cryptofication.adapter.CryptoListAlertsAdapter
+    lateinit var rwCryptoAdapter: CryptoListAlertsAdapter
 
     private var _binding: FragmentAlertsBinding? = null
     private val binding get() = _binding!!
@@ -149,6 +152,9 @@ class FragmentAlerts :
         // Find itemSearch and viewSearch in the toolbar
         itemSearch = menu.findItem(R.id.mnSearch)
         val viewSearch = itemSearch!!.actionView as SearchView
+        viewSearch.apply {
+            queryHint = "Search coins"
+        }
 
         // Check if it is the first run
         if (!alertsViewModel.alreadyLaunched) {
@@ -229,6 +235,7 @@ class FragmentAlerts :
         viewSearch.apply {
             imeOptions = EditorInfo.IME_ACTION_DONE
             isIconified = false
+            queryHint = "Filter alerts coins"
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     return false
@@ -244,13 +251,19 @@ class FragmentAlerts :
         itemSearch!!.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 // Open the search
-                viewSearch.onActionViewExpanded()
+                if (viewSearch.query.isEmpty()) {
+                    viewSearch.onActionViewExpanded()
+                    alertsViewModel.isSearchOpen = true
+                } else {
+                    viewSearch.clearFocus()
+                }
                 return true // True to be able to open
             }
 
             override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
                 // Close the search, empty the field and clear the focus
                 rwCryptoAdapter.filter.filter("")
+                alertsViewModel.isSearchOpen = false
                 viewSearch.apply {
                     onActionViewCollapsed()
                     setQuery("", false)
@@ -538,6 +551,18 @@ class FragmentAlerts :
         for (item in alertsViewModel.cryptoList) {
             if (item is AdView) {
                 item.destroy()
+            }
+        }
+        if (alertsViewModel.isSearchOpen) {
+            try {
+                val imm =
+                    requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(requireActivity().currentFocus!!.windowToken, 0)
+            } catch (e: NullPointerException) {
+                Log.e(
+                    "NullPointerException",
+                    e.message ?: "NullPointerException: InputMethodManager"
+                )
             }
         }
         super.onDestroy()

@@ -49,8 +49,10 @@
     <string name="CONFIRMATION_EXIT">Are you sure you want to exit?</string>
     <string name="NO">No</string>
     <string name="YES">Yes</string>
-    <string name="LOAD_MORE">Load more</string>
+    <string name="PREVIOUS_PAGE">Previous page</string>
+    <string name="NEXT_PAGE">Next page</string>
     <string name="NO_DATA">No data</string>
+    <string name="MARKET_NO_COINS_FOUND">No coins found with the query %s</string>
     <string name="ABOUT_INFO">Hi, my Name is Eric Barrero, and I\'m a student from Barcelona, Spain.\n
         This is my first "big" personal project, were I learnt how to implement some things I did not studied in school.
         It\'s not that big and complex, but for a rookie like me is a good starting point!\n\n
@@ -65,6 +67,7 @@
     <string name="CONTENT_CRYPTO_STATUS">Icon indicating positive or negative price on the last 24 hours</string>
     <string name="CONTENT_ALERT_SETTINGS">Settings icon</string>
     <string name="CONTENT_BOTTOM_SHEET_SCROLL_ICON">Bottom Sheet scroll icon</string>
+    <string name="CONTENT_CRYPTO_DETAIL_FAV_ICON">Crypto Detail favorite icon</string>
     <string name="RECYCLERVIEW_EMPTY">No crypto has been added as favorites!\nHead over to the Markets tab and swipe a crypto to add it here</string>
     <string name="VIEWFLIPPER_EMPTY">No data loaded. Please, check your internet connection and pull down to refresh</string>
     <string name="LOADING_DATA">Loading data…</string>
@@ -169,6 +172,9 @@
         <item>200</item>
     </string-array>
     <string name="SETTINGS_ITEMS_PAGE_VALUE_DEFAULT">100</string>
+
+    <string name="SETTINGS_SCROLL_ON_PAGE_CHANGED">Scroll on page changed</string>
+    <string name="SETTINGS_SCROLL_ON_PAGE_CHANGED_SUMMARY">Scroll list to top when going to next page and scroll list to bottom when going to previous page</string>
 
     <string name="SETTINGS_INFO_NOTIFICATIONS">Info about notifications</string>
 

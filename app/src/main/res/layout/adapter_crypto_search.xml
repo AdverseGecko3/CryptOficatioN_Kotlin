@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parentLayoutCrypto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp">
+
+    <ImageView
+        android:id="@+id/ivAdapterCryptoSearchIcon"
+        android:layout_width="0dp"
+        android:layout_height="35sp"
+        android:contentDescription="@string/CONTENT_CRYPTO_IMAGE"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/llAdapterCryptoSearchSymbolPrice"
+        app:layout_constraintHorizontal_weight="5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@mipmap/ic_launcher_round" />
+
+    <LinearLayout
+        android:id="@+id/llAdapterCryptoSearchSymbolPrice"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tvAdapterCryptoSearchMarketCapRank"
+        app:layout_constraintHorizontal_weight="18"
+        app:layout_constraintStart_toEndOf="@id/ivAdapterCryptoSearchIcon"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvAdapterCryptoSearchSymbol"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="2dp"
+            android:gravity="start|center_vertical"
+            android:textColor="@color/text"
+            android:textSize="15sp"
+            tools:text="@string/HOLDER_CRYPTO_SYMBOL" />
+
+        <TextView
+            android:id="@+id/tvAdapterCryptoSearchName"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="2dp"
+            android:gravity="center_vertical"
+            android:textColor="@color/text"
+            android:textSize="13sp"
+            tools:text="@string/HOLDER_CRYPTO_NAME" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvAdapterCryptoSearchMarketCapRank"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="start|center_vertical"
+        android:textColor="@color/gray"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="5"
+        app:layout_constraintStart_toEndOf="@id/llAdapterCryptoSearchSymbolPrice"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/HOLDER_CRYPTO_MARKET_CAP_RANK" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

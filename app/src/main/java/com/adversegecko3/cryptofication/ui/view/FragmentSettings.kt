@@ -30,6 +30,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
     private var lpFilterOption: ListPreference? = null
     private var lpFilterOrder: ListPreference? = null
     private var lpItemsPage: ListPreference? = null
+    private var spScrollOnPageChanged: SwitchPreference? = null
     private var pAlertTime: Preference? = null
     private var pInfoNotifications: Preference? = null
     private var spScheme: SwitchPreference? = null
@@ -66,6 +67,9 @@ class FragmentSettings : PreferenceFragmentCompat() {
                 Constants.PREF_FILTER_OPTION -> mPrefs.setFilterOption(lpFilterOption!!.value)
                 Constants.PREF_FILTER_ORDER -> mPrefs.setFilterOrder(lpFilterOrder!!.value)
                 Constants.PREF_ITEMS_PAGE -> mPrefs.setItemsPerPage(lpItemsPage!!.value)
+                Constants.PREF_SCROLL_ON_PAGE_CHANGED -> mPrefs.setScrollOnPageChanged(
+                    spScrollOnPageChanged!!.isChecked
+                )
             }
         }
         pAlertTime!!.onPreferenceClickListener =
@@ -213,6 +217,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
         lpFilterOption = findPreference(Constants.PREF_FILTER_OPTION)
         lpFilterOrder = findPreference(Constants.PREF_FILTER_ORDER)
         lpItemsPage = findPreference(Constants.PREF_ITEMS_PAGE)
+        spScrollOnPageChanged = findPreference(Constants.PREF_SCROLL_ON_PAGE_CHANGED)
         pAlertTime = findPreference(Constants.PREF_ALERT_TIME)
         pInfoNotifications = findPreference(Constants.PREF_INFO_NOTIFICATIONS)
         spScheme = findPreference(Constants.PREF_SCHEME)
@@ -228,7 +233,8 @@ class FragmentSettings : PreferenceFragmentCompat() {
         lpFilterOption!!.value = listPreferences[2].toString()
         lpFilterOrder!!.value = listPreferences[3].toString()
         lpItemsPage!!.value = listPreferences[4].toString()
-        pAlertTime!!.summary = listPreferences[5].toString()
+        spScrollOnPageChanged!!.isChecked = listPreferences[5].toString().toBoolean()
+        pAlertTime!!.summary = listPreferences[6].toString()
         pVersion!!.summary = BuildConfig.VERSION_NAME
     }
 
