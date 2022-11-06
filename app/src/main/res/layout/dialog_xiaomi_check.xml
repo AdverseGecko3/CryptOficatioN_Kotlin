@@ -6,32 +6,40 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/tvDialogCreditsTitle"
+        android:id="@+id/tvDialogXiaomiCheckTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="10sp"
         android:text="@string/XIAOMI_CHECK_TITLE"
         android:textSize="25sp"
-        app:layout_constraintBottom_toTopOf="@+id/tvDialogCreditsContent"
+        app:layout_constraintBottom_toTopOf="@+id/tvDialogXiaomiCheckContent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tvDialogCreditsContent"
+        android:id="@+id/tvDialogXiaomiCheckContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autoLink="web"
         android:justificationMode="inter_word"
         android:padding="20sp"
         android:text="@string/XIAOMI_CHECK_TEXT"
         android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnDialogXiaomiCheckGoToAppInfo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvDialogXiaomiCheckTitle"
+        tools:targetApi="o" />
+
+    <Button
+        android:id="@+id/btnDialogXiaomiCheckGoToAppInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/XIAOMI_CHECK_BUTTON_TEXT"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDialogCreditsTitle"
-        tools:targetApi="o" />
-
+        app:layout_constraintTop_toBottomOf="@+id/tvDialogXiaomiCheckContent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

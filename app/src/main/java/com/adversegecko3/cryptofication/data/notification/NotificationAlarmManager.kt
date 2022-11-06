@@ -1,6 +1,5 @@
 package com.adversegecko3.cryptofication.data.notification
 
-import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -29,10 +28,9 @@ class NotificationAlarmManager(context: Context) {
     }
     private val requestCode = 9354
 
-    @SuppressLint("SimpleDateFormat")
-    fun launchAlarmManager() {
+    fun launchAlarmManager(userAlarm: String = "") {
         //deleteAlarmManager()
-        val userAlarm = mPrefs.getAlertTime()
+        if (userAlarm.isEmpty()) mPrefs.getAlertTime()
         val userAlarmParts = userAlarm.split(":")
         val calendarNow = Calendar.getInstance()
         val calendarUser = Calendar.getInstance()
@@ -43,41 +41,15 @@ class NotificationAlarmManager(context: Context) {
             set(Calendar.MILLISECOND, 0)
         }
 
+        // Add 1 day if it only remains 60 seconds to the selected hour
         if ((calendarUser.timeInMillis + 60000) < calendarNow.timeInMillis) {
-            // Add 1 day if it only remains 1 minute to the selected hour
             calendarUser.add(Calendar.DAY_OF_MONTH, 1)
         }
 
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
             calendarUser.timeInMillis,
-            1000 * 60 * 60 * 24,
-            pendingIntent
-        )
-    }
-
-    @SuppressLint("SimpleDateFormat")
-    fun modifyAlarmManager(newTime: String) {
-        //deleteAlarmManager()
-        val userAlarmParts = newTime.split(":")
-        val calendarNow = Calendar.getInstance()
-        val calendarUser = Calendar.getInstance()
-        calendarUser.apply {
-            set(Calendar.HOUR_OF_DAY, userAlarmParts[0].toInt())
-            set(Calendar.MINUTE, userAlarmParts[1].toInt())
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-
-        if ((calendarUser.timeInMillis + 5000) < calendarNow.timeInMillis) {
-            // Add 1 day if it only remains 1 minute to the selected hour
-            calendarUser.add(Calendar.DAY_OF_MONTH, 1)
-        }
-
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendarUser.timeInMillis,
-            1000 * 60 * 60 * 24,
+            AlarmManager.INTERVAL_DAY,
             pendingIntent
         )
     }

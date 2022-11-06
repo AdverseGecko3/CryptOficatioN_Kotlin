@@ -118,7 +118,7 @@ class Preferences(context: Context) {
             .putString(Constants.PREF_ALERT_TIME, alertTime)
             .apply()
         if (getDBHasItems()) {
-            mAlarmManager.modifyAlarmManager(alertTime!!)
+            mAlarmManager.launchAlarmManager(alertTime!!)
         }
     }
 

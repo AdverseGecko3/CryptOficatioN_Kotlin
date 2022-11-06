@@ -6,20 +6,20 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/tvDialogCreditsTitle"
+        android:id="@+id/tvDialogXiaomiCheckTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="10sp"
         android:text="@string/SETTINGS_CREDITS"
         android:textSize="25sp"
-        app:layout_constraintBottom_toTopOf="@+id/tvDialogCreditsContent"
+        app:layout_constraintBottom_toTopOf="@+id/tvDialogXiaomiCheckContent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tvDialogCreditsContent"
+        android:id="@+id/tvDialogXiaomiCheckContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autoLink="web"
@@ -30,7 +30,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDialogCreditsTitle"
+        app:layout_constraintTop_toBottomOf="@+id/tvDialogXiaomiCheckTitle"
         tools:targetApi="o" />
 
 

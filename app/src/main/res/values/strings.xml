@@ -53,6 +53,10 @@
     <string name="NEXT_PAGE">Next page</string>
     <string name="NO_DATA">No data</string>
     <string name="MARKET_NO_COINS_FOUND">No coins found with the query %s</string>
+    <string name="NOTIFICATIONS_BODY_POSITIVE">%s is up by %s (%s) in the last 24 hours, currently at %s</string>
+    <string name="NOTIFICATIONS_SHORT_BODY_POSITIVE">%s is up by %s in the last 24 hours</string>
+    <string name="NOTIFICATIONS_BODY_NEGATIVE">%s is down by %s (%s) in the last 24 hours, currently at %s</string>
+    <string name="NOTIFICATIONS_SHORT_BODY_NEGATIVE">%s is down by %s in the last 24 hours</string>
     <string name="ABOUT_INFO">Hi, my Name is Eric Barrero, and I\'m a student from Barcelona, Spain.\n
         This is my first "big" personal project, were I learnt how to implement some things I did not studied in school.
         It\'s not that big and complex, but for a rookie like me is a good starting point!\n\n
@@ -74,11 +78,12 @@
     <string name="XIAOMI_CHECK_TITLE">Xiaomi Check</string>
     <string name="XIAOMI_CHECK_TEXT">We detected that you have a Xiaomi device (Xiaomi, Mi, Redmi, Poco, etc.) running MIUI.
         \n\nIf you want to receive daily notifications, you should activate \'Autostart\' permission and deactivate MIUI battery optimization.
-        \n\nYou can find more info at the Settings menu.</string>
+        \n\nYou can find more info at the app info on the Settings menu.</string>
+    <string name="XIAOMI_CHECK_BUTTON_TEXT">Go to app info</string>
     <string name="GO_TO_SETTINGS">Go to settings</string>
     <string name="INFO_NOTIFICATIONS">Xiaomi devices (Xiaomi, Mi, Redmi, Poco, etc.) running MIUI or others may have Battery Optimization
         active and/or application \'Autostart\' deactivated, causing troubles when trying to receive notifications.
-        \n\nIn order to solve it, please, deactivate any kind of Battery Optimization and allow CryptOficatioN to autostart.</string>
+        \n\nIn order to solve it, please, deactivate any kind of Battery Optimization and allow CryptOficatioN to autostart at the app info on the Settings menu.</string>
     <!--endregion-->
 
     <!--region STRINGS DOTS-->

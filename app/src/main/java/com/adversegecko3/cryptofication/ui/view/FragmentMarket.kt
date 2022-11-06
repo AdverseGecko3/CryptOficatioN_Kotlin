@@ -1,12 +1,17 @@
 package com.adversegecko3.cryptofication.ui.view
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.SearchView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
@@ -98,6 +103,22 @@ class FragmentMarket :
                 val layInflater = (activity as AppCompatActivity).layoutInflater
 
                 val dialogView = layInflater.inflate(R.layout.dialog_xiaomi_check, null)
+                val btnGoToApp =
+                    dialogView.findViewById<Button>(R.id.btnDialogXiaomiCheckGoToAppInfo)
+                btnGoToApp.setOnClickListener {
+                    try {
+                        //Open the specific App Info page:
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        intent.data = Uri.parse("package:${requireContext().packageName}")
+                        startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        e.printStackTrace()
+
+                        //Open the generic Apps page:
+                        val intent = Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS)
+                        startActivity(intent)
+                    }
+                }
                 builder.setView(dialogView)
                 builder.setNeutralButton(
                     getString(R.string.CLOSE)
@@ -453,7 +474,8 @@ class FragmentMarket :
         }
         rwCryptoAdapter.setOnCryptoListMarketListener(this)
         // Attach ItemTouchHelper (swipe items to favorite)
-        val callbackMarketCryptoList = SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "market")
+        val callbackMarketCryptoList =
+            SimpleItemTouchHelperCallback(rwCryptoAdapter, this, "market")
         mItemTouchHelper = ItemTouchHelper(callbackMarketCryptoList)
         mItemTouchHelper.attachToRecyclerView(binding.rwMarketCryptoList)
 
@@ -464,7 +486,8 @@ class FragmentMarket :
         }
         rwCryptoSearchAdapter.setOnCryptoSearchListMarketListener(this)
         // Attach ItemTouchHelper (swipe items to favorite)
-        val callbackMarketSearchCryptoList = SimpleItemTouchHelperCallback(rwCryptoSearchAdapter, this, "market")
+        val callbackMarketSearchCryptoList =
+            SimpleItemTouchHelperCallback(rwCryptoSearchAdapter, this, "market")
         mItemTouchHelper = ItemTouchHelper(callbackMarketSearchCryptoList)
         mItemTouchHelper.attachToRecyclerView(binding.rwMarketSearchCryptoList)
     }

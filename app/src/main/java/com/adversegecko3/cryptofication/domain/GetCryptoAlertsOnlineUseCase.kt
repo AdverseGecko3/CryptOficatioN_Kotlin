@@ -16,7 +16,7 @@ class GetCryptoAlertsOnlineUseCase @Inject constructor(
     private val mRoom: CryptoAlertRepository
 ) {
     suspend operator fun invoke(): List<Crypto> {
-        var response = repository.getAllCryptoAlerts()
+        val response = repository.getAllCryptoAlerts()
         Log.d("CryptoServiceA", "Response: $response")
         if (response.isNotEmpty()) {
             // Save Bitcoin crypto
@@ -26,34 +26,41 @@ class GetCryptoAlertsOnlineUseCase @Inject constructor(
                 }
             }
 
-            // Check if alerts has bitcoin
-            val cryptoListAlerts: List<CryptoAlert> =
-                withContext(Dispatchers.IO) { mRoom.getAllAlerts() }
-            var alertsHasBitcoin = false
-            run loop@{
-                cryptoListAlerts.forEach {
-                    if (it.symbol.uppercase() == "BTC") {
-                        alertsHasBitcoin = true
-                        return@loop
-                    }
-                }
-            }
-            if (alertsHasBitcoin) {
-                cryptoProvider.cryptosAlerts = response
+            val alertsHasBitcoin = checkIfAlertsHasBitcoin()
+            cryptoProvider.cryptosAlerts = if (alertsHasBitcoin) {
+                response
             } else {
-                val responseM = response.toMutableList()
-                run loop@{
-                    response.forEach {
-                        if (it.symbol.uppercase() == "BTC") {
-                            responseM.remove(it)
-                            response = responseM.toList()
-                            return@loop
-                        }
-                    }
-                }
-                cryptoProvider.cryptosAlerts = response
+                removeBitcoinFromResponse(response)
             }
         }
         return response
+    }
+
+    suspend fun checkIfAlertsHasBitcoin(): Boolean {
+        val cryptoListAlerts: List<CryptoAlert> =
+            withContext(Dispatchers.IO) { mRoom.getAllAlerts() }
+        var alertsHasBitcoin = false
+        run loop@{
+            cryptoListAlerts.forEach {
+                if (it.symbol.uppercase() == "BTC") {
+                    alertsHasBitcoin = true
+                    return@loop
+                }
+            }
+        }
+        return alertsHasBitcoin
+    }
+
+    private fun removeBitcoinFromResponse(response: List<Crypto>): List<Crypto> {
+        val responseM = response.toMutableList()
+        run loop@{
+            response.forEach {
+                if (it.symbol.uppercase() == "BTC") {
+                    responseM.remove(it)
+                    return@loop
+                }
+            }
+        }
+        return responseM.toList()
     }
 }

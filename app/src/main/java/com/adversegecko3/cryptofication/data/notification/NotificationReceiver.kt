@@ -40,7 +40,9 @@ class NotificationReceiver : BroadcastReceiver() {
 
     private fun showNotification(cryptoList: List<Crypto>, context: Context?) {
         val listNotifications = arrayListOf<Notification>()
-        val i = Intent(context, MainActivity::class.java)
+        val i = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         for ((index, crypto: Crypto) in cryptoList.withIndex()) {
             val cryptoSymbol = crypto.symbol.uppercase()
             val cryptoPrice = crypto.current_price.customFormattedPrice(mPrefs.getCurrencySymbol())
@@ -50,38 +52,52 @@ class NotificationReceiver : BroadcastReceiver() {
                 crypto.price_change_percentage_24h.customFormattedPercentage()
             var title: String
             var body: String
+            var shortBody: String
             if (crypto.price_change_percentage_24h >= 0) {
                 title = "\uD83D\uDCC8 $cryptoSymbol \uD83D\uDCC8"
-                body =
-                    "${crypto.name} is up by $cryptoPercentageChange ($cryptoPriceChange), currently at $cryptoPrice"
+                body = context!!.getString(
+                    R.string.NOTIFICATIONS_BODY_POSITIVE,
+                    crypto.name,
+                    cryptoPercentageChange,
+                    cryptoPriceChange,
+                    cryptoPrice
+                )
+                shortBody = context.getString(
+                    R.string.NOTIFICATIONS_SHORT_BODY_POSITIVE,
+                    crypto.name,
+                    cryptoPercentageChange
+                )
             } else {
                 title = "\uD83D\uDCC9 $cryptoSymbol \uD83D\uDCC9"
-                body =
-                    "${crypto.name} is down by $cryptoPercentageChange ($cryptoPriceChange), currently at $cryptoPrice"
+                body = context!!.getString(
+                    R.string.NOTIFICATIONS_BODY_NEGATIVE,
+                    crypto.name,
+                    cryptoPercentageChange,
+                    cryptoPriceChange,
+                    cryptoPrice
+                )
+                shortBody = context.getString(
+                    R.string.NOTIFICATIONS_SHORT_BODY_NEGATIVE,
+                    crypto.name,
+                    cryptoPercentageChange
+                )
             }
 
             i.putExtra("lastActivity", "alerts${crypto.id}")
-            val pi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val pi =
                 PendingIntent.getActivity(
                     context,
                     index + 1,
                     i,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0
                 )
-            } else {
-                @Suppress("UnspecifiedImmutableFlag") PendingIntent.getActivity(
-                    context,
-                    index + 1,
-                    i,
-                    PendingIntent.FLAG_UPDATE_CURRENT
-                )
-            }
 
-            val notification = NotificationCompat.Builder(context!!, CHANNEL_ID).apply {
+
+            val notification = NotificationCompat.Builder(context, CHANNEL_ID).apply {
                 setSmallIcon(R.drawable.cryptofication_logo_short_white)
                 setContentTitle(title)
                 setStyle(NotificationCompat.BigTextStyle().bigText(body))
-                setContentText(body)
+                setContentText(shortBody)
                 priority = NotificationCompat.PRIORITY_DEFAULT
                 setAutoCancel(true)
                 setGroup(groupKey)

@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
+import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
@@ -111,6 +113,22 @@ class FragmentSettings : PreferenceFragmentCompat() {
                 val inflater = requireActivity().layoutInflater
                 val dialogView = inflater.inflate(R.layout.dialog_info_notifications, null)
                 builder.setView(dialogView)
+                val btnGoToApp =
+                    dialogView.findViewById<Button>(R.id.btnDialogInfoNotificationsGoToAppInfo)
+                btnGoToApp.setOnClickListener {
+                    try {
+                        //Open the specific App Info page:
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        intent.data = Uri.parse("package:${requireContext().packageName}")
+                        startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        e.printStackTrace()
+
+                        //Open the generic Apps page:
+                        val intent = Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS)
+                        startActivity(intent)
+                    }
+                }
                 builder.setNeutralButton(getString(R.string.CLOSE)) { dialogInterface, _ ->
                     dialogInterface.dismiss()
                 }.create()
