@@ -13,24 +13,18 @@ import java.util.*
 class NotificationAlarmManager(context: Context) {
     private val alarmManager: AlarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
     private val pendingIntent: PendingIntent = run {
-        val i = Intent(mAppContext, NotificationReceiver::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.getBroadcast(mAppContext, requestCode, i, PendingIntent.FLAG_IMMUTABLE)
-        } else {
-            @Suppress("UnspecifiedImmutableFlag")
-            PendingIntent.getBroadcast(
-                mAppContext,
-                requestCode,
-                i,
-                PendingIntent.FLAG_UPDATE_CURRENT
-            )
-        }
+        PendingIntent.getBroadcast(
+            mAppContext,
+            requestCode,
+            Intent(mAppContext, NotificationReceiver::class.java),
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
     private val requestCode = 9354
 
-    fun launchAlarmManager(userAlarm: String = "") {
+    fun launchAlarmManager(newTime: String = "") {
         //deleteAlarmManager()
-        if (userAlarm.isEmpty()) mPrefs.getAlertTime()
+        val userAlarm = newTime.ifBlank { mPrefs.getAlertTime() }
         val userAlarmParts = userAlarm.split(":")
         val calendarNow = Calendar.getInstance()
         val calendarUser = Calendar.getInstance()
@@ -46,7 +40,7 @@ class NotificationAlarmManager(context: Context) {
             calendarUser.add(Calendar.DAY_OF_MONTH, 1)
         }
 
-        alarmManager.setRepeating(
+        alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
             calendarUser.timeInMillis,
             AlarmManager.INTERVAL_DAY,

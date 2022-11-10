@@ -35,6 +35,9 @@ import com.google.android.gms.ads.AdView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -238,12 +241,14 @@ class FragmentAlerts :
             queryHint = "Filter alerts coins"
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
+                    clearFocus()
                     return false
                 }
 
                 override fun onQueryTextChange(query: String): Boolean {
                     // Apply the query as the user makes some change on the filter (writes something)
                     rwCryptoAdapter.filter.filter(query)
+                    alertsViewModel.query = query
                     return false
                 }
             })
@@ -251,7 +256,7 @@ class FragmentAlerts :
         itemSearch!!.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 // Open the search
-                if (viewSearch.query.isEmpty()) {
+                if (viewSearch.query.isBlank()) {
                     viewSearch.onActionViewExpanded()
                     alertsViewModel.isSearchOpen = true
                 } else {
@@ -532,6 +537,18 @@ class FragmentAlerts :
         for (item in alertsViewModel.cryptoList) {
             if (item is AdView) {
                 item.resume()
+            }
+        }
+        if (alertsViewModel.isSearchOpen) {
+            val query = alertsViewModel.query
+            CoroutineScope(Dispatchers.Main).launch {
+                itemSearch!!.apply {
+                    expandActionView()
+                    (actionView as SearchView).apply {
+                        setQuery(query, false)
+                        clearFocus()
+                    }
+                }
             }
         }
         super.onResume()

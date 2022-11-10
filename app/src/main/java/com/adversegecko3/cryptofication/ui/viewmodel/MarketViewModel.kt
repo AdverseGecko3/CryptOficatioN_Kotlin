@@ -46,8 +46,8 @@ class MarketViewModel @Inject constructor(
     var hasAlreadyData = false
     private var page = 1
     var isSearchOpen = false
-    var comingFromDetail = false
     var loadType = 1
+    var query = ""
 
     var cryptoList: ArrayList<Any> = arrayListOf()
     var cryptoListSearch: List<Any> = arrayListOf()
@@ -133,7 +133,7 @@ class MarketViewModel @Inject constructor(
         }
     }
 
-    fun onSearchQueryChange(query: String) {
+    fun onSearchQuerySubmit(query: String) {
         viewModelScope.launch {
             // Start refreshing
             isLoading.postValue(true)

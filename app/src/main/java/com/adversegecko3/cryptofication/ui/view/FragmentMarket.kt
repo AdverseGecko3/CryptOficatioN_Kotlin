@@ -44,6 +44,9 @@ import com.adversegecko3.cryptofication.utilities.*
 import com.google.android.gms.ads.AdView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -193,7 +196,6 @@ class FragmentMarket :
                     try {
                         findNavController()
                             .navigate(R.id.action_fragmentMarket_to_dialogCryptoDetail, bundle)
-                        marketViewModel.comingFromDetail = true
                     } catch (e: IllegalArgumentException) {
                         e.printStackTrace()
                         e.message?.let { message -> Log.e("onCryptoClicked", message) }
@@ -337,24 +339,16 @@ class FragmentMarket :
             queryHint = "Search coins"
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
+                    // Apply the query when the user submits a text on the filter
+                    viewSearch.clearFocus()
+                    if (query.isNotBlank()) {
+                        marketViewModel.onSearchQuerySubmit(query)
+                    }
                     return false
                 }
 
                 override fun onQueryTextChange(query: String): Boolean {
-                    // Apply the query as the user makes some change on the filter (writes something)
-
-                    if (marketViewModel.comingFromDetail) {
-                        marketViewModel.comingFromDetail = false
-                        return false
-                    }
-
-                    if (query.isNotEmpty()) {
-                        marketViewModel.onSearchQueryChange(query)
-                    } else {
-                        marketViewModel.cryptoListSearch = listOf()
-                        rwCryptoSearchAdapter.setCryptos(marketViewModel.cryptoListSearch.map { it as CryptoSearch })
-
-                    }
+                    marketViewModel.query = query
                     return false
                 }
             })
@@ -362,7 +356,7 @@ class FragmentMarket :
         itemSearch!!.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 // Open the search
-                if (viewSearch.query.isEmpty()) {
+                if (viewSearch.query.isBlank()) {
                     viewSearch.onActionViewExpanded()
                     marketViewModel.isSearchOpen = true
                     binding.apply {
@@ -378,16 +372,18 @@ class FragmentMarket :
 
             override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
                 // Close the search, empty the field and clear the focus
-                binding.apply {
-                    rlMarketScreen.visibility = View.VISIBLE
-                    rwMarketSearchCryptoList.visibility = View.GONE
-                    srlMarketReload.isEnabled = true
-                }
+                marketViewModel.cryptoListSearch = listOf()
+                rwCryptoSearchAdapter.setCryptos(marketViewModel.cryptoListSearch.map { it as CryptoSearch })
                 marketViewModel.isSearchOpen = false
                 viewSearch.apply {
                     onActionViewCollapsed()
                     setQuery("", false)
                     clearFocus()
+                }
+                binding.apply {
+                    rlMarketScreen.visibility = View.VISIBLE
+                    rwMarketSearchCryptoList.visibility = View.GONE
+                    srlMarketReload.isEnabled = true
                 }
                 return true // True as we want to be able to close it
             }
@@ -633,6 +629,18 @@ class FragmentMarket :
         for (item in marketViewModel.cryptoList) {
             if (item is AdView) {
                 item.resume()
+            }
+        }
+        if (marketViewModel.isSearchOpen) {
+            val query = marketViewModel.query
+            CoroutineScope(Dispatchers.Main).launch {
+                itemSearch!!.apply {
+                    expandActionView()
+                    (actionView as SearchView).apply {
+                        setQuery(query, false)
+                        clearFocus()
+                    }
+                }
             }
         }
         super.onResume()

@@ -89,9 +89,8 @@ class NotificationReceiver : BroadcastReceiver() {
                     context,
                     index + 1,
                     i,
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
                 )
-
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID).apply {
                 setSmallIcon(R.drawable.cryptofication_logo_short_white)
