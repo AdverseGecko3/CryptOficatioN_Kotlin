@@ -189,7 +189,7 @@ class FragmentMarket :
             initViewFlipper(cryptoList.map { it as Crypto })
         }
 
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 marketViewModel.cryptoSearchData.collect { cryptoSearchData ->
                     val bundle = bundleOf("selectedCrypto" to cryptoSearchData)
@@ -204,7 +204,7 @@ class FragmentMarket :
             }
         }
 
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 marketViewModel.cryptoSearchQuery.collect { cryptoSearchQuery ->
                     // Set the cryptoSearchList from API to the adapter
@@ -227,7 +227,7 @@ class FragmentMarket :
             }
         }
 
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 marketViewModel.error.collect { errorMessage ->
                     // Show toast when result is empty/null on ViewModel

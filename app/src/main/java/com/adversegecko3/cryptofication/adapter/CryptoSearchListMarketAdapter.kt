@@ -168,7 +168,7 @@ class CryptoSearchListMarketAdapter @Inject constructor(private val mRoom: Crypt
         fun bind(crypto: CryptoSearch) {
             bindingCrypto.apply {
                 Glide.with(itemView).load(crypto.thumb).diskCacheStrategy(
-                    DiskCacheStrategy.AUTOMATIC
+                    DiskCacheStrategy.NONE
                 ).placeholder(circularProgressDrawable).override(0, 35)
                     .into(ivAdapterCryptoSearchIcon)
                 tvAdapterCryptoSearchSymbol.text = crypto.symbol.uppercase()

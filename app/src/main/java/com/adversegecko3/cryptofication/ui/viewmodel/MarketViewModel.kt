@@ -301,8 +301,7 @@ class MarketViewModel @Inject constructor(
                     "FragmentMarket",
                     "The previous banner ad failed to load with error: "
                             + error
-                            + ". Attempting to"
-                            + " load the next banner ad in the items list."
+                            + ". Attempting to load the next banner ad in the items list."
                 )
                 loadBannerAd(index + Constants.ITEMS_PER_AD)
             }

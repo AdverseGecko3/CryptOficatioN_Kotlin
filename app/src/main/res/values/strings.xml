@@ -72,6 +72,7 @@
     <string name="CONTENT_ALERT_SETTINGS">Settings icon</string>
     <string name="CONTENT_BOTTOM_SHEET_SCROLL_ICON">Bottom Sheet scroll icon</string>
     <string name="CONTENT_CRYPTO_DETAIL_FAV_ICON">Crypto Detail favorite icon</string>
+    <string name="FAV_ICON">Crypto Detail favorite icon</string>
     <string name="RECYCLERVIEW_EMPTY">No crypto has been added as favorites!\nHead over to the Markets tab and swipe a crypto to add it here</string>
     <string name="VIEWFLIPPER_EMPTY">No data loaded. Please, check your internet connection and pull down to refresh</string>
     <string name="LOADING_DATA">Loading data…</string>

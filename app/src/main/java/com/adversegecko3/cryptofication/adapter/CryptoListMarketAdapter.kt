@@ -238,7 +238,7 @@ class CryptoListMarketAdapter @Inject constructor(private val mRoom: CryptoAlert
         fun bind(crypto: Crypto) {
             bindingCrypto.apply {
                 Glide.with(itemView).load(crypto.image).diskCacheStrategy(
-                    DiskCacheStrategy.AUTOMATIC
+                    DiskCacheStrategy.NONE
                 ).placeholder(circularProgressDrawable).override(0, 35)
                     .into(ivAdapterCryptoIcon)
                 tvAdapterCryptoSymbol.text = crypto.symbol.uppercase()

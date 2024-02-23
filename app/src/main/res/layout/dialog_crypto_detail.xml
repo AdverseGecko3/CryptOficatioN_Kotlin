@@ -39,8 +39,7 @@
             android:layout_marginStart="10dp"
             android:text="@string/HOLDER_CRYPTO_NAME"
             android:textColor="@color/text"
-            android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/tvFragmentCryptoDetailRank"
@@ -49,8 +48,14 @@
             android:layout_marginStart="10dp"
             android:text="@string/HOLDER_CRYPTO_NAME"
             android:textColor="@color/gray"
-            android:textSize="14sp"
-            app:layout_constraintStart_toEndOf="@+id/tvFragmentCryptoDetailSymbol" />
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:contentDescription="@string/FAV_ICON"
+            android:src="@color/yellow_favorite" />
     </LinearLayout>
 
     <LinearLayout

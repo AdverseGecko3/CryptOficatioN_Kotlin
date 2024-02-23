@@ -39,15 +39,15 @@ abstract class CryptoAlertDB : RoomDatabase() {
         }
 
         private val migration_7_8: Migration = object : Migration(7, 8) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE alert_crypto ADD COLUMN quantity REAL NOT NULL DEFAULT 0")
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE alert_crypto ADD COLUMN quantity REAL NOT NULL DEFAULT 0")
             }
         }
 
         private val migration_8_9: Migration = object : Migration(8, 9) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE alert_crypto ADD COLUMN symbol TEXT NOT NULL DEFAULT 'crypto'")
-                database.execSQL("ALTER TABLE alert_crypto ADD COLUMN current_price REAL NOT NULL DEFAULT 0")
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE alert_crypto ADD COLUMN symbol TEXT NOT NULL DEFAULT 'crypto'")
+                db.execSQL("ALTER TABLE alert_crypto ADD COLUMN current_price REAL NOT NULL DEFAULT 0")
             }
         }
     }
